@@ -7,6 +7,7 @@ import {
 } from "@/app/admin/publicacoes/actions";
 import { AdminPublicAssetUploader } from "@/components/AdminPublicAssetUploader";
 import { AdminPublicContentForm } from "@/components/AdminPublicContentForm";
+import { ConfirmSubmitButton } from "@/components/ConfirmSubmitButton";
 import { requireAdmin } from "@/lib/admin";
 import type { PublicContentRow, PublicContentType } from "@/types/public-content";
 
@@ -97,9 +98,9 @@ export default async function AdminPublicationsPage() {
                 <form action={deletePublicContentAction}>
                   <input type="hidden" name="contentId" value={item.id} />
                   <input type="hidden" name="contentType" value={item.content_type} />
-                  <button className="button button--danger" type="submit">
+                  <ConfirmSubmitButton className="button button--danger" message="Excluir definitivamente esta publicação e a imagem associada?">
                     <Trash2 size={16} /> Excluir
-                  </button>
+                  </ConfirmSubmitButton>
                 </form>
               </div>
             </article>

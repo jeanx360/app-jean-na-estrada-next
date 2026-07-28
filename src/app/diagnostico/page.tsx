@@ -21,6 +21,7 @@ export default async function DiagnosticoPage() {
     process.env.VAPID_SUBJECT,
   );
   const cronReady = Boolean(process.env.CRON_SECRET);
+  const publicUrlReady = Boolean(process.env.NEXT_PUBLIC_APP_URL);
   const { userId, profile } = await getAuthContext();
 
   const checks = [
@@ -29,6 +30,7 @@ export default async function DiagnosticoPage() {
     { icon: ShieldCheck, title: "Chave administrativa", value: serviceRoleReady ? "Configurada no servidor" : "Ausente", ok: serviceRoleReady },
     { icon: BellRing, title: "Web Push", value: pushReady ? "Chaves VAPID configuradas" : "Pendente", ok: pushReady },
     { icon: Clock3, title: "Automação diária", value: cronReady ? "CRON_SECRET configurado" : "Pendente", ok: cronReady },
+    { icon: Server, title: "URL pública", value: publicUrlReady ? "Configurada para SEO" : "Usando endereço provisório", ok: publicUrlReady },
     { icon: ShieldCheck, title: "Sessão de usuário", value: userId ? `Autenticado como ${profile?.role ?? "member"}` : "Visitante", ok: true },
   ];
 
@@ -38,7 +40,7 @@ export default async function DiagnosticoPage() {
         icon={<CheckCircle2 size={24} />}
         eyebrow="BACKEND"
         title="Diagnóstico"
-        description="Verificação rápida da estrutura Node, autenticação, Supabase, notificações e automações."
+        description="Verificação rápida da estrutura Node, autenticação, Supabase, notificações, SEO e automações."
       />
       <section className="diagnostic-grid">
         {checks.map((check) => {

@@ -3,7 +3,9 @@ export type MemberRole = "member" | "vip" | "admin";
 export type MemberProfile = {
   id: string;
   full_name: string | null;
+  bio: string | null;
   avatar_url: string | null;
+  avatar_path: string | null;
   role: MemberRole;
   is_blocked: boolean;
   blocked_at: string | null;

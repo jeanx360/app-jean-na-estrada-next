@@ -15,7 +15,7 @@ export async function getAuthContext() {
   const { data } = await supabase
     .from("profiles")
     .select(
-      "id, full_name, avatar_url, role, is_blocked, blocked_at, blocked_reason, created_at, updated_at",
+      "id, full_name, bio, avatar_url, avatar_path, role, is_blocked, blocked_at, blocked_reason, created_at, updated_at",
     )
     .eq("id", userId)
     .maybeSingle();

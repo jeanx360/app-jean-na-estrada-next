@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { KeyRound, ShieldX } from "lucide-react";
 import { revokeInviteAction } from "@/app/admin/actions";
 import { AdminInviteForm } from "@/components/AdminInviteForm";
+import { ConfirmSubmitButton } from "@/components/ConfirmSubmitButton";
 import { requireAdmin } from "@/lib/admin";
 
 export const metadata: Metadata = { title: "Convites VIP" };
@@ -56,7 +57,7 @@ export default async function AdminInvitesPage() {
                 {invite.is_active ? (
                   <form action={revokeInviteAction}>
                     <input type="hidden" name="inviteId" value={invite.id} />
-                    <button className="button button--danger" type="submit"><ShieldX size={16} /> Revogar</button>
+                    <ConfirmSubmitButton className="button button--danger" message="Revogar este convite? Ele não poderá mais ser utilizado."><ShieldX size={16} /> Revogar</ConfirmSubmitButton>
                   </form>
                 ) : null}
               </article>

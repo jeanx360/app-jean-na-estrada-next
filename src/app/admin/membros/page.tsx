@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Ban, CheckCircle2, Save, UsersRound } from "lucide-react";
 import { setMemberBlockedAction, updateMemberRoleAction } from "@/app/admin/actions";
+import { ConfirmSubmitButton } from "@/components/ConfirmSubmitButton";
 import { requireAdmin } from "@/lib/admin";
 import type { MemberRole } from "@/types/auth";
 
@@ -79,14 +80,14 @@ export default async function AdminMembersPage() {
                   {!member.is_blocked ? (
                     <input name="reason" placeholder="Motivo opcional do bloqueio" disabled={isSelf} />
                   ) : null}
-                  <button
+                  <ConfirmSubmitButton
                     className={`button ${member.is_blocked ? "button--primary" : "button--danger"}`}
-                    type="submit"
                     disabled={isSelf}
+                    message={member.is_blocked ? "Reativar esta conta?" : "Bloquear esta conta e impedir novos acessos?"}
                   >
                     {member.is_blocked ? <CheckCircle2 size={16} /> : <Ban size={16} />}
                     {member.is_blocked ? "Reativar conta" : "Bloquear conta"}
-                  </button>
+                  </ConfirmSubmitButton>
                 </form>
               </div>
 

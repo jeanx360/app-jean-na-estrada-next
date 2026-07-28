@@ -23,12 +23,22 @@ export async function redeemInviteAction(
   const { data, error } = await supabase.rpc("redeem_vip_invite", { invite_code: code });
   if (error) return { error: error.message };
 
+  const messages: Record<string, string> = {
+    already_vip: "Sua conta já possui acesso VIP.",
+    invalid: "Convite inválido ou não encontrado.",
+    inactive: "Este convite foi desativado.",
+    expired: "Este convite expirou.",
+    limit_reached: "Este convite atingiu o limite de usos.",
+    already_used: "Este convite já foi utilizado pela sua conta.",
+    blocked: "Esta conta está bloqueada.",
+    rate_limited: "Muitas tentativas. Aguarde 15 minutos antes de tentar novamente.",
+  };
+
+  if (data !== "success" && data !== "already_vip") {
+    return { error: messages[String(data)] ?? "Não foi possível ativar o convite." };
+  }
+
   revalidatePath("/membros");
   revalidatePath("/vip");
-  return {
-    success:
-      data === "already_vip"
-        ? "Sua conta já possui acesso VIP."
-        : "Convite ativado. Sua conta agora possui acesso VIP.",
-  };
+  return { success: data === "already_vip" ? messages.already_vip : "Convite ativado. Sua conta agora possui acesso VIP." };
 }

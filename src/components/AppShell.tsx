@@ -113,10 +113,21 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <p>Vídeos, tutoriais, aplicativos, parceiros e área VIP em um só lugar.</p>
         </div>
 
-        <p className="sidebar__version" suppressHydrationWarning>Versão de desenvolvimento 0.9.0</p>
+        <p className="sidebar__version" suppressHydrationWarning>Versão 1.0.0</p>
       </aside>
 
-      <main className="app-main">{children}</main>
+      <main className="app-main">
+        {children}
+        <footer className="global-footer">
+          <span>© 2026 Jean na Estrada</span>
+          <nav aria-label="Documentos e informações">
+            <Link href="/sobre">Sobre</Link>
+            <Link href="/termos">Termos</Link>
+            <Link href="/privacidade">Privacidade</Link>
+            <Link href="/seguranca-apks">Segurança de APKs</Link>
+          </nav>
+        </footer>
+      </main>
 
       <nav className="bottom-navigation" aria-label="Navegação mobile">
         {mobileItems.map((item) => {

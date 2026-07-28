@@ -5,6 +5,7 @@ import {
   toggleAnnouncementAction,
 } from "@/app/admin/actions";
 import { AdminAnnouncementForm } from "@/components/AdminAnnouncementForm";
+import { ConfirmSubmitButton } from "@/components/ConfirmSubmitButton";
 import { requireAdmin } from "@/lib/admin";
 
 export const metadata: Metadata = { title: "Recados" };
@@ -74,7 +75,7 @@ export default async function AdminAnnouncementsPage() {
                 </form>
                 <form action={deleteAnnouncementAction}>
                   <input type="hidden" name="announcementId" value={item.id} />
-                  <button className="button button--danger" type="submit"><Trash2 size={16} /> Excluir</button>
+                  <ConfirmSubmitButton className="button button--danger" message="Excluir definitivamente este recado?"><Trash2 size={16} /> Excluir</ConfirmSubmitButton>
                 </form>
               </div>
             </article>

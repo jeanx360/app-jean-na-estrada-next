@@ -153,7 +153,7 @@ export default async function Home() {
           <span className="eyebrow">PLATAFORMA PRÓPRIA</span>
           <h2>Mais que um aplicativo: um ponto de encontro da comunidade.</h2>
           <p>
-            O novo JNE App será a casa oficial dos conteúdos, arquivos, parceiros e futuros benefícios exclusivos.
+            O JNE App é a casa oficial dos conteúdos, arquivos, parceiros e futuros benefícios exclusivos.
           </p>
         </div>
         <Link href="/membros" className="button button--primary">
@@ -177,10 +177,6 @@ export default async function Home() {
         })}
       </section>
 
-      <footer className="site-footer">
-        <p>JNE App — Jean na Estrada</p>
-        <span>Versão de desenvolvimento 0.9.0</span>
-      </footer>
     </div>
   );
 }

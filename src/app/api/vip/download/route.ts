@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+import { headers } from "next/headers";
 import { getAuthContext } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
@@ -14,12 +16,8 @@ function jsonError(message: string, status: number) {
 
 export async function GET(request: Request) {
   const { userId, profile, supabase } = await getAuthContext();
-  const allowed =
-    Boolean(userId) &&
-    !profile?.is_blocked &&
-    (profile?.role === "vip" || profile?.role === "admin");
-
-  if (!allowed) return jsonError("Acesso VIP necessário.", 403);
+  const allowed = Boolean(userId) && !profile?.is_blocked && (profile?.role === "vip" || profile?.role === "admin");
+  if (!allowed || !userId) return jsonError("Acesso VIP necessário.", 403);
 
   const url = new URL(request.url);
   const contentId = url.searchParams.get("id");
@@ -31,22 +29,19 @@ export async function GET(request: Request) {
     .eq("id", contentId)
     .eq("is_published", true)
     .maybeSingle();
-
   if (error || !item?.file_path) return jsonError("Arquivo não encontrado.", 404);
 
-  const { data, error: signedError } = await supabase.storage
-    .from("vip-files")
-    .createSignedUrl(item.file_path, 60);
+  const { data, error: signedError } = await supabase.storage.from("vip-files").createSignedUrl(item.file_path, 60);
+  if (signedError || !data?.signedUrl) return jsonError("Não foi possível liberar o arquivo.", 500);
 
-  if (signedError || !data?.signedUrl) {
-    return jsonError("Não foi possível liberar o arquivo.", 500);
-  }
-
-  return new Response(null, {
-    status: 302,
-    headers: {
-      ...NO_STORE_HEADERS,
-      Location: data.signedUrl,
-    },
+  const requestHeaders = await headers();
+  const userAgent = requestHeaders.get("user-agent") ?? "unknown";
+  const userAgentHash = createHash("sha256").update(userAgent).digest("hex");
+  await supabase.from("vip_downloads").insert({
+    user_id: userId,
+    content_id: contentId,
+    user_agent_hash: userAgentHash,
   });
+
+  return new Response(null, { status: 302, headers: { ...NO_STORE_HEADERS, Location: data.signedUrl } });
 }

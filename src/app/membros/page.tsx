@@ -6,6 +6,7 @@ import { logoutAction } from "@/app/auth/actions";
 import { PageHeader } from "@/components/PageHeader";
 import { RedeemInviteForm } from "@/components/RedeemInviteForm";
 import { getAuthContext } from "@/lib/auth";
+import { getLegalAcceptanceStatus } from "@/lib/legal";
 
 export const metadata: Metadata = {
   title: "Área de membros",
@@ -32,6 +33,9 @@ export default async function MembersPage() {
   if (!userId) {
     redirect("/entrar?next=/membros");
   }
+
+  const legal = await getLegalAcceptanceStatus(supabase, userId);
+  if (!legal.complete) redirect("/aceite?next=/membros");
 
   const role = profile?.role ?? "member";
   const displayName = profile?.full_name || email?.split("@")[0] || "Membro";
@@ -112,7 +116,7 @@ export default async function MembersPage() {
             <h2>Conta protegida</h2>
             <p>Sua sessão é mantida por cookies seguros e validada pelo servidor.</p>
           </div>
-          <Link className="button button--secondary" href="/atualizar-senha">Alterar senha</Link>
+          <div className="member-button-row"><Link className="button button--secondary" href="/perfil">Editar perfil</Link><Link className="button button--secondary" href="/atualizar-senha">Alterar senha</Link></div>
         </article>
 
         {role === "admin" ? (

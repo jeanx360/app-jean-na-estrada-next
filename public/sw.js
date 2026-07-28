@@ -1,4 +1,4 @@
-const CACHE_VERSION = "jne-app-v0.9.0";
+const CACHE_VERSION = "jne-app-v1.0.0";
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const DATA_CACHE = `${CACHE_VERSION}-data`;
 
@@ -12,6 +12,8 @@ const PRECACHE = [
 
 const PRIVATE_PREFIXES = [
   "/membros",
+  "/perfil",
+  "/aceite",
   "/vip",
   "/admin",
   "/entrar",

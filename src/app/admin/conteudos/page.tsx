@@ -6,6 +6,7 @@ import {
 } from "@/app/admin/actions";
 import { AdminFileUploader } from "@/components/AdminFileUploader";
 import { AdminVipContentForm } from "@/components/AdminVipContentForm";
+import { ConfirmSubmitButton } from "@/components/ConfirmSubmitButton";
 import { requireAdmin } from "@/lib/admin";
 
 export const metadata: Metadata = { title: "Conteúdo VIP" };
@@ -83,7 +84,7 @@ export default async function AdminContentPage() {
                 </form>
                 <form action={deleteVipContentAction}>
                   <input type="hidden" name="contentId" value={item.id} />
-                  <button className="button button--danger" type="submit"><Trash2 size={16} /> Excluir</button>
+                  <ConfirmSubmitButton className="button button--danger" message="Excluir definitivamente este conteúdo VIP e o arquivo associado?"><Trash2 size={16} /> Excluir</ConfirmSubmitButton>
                 </form>
               </div>
             </article>

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BellRing, Crown, FileText, KeyRound, LayoutDashboard, Megaphone, UsersRound } from "lucide-react";
+import { BellRing, Crown, FileText, KeyRound, LayoutDashboard, Megaphone, ScrollText, UsersRound } from "lucide-react";
 
 const items = [
   { href: "/admin", label: "Visão geral", icon: LayoutDashboard },
@@ -9,20 +9,9 @@ const items = [
   { href: "/admin/notificacoes", label: "Notificações", icon: BellRing },
   { href: "/admin/publicacoes", label: "Conteúdo público", icon: FileText },
   { href: "/admin/conteudos", label: "Conteúdo VIP", icon: Crown },
+  { href: "/admin/logs", label: "Logs", icon: ScrollText },
 ];
 
 export function AdminNav() {
-  return (
-    <nav className="admin-nav" aria-label="Navegação administrativa">
-      {items.map((item) => {
-        const Icon = item.icon;
-        return (
-          <Link href={item.href} key={item.href}>
-            <Icon size={18} />
-            <span>{item.label}</span>
-          </Link>
-        );
-      })}
-    </nav>
-  );
+  return <nav className="admin-nav" aria-label="Navegação administrativa">{items.map((item) => { const Icon = item.icon; return <Link href={item.href} key={item.href}><Icon size={18} /><span>{item.label}</span></Link>; })}</nav>;
 }

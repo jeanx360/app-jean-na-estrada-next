@@ -3,6 +3,7 @@ import { Crown, Download, ExternalLink, FileText, LockKeyhole, ShieldAlert, Star
 import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/PageHeader";
 import { getAuthContext } from "@/lib/auth";
+import { getLegalAcceptanceStatus } from "@/lib/legal";
 
 export const metadata: Metadata = {
   title: "Área VIP",
@@ -28,6 +29,9 @@ export default async function VipPage() {
   if (!userId) {
     redirect("/entrar?next=/vip");
   }
+
+  const legal = await getLegalAcceptanceStatus(supabase, userId);
+  if (!legal.complete) redirect("/aceite?next=/vip");
 
   const hasVipAccess =
     !profile?.is_blocked && (profile?.role === "vip" || profile?.role === "admin");

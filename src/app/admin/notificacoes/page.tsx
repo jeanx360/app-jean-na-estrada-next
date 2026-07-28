@@ -6,6 +6,7 @@ import {
   toggleNotificationAction,
 } from "@/app/admin/notificacoes/actions";
 import { AdminNotificationForm } from "@/components/AdminNotificationForm";
+import { ConfirmSubmitButton } from "@/components/ConfirmSubmitButton";
 import { requireAdmin } from "@/lib/admin";
 import type { NotificationRow } from "@/types/notification";
 
@@ -99,7 +100,7 @@ export default async function AdminNotificationsPage() {
                 ) : null}
                 <form action={deleteNotificationAction}>
                   <input type="hidden" name="notificationId" value={item.id} />
-                  <button className="button button--danger" type="submit"><Trash2 size={16} /> Excluir</button>
+                  <ConfirmSubmitButton className="button button--danger" message="Excluir definitivamente esta notificação?"><Trash2 size={16} /> Excluir</ConfirmSubmitButton>
                 </form>
               </div>
             </article>
