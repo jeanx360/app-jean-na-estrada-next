@@ -1,17 +1,11 @@
-# JNE App 0.1.2 — Tema Escuro preto
+# JNE App 0.2.0 — Conteúdo real
 
-## Alteração
-
-- O tema Escuro agora usa preto e cinzas neutros como base.
-- O tema Azul permanece separado, com fundo azulado.
-- Claro, Vermelho, Verde e Azul não foram alterados.
-- A bolinha do tema Escuro agora é preta.
-- A cor padrão do PWA e da barra do navegador foi atualizada para preto.
+Esta atualização substitui as páginas demonstrativas de Vídeos, Tutoriais, Aplicativos e Parceiros por conteúdo real e organizado em arquivos de dados.
 
 ## Instalação
 
 1. Extraia o ZIP.
-2. Copie a pasta `src` para a raiz do projeto.
+2. Copie as pastas `src` e `public` para a raiz do projeto.
 3. Confirme a substituição dos arquivos.
 4. Execute:
 
@@ -25,6 +19,16 @@ npm run dev
 
 ```powershell
 git add .
-git commit -m "style: diferenciar tema escuro do tema azul"
+git commit -m "feat: adicionar conteudo real ao JNE App"
 git push origin main
 ```
+
+## Conteúdo centralizado
+
+Os dados desta fase ficam em:
+
+```text
+src/data/content.ts
+```
+
+Isso permite editar vídeos, tutoriais, aplicativos e parceiros sem alterar o código visual das páginas.

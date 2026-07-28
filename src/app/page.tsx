@@ -2,13 +2,14 @@ import Link from "next/link";
 import {
   ArrowRight,
   CheckCircle2,
-  ExternalLink,
   Play,
   Route,
   Sparkles,
   Zap,
 } from "lucide-react";
-import { featuredVideos, quickAccessItems, trustItems } from "@/data/home";
+import { VideoCard } from "@/components/VideoCard";
+import { videos } from "@/data/content";
+import { quickAccessItems, trustItems } from "@/data/home";
 
 export default function Home() {
   return (
@@ -57,12 +58,12 @@ export default function Home() {
             <span>tecnologia • estrada • vida real</span>
           </div>
           <div className="hero-visual__metric hero-visual__metric--top">
-            <small>PLATAFORMA</small>
-            <strong>100% responsiva</strong>
+            <small>VERSÃO ATUAL</small>
+            <strong>Conteúdo real</strong>
           </div>
           <div className="hero-visual__metric hero-visual__metric--bottom">
             <small>PRÓXIMO PASSO</small>
-            <strong>Conteúdo dinâmico</strong>
+            <strong>Integração automática</strong>
           </div>
         </div>
       </section>
@@ -73,7 +74,7 @@ export default function Home() {
             <span className="eyebrow">ACESSO RÁPIDO</span>
             <h2>Encontre o que precisa sem perder tempo.</h2>
           </div>
-          <p>Cada área já nasce separada para receber dados reais, categorias e controle administrativo.</p>
+          <p>As áreas principais já estão separadas e agora começam a receber os dados reais do projeto.</p>
         </div>
 
         <div className="quick-access-grid">
@@ -107,29 +108,8 @@ export default function Home() {
         </div>
 
         <div className="video-grid">
-          {featuredVideos.map((video) => (
-            <a
-              className="video-card"
-              href={video.href}
-              target="_blank"
-              rel="noreferrer"
-              key={video.videoId}
-            >
-              <div className="video-card__media">
-                <img
-                  src={`https://i.ytimg.com/vi/${video.videoId}/hqdefault.jpg`}
-                  alt=""
-                  loading="lazy"
-                />
-                <span className="video-card__play"><Play size={20} fill="currentColor" /></span>
-                <span className="video-card__tag">{video.tag}</span>
-              </div>
-              <div className="video-card__body">
-                <h3>{video.title}</h3>
-                <p>{video.description}</p>
-                <span>Assistir no YouTube <ExternalLink size={14} /></span>
-              </div>
-            </a>
+          {videos.map((video) => (
+            <VideoCard video={video} key={video.videoId} />
           ))}
         </div>
       </section>
@@ -166,7 +146,7 @@ export default function Home() {
 
       <footer className="site-footer">
         <p>JNE App — Jean na Estrada</p>
-        <span>Versão de desenvolvimento 0.1.1</span>
+        <span>Versão de desenvolvimento 0.2.0</span>
       </footer>
     </div>
   );

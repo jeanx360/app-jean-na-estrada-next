@@ -26,48 +26,24 @@ export const quickAccessItems: QuickAccessItem[] = [
   },
   {
     title: "Guias e tutoriais",
-    description: "Conteúdo organizado para você encontrar rapidamente.",
+    description: "Vídeos, PDFs e arquivos reunidos por veículo.",
     href: "/tutoriais",
     icon: BookOpenText,
     accent: "cyan",
   },
   {
     title: "Aplicativos para carros",
-    description: "Área preparada para APKs, compatibilidade e instruções.",
+    description: "Arquivos de apoio, compatibilidade e alertas de instalação.",
     href: "/aplicativos",
     icon: Smartphone,
     accent: "orange",
   },
   {
     title: "Membros VIP",
-    description: "Conteúdos e benefícios exclusivos em uma futura etapa.",
+    description: "Estrutura reservada para futuros conteúdos e benefícios.",
     href: "/membros",
     icon: ShieldCheck,
     accent: "violet",
-  },
-];
-
-export const featuredVideos = [
-  {
-    title: "BYD Dolphin aos 300 mil km",
-    description: "Um caso real de alta quilometragem e uso intenso.",
-    tag: "ALTA QUILOMETRAGEM",
-    videoId: "tlTpTLeQGKA",
-    href: "https://www.youtube.com/watch?v=tlTpTLeQGKA",
-  },
-  {
-    title: "Geely EX2 desbloqueado",
-    description: "Demonstração e orientações sobre a central multimídia.",
-    tag: "TUTORIAL",
-    videoId: "_MK0Kzi_jw8",
-    href: "https://www.youtube.com/watch?v=_MK0Kzi_jw8",
-  },
-  {
-    title: "Conhecendo o BYD Sealion 7",
-    description: "Apresentação do SUV elétrico e suas principais características.",
-    tag: "LANÇAMENTO",
-    videoId: "8VUeb1l87f4",
-    href: "https://www.youtube.com/watch?v=8VUeb1l87f4",
   },
 ];
 
