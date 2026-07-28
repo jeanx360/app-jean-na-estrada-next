@@ -181,6 +181,18 @@ export function AdminPublicContentForm({ initialData }: Props) {
           <input name="isFeatured" type="checkbox" defaultChecked={initialData?.is_featured ?? false} />
           <span>Marcar como destaque</span>
         </label>
+        {!initialData ? (
+          <label className="admin-checkbox">
+            <input name="notifyUsers" type="checkbox" defaultChecked />
+            <span>Criar aviso na central de notificações</span>
+          </label>
+        ) : null}
+        {!initialData ? (
+          <label className="admin-checkbox">
+            <input name="sendPush" type="checkbox" />
+            <span>Enviar também por Web Push</span>
+          </label>
+        ) : null}
       </div>
 
       {state.error ? <p className="auth-message auth-message--error">{state.error}</p> : null}

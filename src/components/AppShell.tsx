@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bell, Menu, Settings, X } from "lucide-react";
+import { Menu, Settings, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { AccountChip } from "@/components/AccountChip";
 import { BrandLogo } from "@/components/BrandLogo";
 import { GlobalSearch } from "@/components/GlobalSearch";
+import { NotificationBell } from "@/components/NotificationBell";
 import { ThemePicker } from "@/components/ThemePicker";
 import { primaryNavigation } from "@/data/navigation";
 
@@ -61,10 +62,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <Settings size={20} />
           </Link>
 
-          <button className="icon-button" type="button" aria-label="Notificações em desenvolvimento" disabled>
-            <Bell size={20} />
-            <span className="notification-dot" />
-          </button>
+          <NotificationBell />
 
           <AccountChip />
         </div>
@@ -115,7 +113,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <p>Vídeos, tutoriais, aplicativos, parceiros e área VIP em um só lugar.</p>
         </div>
 
-        <p className="sidebar__version" suppressHydrationWarning>Versão de desenvolvimento 0.8.0</p>
+        <p className="sidebar__version" suppressHydrationWarning>Versão de desenvolvimento 0.9.0</p>
       </aside>
 
       <main className="app-main">{children}</main>

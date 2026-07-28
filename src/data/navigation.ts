@@ -1,4 +1,5 @@
 import {
+  BellRing,
   BookOpenText,
   Calculator,
   Crown,
@@ -33,6 +34,7 @@ export const primaryNavigation: NavigationItem[] = [
   { label: "Calculadora EV", href: "/calculadora", icon: Calculator },
   { label: "Parceiros", href: "/parceiros", icon: Handshake },
   { label: "Fale comigo", href: "/contato", icon: Mail },
+  { label: "Notificações", href: "/notificacoes", icon: BellRing },
   { label: "Configurações", href: "/configuracoes", icon: Settings },
   { label: "Área de membros", shortLabel: "Conta", href: "/membros", icon: ShieldCheck, badge: "LOGIN" },
   { label: "Área VIP", shortLabel: "VIP", href: "/vip", icon: Crown, badge: "VIP" },

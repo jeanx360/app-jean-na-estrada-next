@@ -1,11 +1,12 @@
 import Link from "next/link";
-import { Crown, FileText, KeyRound, LayoutDashboard, Megaphone, UsersRound } from "lucide-react";
+import { BellRing, Crown, FileText, KeyRound, LayoutDashboard, Megaphone, UsersRound } from "lucide-react";
 
 const items = [
   { href: "/admin", label: "Visão geral", icon: LayoutDashboard },
   { href: "/admin/membros", label: "Membros", icon: UsersRound },
   { href: "/admin/convites", label: "Convites VIP", icon: KeyRound },
   { href: "/admin/recados", label: "Recados", icon: Megaphone },
+  { href: "/admin/notificacoes", label: "Notificações", icon: BellRing },
   { href: "/admin/publicacoes", label: "Conteúdo público", icon: FileText },
   { href: "/admin/conteudos", label: "Conteúdo VIP", icon: Crown },
 ];

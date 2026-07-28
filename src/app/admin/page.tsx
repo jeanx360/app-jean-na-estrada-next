@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Crown, FileText, KeyRound, Megaphone, UsersRound } from "lucide-react";
+import { BellRing, Crown, FileText, KeyRound, Megaphone, UsersRound } from "lucide-react";
 import { requireAdmin } from "@/lib/admin";
 
 export const metadata: Metadata = {
@@ -10,12 +10,13 @@ export const metadata: Metadata = {
 
 export default async function AdminDashboardPage() {
   const { supabase } = await requireAdmin();
-  const [{ data: members }, vipResult, announcementResult, inviteResult, publicResult] = await Promise.all([
+  const [{ data: members }, vipResult, announcementResult, inviteResult, publicResult, notificationResult] = await Promise.all([
     supabase.rpc("admin_list_members"),
     supabase.from("vip_content").select("id", { count: "exact", head: true }),
     supabase.from("announcements").select("id", { count: "exact", head: true }),
     supabase.from("vip_invites").select("id", { count: "exact", head: true }),
     supabase.from("public_contents").select("id", { count: "exact", head: true }),
+    supabase.from("notifications").select("id", { count: "exact", head: true }),
   ]);
 
   const memberRows = members ?? [];
@@ -43,6 +44,13 @@ export default async function AdminDashboardPage() {
       label: "Recados",
       value: announcementResult.count ?? 0,
       detail: "Mensagens para membros",
+    },
+    {
+      href: "/admin/notificacoes",
+      icon: BellRing,
+      label: "Notificações",
+      value: notificationResult.count ?? 0,
+      detail: "Central interna e Web Push",
     },
     {
       href: "/admin/publicacoes",

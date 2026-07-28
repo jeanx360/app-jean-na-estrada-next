@@ -1,6 +1,7 @@
 import Link from "next/link";
 import {
   ArrowRight,
+  BellRing,
   CheckCircle2,
   Play,
   Route,
@@ -10,8 +11,21 @@ import {
 import { LiveVideoGrid } from "@/components/LiveVideoGrid";
 import { videos } from "@/data/content";
 import { quickAccessItems, trustItems } from "@/data/home";
+import { getAuthContext } from "@/lib/auth";
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  const { supabase } = await getAuthContext();
+  const { data: featuredNotifications } = await supabase
+    .from("notifications")
+    .select("id, title, message, action_url, category")
+    .eq("is_published", true)
+    .eq("is_featured", true)
+    .lte("published_at", new Date().toISOString())
+    .order("published_at", { ascending: false })
+    .limit(3);
+
   return (
     <div className="page-stack">
       <section className="hero-section">
@@ -67,6 +81,29 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {featuredNotifications?.length ? (
+        <section className="home-notification-strip">
+          <div className="home-notification-strip__heading">
+            <BellRing size={22} />
+            <div>
+              <span>AVISOS IMPORTANTES</span>
+              <h2>Novidades do JNE App</h2>
+            </div>
+            <Link href="/notificacoes" className="text-link">Ver central <ArrowRight size={16} /></Link>
+          </div>
+          <div className="home-notification-strip__grid">
+            {featuredNotifications.map((item) => (
+              <article key={item.id}>
+                <span>{item.category === "videos" ? "VÍDEO" : item.category === "tutorials" ? "TUTORIAL" : item.category === "apps" ? "APP" : item.category === "benefits" ? "BENEFÍCIO" : "JNE APP"}</span>
+                <h3>{item.title}</h3>
+                <p>{item.message}</p>
+                {item.action_url ? <Link href={item.action_url}>Abrir <ArrowRight size={15} /></Link> : null}
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <section className="section-block">
         <div className="section-heading">
@@ -142,7 +179,7 @@ export default function Home() {
 
       <footer className="site-footer">
         <p>JNE App — Jean na Estrada</p>
-        <span>Versão de desenvolvimento 0.8.0</span>
+        <span>Versão de desenvolvimento 0.9.0</span>
       </footer>
     </div>
   );

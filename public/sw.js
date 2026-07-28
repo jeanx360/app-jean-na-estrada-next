@@ -1,4 +1,4 @@
-const CACHE_VERSION = "jne-app-v0.8.0";
+const CACHE_VERSION = "jne-app-v0.9.0";
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const DATA_CACHE = `${CACHE_VERSION}-data`;
 
@@ -21,6 +21,8 @@ const PRIVATE_PREFIXES = [
   "/auth/",
   "/api/",
   "/diagnostico",
+  "/notificacoes",
+  "/configuracoes",
 ];
 
 self.addEventListener("install", (event) => {
@@ -122,4 +124,49 @@ self.addEventListener("fetch", (event) => {
   if (isVersionedStaticAsset) {
     event.respondWith(staticCacheFirst(request));
   }
+});
+
+
+self.addEventListener("push", (event) => {
+  let payload = {};
+  try {
+    payload = event.data ? event.data.json() : {};
+  } catch {
+    payload = { title: "JNE App", body: event.data ? event.data.text() : "Nova notificação disponível." };
+  }
+
+  const title = payload.title || "JNE App";
+  const options = {
+    body: payload.body || "Nova notificação disponível.",
+    icon: payload.icon || "/icons/app-icon-192.png",
+    badge: payload.badge || "/icons/favicon-32x32.png",
+    image: payload.image || undefined,
+    tag: payload.notificationId ? `jne-${payload.notificationId}` : `jne-${Date.now()}`,
+    renotify: Boolean(payload.notificationId),
+    data: {
+      url: payload.url || "/notificacoes",
+      notificationId: payload.notificationId || null,
+    },
+  };
+
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const target = new URL(event.notification.data?.url || "/notificacoes", self.location.origin).href;
+
+  event.waitUntil(
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then(async (clients) => {
+      for (const client of clients) {
+        if ("focus" in client && new URL(client.url).origin === self.location.origin) {
+          if ("navigate" in client) await client.navigate(target);
+          return client.focus();
+        }
+      }
+
+      if (self.clients.openWindow) return self.clients.openWindow(target);
+      return undefined;
+    }),
+  );
 });

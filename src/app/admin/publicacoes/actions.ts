@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/admin";
+import { sendPushNotification } from "@/lib/push";
+import type { NotificationCategory } from "@/types/notification";
 import type { PublicContentActionState, PublicContentType } from "@/types/public-content";
 
 function readText(formData: FormData, key: string) {
@@ -129,6 +131,8 @@ export async function savePublicContentAction(
   const sortOrder = Number(readText(formData, "sortOrder") || "100");
   const isPublished = readBoolean(formData, "isPublished");
   const isFeatured = readBoolean(formData, "isFeatured");
+  const notifyUsers = readBoolean(formData, "notifyUsers");
+  const sendPush = readBoolean(formData, "sendPush");
 
   if (!["tutorial", "application", "partner", "product"].includes(type)) {
     return { error: "Tipo de publicação inválido." };
@@ -181,8 +185,83 @@ export async function savePublicContentAction(
     return { error: `Não foi possível salvar: ${error.message}` };
   }
 
+  let notificationMessage = "";
+  if (!contentId && isPublished && (notifyUsers || sendPush)) {
+    const categoryByType: Record<PublicContentType, NotificationCategory> = {
+      tutorial: "tutorials",
+      application: "apps",
+      partner: "benefits",
+      product: "benefits",
+    };
+    const pathByType: Record<PublicContentType, string> = {
+      tutorial: "/tutoriais",
+      application: "/aplicativos",
+      partner: "/parceiros",
+      product: "/produtos",
+    };
+    const titleByType: Record<PublicContentType, string> = {
+      tutorial: `Novo tutorial: ${title}`,
+      application: `Novo aplicativo: ${title}`,
+      partner: `Novo parceiro: ${title}`,
+      product: `Nova recomendação: ${title}`,
+    };
+
+    const { data: notification, error: notificationError } = await supabase
+      .from("notifications")
+      .insert({
+        title: titleByType[type],
+        message: summary || "Novo conteúdo disponível no JNE App.",
+        audience: "all",
+        category: categoryByType[type],
+        action_url: pathByType[type],
+        image_url: imageUrl || null,
+        is_published: true,
+        is_featured: isFeatured,
+        published_at: new Date().toISOString(),
+        push_requested: sendPush,
+        created_by: userId,
+        source_key: `public-content:${slug}`,
+      })
+      .select("id, title, message, audience, category, action_url, image_url")
+      .single();
+
+    if (notificationError) {
+      notificationMessage = ` Conteúdo salvo, mas o aviso não foi criado: ${notificationError.message}`;
+    } else if (notification && sendPush) {
+      try {
+        const pushResult = await sendPushNotification({
+          id: notification.id,
+          title: notification.title,
+          message: notification.message,
+          audience: notification.audience,
+          category: notification.category,
+          actionUrl: notification.action_url,
+          imageUrl: notification.image_url,
+        });
+        await supabase
+          .from("notifications")
+          .update({
+            push_sent_at: pushResult.configured ? new Date().toISOString() : null,
+            push_success_count: pushResult.successCount,
+            push_failure_count: pushResult.failureCount,
+          })
+          .eq("id", notification.id);
+        notificationMessage = pushResult.configured
+          ? ` Notificação enviada para ${pushResult.successCount} dispositivo(s).`
+          : " Aviso criado, mas o Web Push ainda não está configurado.";
+      } catch (pushError) {
+        notificationMessage = ` Aviso criado, mas o push falhou: ${pushError instanceof Error ? pushError.message : "erro desconhecido"}`;
+      }
+    } else {
+      notificationMessage = " Notificação criada na central.";
+    }
+  }
+
   revalidatePublicPages(type);
-  return { success: contentId ? "Publicação atualizada." : isPublished ? "Publicação criada e publicada." : "Rascunho salvo." };
+  revalidatePath("/notificacoes");
+  revalidatePath("/admin/notificacoes");
+  const baseMessage = contentId ? "Publicação atualizada." : isPublished ? "Publicação criada e publicada." : "Rascunho salvo.";
+  return { success: `${baseMessage}${notificationMessage}` };
 }
 
 export async function togglePublicContentAction(formData: FormData) {

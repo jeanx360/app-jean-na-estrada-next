@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { AppShell } from "@/components/AppShell";
 import { PwaManager } from "@/components/PwaManager";
+import { PushSubscriptionSync } from "@/components/PushSubscriptionSync";
 import "./globals.css";
 import "./auth.css";
 
@@ -43,6 +44,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body>
         <AppShell>{children}</AppShell>
         <PwaManager />
+        <PushSubscriptionSync />
       </body>
     </html>
   );
