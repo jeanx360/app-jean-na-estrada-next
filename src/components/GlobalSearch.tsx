@@ -1,0 +1,267 @@
+"use client";
+
+import { ExternalLink, Search, X } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  applications,
+  beginnerGuide,
+  partners,
+  products,
+  tutorials,
+  videos,
+} from "@/data/content";
+import { primaryNavigation } from "@/data/navigation";
+import { publicPath } from "@/lib/public-path";
+import type { LiveContentFeed } from "@/types/live-content";
+
+type SearchItem = {
+  title: string;
+  description: string;
+  href: string;
+  category: string;
+  external?: boolean;
+};
+
+function normalize(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
+const staticItems: SearchItem[] = [
+  ...primaryNavigation.map((item) => ({
+    title: item.label,
+    description: `Abrir a área ${item.label} do JNE App.`,
+    href: item.href,
+    category: "Página",
+  })),
+  ...tutorials.map((item) => ({
+    title: item.title,
+    description: item.description,
+    href: "/tutoriais",
+    category: "Tutorial",
+  })),
+  ...applications.map((item) => ({
+    title: item.name,
+    description: `${item.description} ${item.compatibility}`,
+    href: "/aplicativos",
+    category: "Aplicativo",
+  })),
+  ...products.map((item) => ({
+    title: item.name,
+    description: `${item.description} ${item.category}`,
+    href: item.href,
+    category: "Produto",
+    external: true,
+  })),
+  ...partners.map((item) => ({
+    title: item.name,
+    description: `${item.description} ${item.services.join(" ")}`,
+    href: "/parceiros",
+    category: "Parceiro",
+  })),
+  ...beginnerGuide.map((item) => ({
+    title: item.title,
+    description: `${item.description} ${item.points.join(" ")}`,
+    href: "/guia",
+    category: "Guia",
+  })),
+  ...videos.map((item) => ({
+    title: item.title,
+    description: item.description,
+    href: item.href,
+    category: "Vídeo",
+    external: true,
+  })),
+];
+
+export function GlobalSearch() {
+  const pathname = usePathname();
+  const router = useRouter();
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const [feed, setFeed] = useState<LiveContentFeed | null>(null);
+
+  useEffect(() => {
+    setOpen(false);
+    setQuery("");
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!open || feed) return;
+
+    void fetch(publicPath("/data/content-feed.json"), { cache: "no-store" })
+      .then((response) => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return response.json() as Promise<LiveContentFeed>;
+      })
+      .then(setFeed)
+      .catch(() => setFeed(null));
+  }, [feed, open]);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const timeout = window.setTimeout(() => inputRef.current?.focus(), 40);
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        setOpen(true);
+      }
+    };
+
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.clearTimeout(timeout);
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [open]);
+
+  useEffect(() => {
+    const handleShortcut = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        setOpen(true);
+      }
+    };
+
+    window.addEventListener("keydown", handleShortcut);
+    return () => window.removeEventListener("keydown", handleShortcut);
+  }, []);
+
+  const results = useMemo(() => {
+    const liveItems: SearchItem[] = [
+      ...(feed?.videos ?? []).map((item) => ({
+        title: item.title,
+        description: item.description,
+        href: item.href,
+        category: "Vídeo recente",
+        external: true,
+      })),
+      ...(feed?.news ?? []).map((item) => ({
+        title: item.title,
+        description: `${item.source} — ${item.description}`,
+        href: item.href,
+        category: "Notícia",
+        external: true,
+      })),
+    ];
+
+    const deduped = new Map<string, SearchItem>();
+    [...liveItems, ...staticItems].forEach((item) => {
+      deduped.set(`${item.category}:${item.title}`, item);
+    });
+
+    const normalizedQuery = normalize(query.trim());
+    const all = Array.from(deduped.values());
+
+    if (!normalizedQuery) {
+      return all.filter((item) => ["Página", "Tutorial", "Aplicativo"].includes(item.category)).slice(0, 7);
+    }
+
+    return all
+      .map((item) => {
+        const title = normalize(item.title);
+        const description = normalize(item.description);
+        const category = normalize(item.category);
+        let score = 0;
+        if (title === normalizedQuery) score += 8;
+        if (title.startsWith(normalizedQuery)) score += 5;
+        if (title.includes(normalizedQuery)) score += 3;
+        if (category.includes(normalizedQuery)) score += 2;
+        if (description.includes(normalizedQuery)) score += 1;
+        return { item, score };
+      })
+      .filter((result) => result.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 10)
+      .map((result) => result.item);
+  }, [feed, query]);
+
+  function openSearch() {
+    setOpen(true);
+  }
+
+  function selectItem(item: SearchItem) {
+    setOpen(false);
+
+    if (item.external) {
+      window.open(item.href, "_blank", "noopener,noreferrer");
+      return;
+    }
+
+    router.push(item.href);
+  }
+
+  return (
+    <>
+      <button className="search-box" type="button" onClick={openSearch} aria-label="Pesquisar no JNE App">
+        <Search size={18} />
+        <span>Pesquisar no JNE App</span>
+        <kbd>Ctrl K</kbd>
+      </button>
+
+      <button className="icon-button global-search__mobile-button" type="button" onClick={openSearch} aria-label="Pesquisar">
+        <Search size={20} />
+      </button>
+
+      {open ? (
+        <div className="search-overlay" role="presentation" onMouseDown={() => setOpen(false)}>
+          <section
+            className="search-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Pesquisa global"
+            onMouseDown={(event) => event.stopPropagation()}
+          >
+            <div className="search-dialog__input">
+              <Search size={20} />
+              <input
+                ref={inputRef}
+                type="search"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Vídeos, tutoriais, aplicativos, parceiros..."
+                aria-label="Digite sua pesquisa"
+              />
+              <button type="button" onClick={() => setOpen(false)} aria-label="Fechar pesquisa">
+                <X size={19} />
+              </button>
+            </div>
+
+            <div className="search-dialog__heading">
+              <span>{query.trim() ? `Resultados para “${query.trim()}”` : "Acessos rápidos"}</span>
+              <small>{results.length} encontrados</small>
+            </div>
+
+            <div className="search-results">
+              {results.length ? results.map((item) => (
+                <button type="button" className="search-result" onClick={() => selectItem(item)} key={`${item.category}-${item.title}-${item.href}`}>
+                  <span>{item.category}</span>
+                  <div>
+                    <strong>{item.title}</strong>
+                    <p>{item.description}</p>
+                  </div>
+                  {item.external ? <ExternalLink size={16} /> : null}
+                </button>
+              )) : (
+                <div className="search-empty">
+                  <Search size={25} />
+                  <strong>Nenhum resultado encontrado.</strong>
+                  <p>Tente pesquisar por veículo, tutorial, aplicativo ou parceiro.</p>
+                </div>
+              )}
+            </div>
+          </section>
+        </div>
+      ) : null}
+    </>
+  );
+}

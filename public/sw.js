@@ -1,9 +1,10 @@
-const CACHE_VERSION = "jne-app-v0.4.0";
+const CACHE_VERSION = "jne-app-v0.5.0";
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const APP_ROUTES = [
   "./",
   "./offline.html",
   "./manifest.webmanifest",
+  "./data/content-feed.json",
   "./videos/",
   "./noticias/",
   "./tutoriais/",
@@ -95,7 +96,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  if (request.mode === "navigate") {
+  if (request.mode === "navigate" || url.pathname.endsWith("/data/content-feed.json")) {
     event.respondWith(networkFirst(request));
     return;
   }

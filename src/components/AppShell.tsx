@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bell, Menu, Search, Settings, X } from "lucide-react";
+import { Bell, Menu, Settings, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { BrandLogo } from "@/components/BrandLogo";
+import { GlobalSearch } from "@/components/GlobalSearch";
 import { ThemePicker } from "@/components/ThemePicker";
 import { primaryNavigation } from "@/data/navigation";
 
@@ -56,15 +57,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <ThemePicker />
 
         <div className="topbar__actions">
-          <label className="search-box" title="A busca será ativada em uma próxima etapa">
-            <Search size={18} />
-            <input
-              type="search"
-              placeholder="Busca em breve"
-              aria-label="Busca em desenvolvimento"
-              disabled
-            />
-          </label>
+          <GlobalSearch />
 
           <Link className="icon-button" href="/configuracoes" aria-label="Configurações do aplicativo">
             <Settings size={20} />
@@ -131,7 +124,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <p>Vídeos, tutoriais, aplicativos, parceiros e área VIP em um só lugar.</p>
         </div>
 
-        <p className="sidebar__version">Versão de desenvolvimento 0.4.0</p>
+        <p className="sidebar__version">Versão de desenvolvimento 0.5.0</p>
       </aside>
 
       <main className="app-main">{children}</main>

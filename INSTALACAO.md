@@ -1,22 +1,27 @@
-# JNE App 0.4.0 — PWA e funcionamento offline
+# JNE App 0.5.0 — busca e conteúdo automático
 
-1. Extraia o ZIP na raiz do projeto e confirme a substituição dos arquivos.
-2. Não é necessário instalar nova dependência.
+## Instalação
+
+1. Extraia este ZIP na raiz do projeto:
+   `C:\Users\jean_\app-jean-na-estrada-next`
+2. Confirme a substituição dos arquivos.
 3. Atualize a versão:
+   `npm version 0.5.0 --no-git-tag-version`
+4. Sincronize o conteúdo:
+   `node scripts/sync-content.mjs`
+5. Limpe o cache do Next.js:
+   `Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue`
+6. Valide:
+   `npm run build`
+7. Teste:
+   `npm run dev`
+
+## Publicação
 
 ```powershell
-npm version 0.4.0 --no-git-tag-version
+git add .
+git commit -m "feat: adicionar busca e sincronizacao automatica"
+git push origin main
 ```
 
-4. Limpe o build e compile:
-
-```powershell
-Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue
-npm run build
-npm run dev
-```
-
-5. Confira o visual em `http://localhost:3000/configuracoes`.
-6. Envie para o GitHub Pages para testar instalação, atualização e modo offline em ambiente de produção.
-
-> O Service Worker fica desativado durante `npm run dev` para não prender arquivos antigos no cache. O botão de instalação depende do navegador. Em Chrome/Edge ele aparece quando os critérios do PWA forem atendidos. No iPhone, a instalação é feita pelo menu Compartilhar do Safari.
+O GitHub Actions executará a sincronização antes do build e repetirá o processo automaticamente a cada seis horas.

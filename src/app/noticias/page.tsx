@@ -1,19 +1,26 @@
 import type { Metadata } from "next";
-import { PlaceholderPage } from "@/components/PlaceholderPage";
+import { Newspaper } from "lucide-react";
+import { NewsFeed } from "@/components/NewsFeed";
+import { PageHeader } from "@/components/PageHeader";
 
 export const metadata: Metadata = { title: "Notícias" };
 
 export default function NewsPage() {
   return (
-    <PlaceholderPage
-      eyebrow="INFORMAÇÃO"
-      title="Notícias"
-      description="Uma central organizada de notícias sobre veículos elétricos, tecnologia e mobilidade."
-      items={[
-        { title: "Fontes selecionadas", description: "Conteúdo reunido de fontes confiáveis e relevantes." },
-        { title: "Resumo objetivo", description: "Informações diretas para facilitar a leitura no celular." },
-        { title: "Curadoria do Jean", description: "Destaques e comentários com contexto prático." },
-      ]}
-    />
+    <div className="page-stack">
+      <PageHeader
+        icon={<Newspaper size={24} />}
+        eyebrow="MOBILIDADE E TECNOLOGIA"
+        title="Notícias selecionadas"
+        description="Uma leitura organizada de veículos elétricos, lançamentos, recarga, baterias e tecnologia automotiva, reunida a partir de fontes especializadas."
+      />
+
+      <section className="news-curation-note">
+        <strong>Curadoria automática com foco automotivo</strong>
+        <p>O sistema filtra assuntos relacionados a elétricos, híbridos, tecnologia, mercado e lançamentos. A publicação original sempre abre no site da fonte.</p>
+      </section>
+
+      <NewsFeed />
+    </div>
   );
 }

@@ -7,7 +7,7 @@ import {
   Sparkles,
   Zap,
 } from "lucide-react";
-import { VideoCard } from "@/components/VideoCard";
+import { LiveVideoGrid } from "@/components/LiveVideoGrid";
 import { videos } from "@/data/content";
 import { quickAccessItems, trustItems } from "@/data/home";
 
@@ -62,8 +62,8 @@ export default function Home() {
             <strong>Conteúdo real</strong>
           </div>
           <div className="hero-visual__metric hero-visual__metric--bottom">
-            <small>PRÓXIMO PASSO</small>
-            <strong>Busca e integração automática</strong>
+            <small>CONTEÚDO AUTOMÁTICO</small>
+            <strong>Vídeos e notícias atualizados</strong>
           </div>
         </div>
       </section>
@@ -107,11 +107,7 @@ export default function Home() {
           </Link>
         </div>
 
-        <div className="video-grid">
-          {videos.map((video) => (
-            <VideoCard video={video} key={video.videoId} />
-          ))}
-        </div>
+        <LiveVideoGrid fallback={videos} limit={3} />
       </section>
 
       <section className="community-section">
@@ -146,7 +142,7 @@ export default function Home() {
 
       <footer className="site-footer">
         <p>JNE App — Jean na Estrada</p>
-        <span>Versão de desenvolvimento 0.3.0</span>
+        <span>Versão de desenvolvimento 0.5.0</span>
       </footer>
     </div>
   );

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import { ExternalLink, Video } from "lucide-react";
+import { ExternalLink, RefreshCw, Video } from "lucide-react";
+import { LiveVideoGrid } from "@/components/LiveVideoGrid";
 import { PageHeader } from "@/components/PageHeader";
-import { VideoCard } from "@/components/VideoCard";
 import { videos } from "@/data/content";
 
 export const metadata: Metadata = { title: "Vídeos" };
@@ -10,17 +10,18 @@ export default function VideosPage() {
   return (
     <div className="page-stack">
       <PageHeader
+        icon={<Video size={24} />}
         eyebrow="CONTEÚDO DO CANAL"
         title="Vídeos do Jean na Estrada"
-        description="Uma seleção inicial de conteúdos que representam os principais pilares do canal: uso real, tutoriais e lançamentos."
+        description="Os conteúdos mais recentes do canal são sincronizados automaticamente, com os destaques salvos como segurança quando uma fonte externa estiver indisponível."
       />
 
       <section className="content-summary" aria-label="Resumo da seção de vídeos">
         <div>
-          <Video size={24} />
+          <RefreshCw size={24} />
           <span>
-            <strong>{videos.length}</strong>
-            destaques cadastrados
+            <strong>Sincronização automática</strong>
+            feed oficial do canal
           </span>
         </div>
         <a
@@ -34,18 +35,14 @@ export default function VideosPage() {
         </a>
       </section>
 
-      <section className="video-grid" aria-label="Vídeos em destaque">
-        {videos.map((video) => (
-          <VideoCard video={video} key={video.videoId} />
-        ))}
-      </section>
+      <LiveVideoGrid fallback={videos} showStatus />
 
       <section className="info-panel">
         <div>
-          <span>PRÓXIMA EVOLUÇÃO</span>
-          <h2>Os últimos vídeos serão carregados automaticamente.</h2>
+          <span>CONTEÚDO SEM TRABALHO DUPLICADO</span>
+          <h2>Publicou no YouTube, apareceu no JNE App.</h2>
           <p>
-            Nesta etapa os destaques ficam em um arquivo organizado. Depois, a camada Node buscará o feed do YouTube, aplicará cache e entregará os dados prontos para o aplicativo.
+            O GitHub Actions consulta o feed oficial, gera um arquivo seguro e atualiza a versão publicada. O navegador recebe apenas dados já organizados, sem depender de proxies públicos durante o uso.
           </p>
         </div>
       </section>
