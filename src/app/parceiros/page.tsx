@@ -1,12 +1,16 @@
 import type { Metadata } from "next";
 import { ExternalLink, Handshake } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
-import { partners } from "@/data/content";
+import { getPartners } from "@/lib/public-content";
 import { publicPath } from "@/lib/public-path";
 
 export const metadata: Metadata = { title: "Parceiros" };
 
-export default function PartnersPage() {
+export const dynamic = "force-dynamic";
+
+export default async function PartnersPage() {
+  const partners = await getPartners();
+
   return (
     <div className="page-stack">
       <PageHeader
@@ -20,7 +24,7 @@ export default function PartnersPage() {
           <article className="partner-card" key={partner.name}>
             <div className="partner-card__banner">
               <img
-                src={publicPath(partner.image)}
+                src={/^https?:\/\//i.test(partner.image) ? partner.image : publicPath(partner.image)}
                 alt={`Banner do parceiro ${partner.name}`}
                 loading="lazy"
               />

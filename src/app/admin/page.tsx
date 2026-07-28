@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Crown, KeyRound, Megaphone, UsersRound } from "lucide-react";
+import { Crown, FileText, KeyRound, Megaphone, UsersRound } from "lucide-react";
 import { requireAdmin } from "@/lib/admin";
 
 export const metadata: Metadata = {
@@ -10,11 +10,12 @@ export const metadata: Metadata = {
 
 export default async function AdminDashboardPage() {
   const { supabase } = await requireAdmin();
-  const [{ data: members }, vipResult, announcementResult, inviteResult] = await Promise.all([
+  const [{ data: members }, vipResult, announcementResult, inviteResult, publicResult] = await Promise.all([
     supabase.rpc("admin_list_members"),
     supabase.from("vip_content").select("id", { count: "exact", head: true }),
     supabase.from("announcements").select("id", { count: "exact", head: true }),
     supabase.from("vip_invites").select("id", { count: "exact", head: true }),
+    supabase.from("public_contents").select("id", { count: "exact", head: true }),
   ]);
 
   const memberRows = members ?? [];
@@ -42,6 +43,13 @@ export default async function AdminDashboardPage() {
       label: "Recados",
       value: announcementResult.count ?? 0,
       detail: "Mensagens para membros",
+    },
+    {
+      href: "/admin/publicacoes",
+      icon: FileText,
+      label: "Conteúdo público",
+      value: publicResult.count ?? 0,
+      detail: "Tutoriais, aplicativos, parceiros e produtos",
     },
     {
       href: "/admin/conteudos",

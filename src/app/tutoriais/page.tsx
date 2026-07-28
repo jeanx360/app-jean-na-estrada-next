@@ -8,7 +8,8 @@ import {
   Wrench,
 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
-import { tutorials, type TutorialResource } from "@/data/content";
+import type { TutorialResource } from "@/data/content";
+import { getTutorials } from "@/lib/public-content";
 
 export const metadata: Metadata = { title: "Guias e tutoriais" };
 
@@ -18,7 +19,11 @@ const resourceIcons: Record<TutorialResource["kind"], typeof PlayCircle> = {
   drive: CloudDownload,
 };
 
-export default function TutorialsPage() {
+export const dynamic = "force-dynamic";
+
+export default async function TutorialsPage() {
+  const tutorials = await getTutorials();
+
   return (
     <div className="page-stack">
       <PageHeader

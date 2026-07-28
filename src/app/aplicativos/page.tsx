@@ -7,11 +7,15 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
-import { applications } from "@/data/content";
+import { getApplications } from "@/lib/public-content";
 
 export const metadata: Metadata = { title: "Aplicativos" };
 
-export default function AppsPage() {
+export const dynamic = "force-dynamic";
+
+export default async function AppsPage() {
+  const applications = await getApplications();
+
   return (
     <div className="page-stack">
       <PageHeader
@@ -38,7 +42,7 @@ export default function AppsPage() {
               </div>
               <div>
                 <dt>Origem</dt>
-                <dd>Pasta de arquivos do Jean na Estrada</dd>
+                <dd>Conteúdo cadastrado no JNE App</dd>
               </div>
             </dl>
             <a

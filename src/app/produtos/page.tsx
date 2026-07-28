@@ -1,11 +1,15 @@
 import type { Metadata } from "next";
 import { ExternalLink, ShoppingBag, Tag } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
-import { products } from "@/data/content";
+import { getProducts } from "@/lib/public-content";
 
 export const metadata: Metadata = { title: "Produtos recomendados" };
 
-export default function ProductsPage() {
+export const dynamic = "force-dynamic";
+
+export default async function ProductsPage() {
+  const products = await getProducts();
+
   return (
     <div className="page-stack">
       <PageHeader

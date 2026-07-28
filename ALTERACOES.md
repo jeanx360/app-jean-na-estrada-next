@@ -1,10 +1,11 @@
-# JNE App 0.7.1
+# JNE App 0.8.0 — conteúdo público administrável
 
-- Corrige version skew entre HTML 0.6.0 e JavaScript 0.7.0.
-- Evita hydration mismatch causado por cache PWA antigo.
-- Remove Service Workers e caches JNE durante desenvolvimento.
-- Não armazena HTML, sessão, login, VIP, admin, APIs ou RSC no Service Worker.
-- Abre downloads VIP em outra aba.
-- Troca o redirect de login para `replace`.
-- Redireciona usuário já autenticado para fora de `/entrar`.
-- Usa `next/script` no bootstrap de tema.
+- Cria a tabela `public_contents` no Supabase.
+- Migra o conteúdo atual de tutoriais, aplicativos, parceiros e produtos para o banco.
+- Adiciona painel `/admin/publicacoes`.
+- Permite criar, editar, publicar, despublicar, ordenar e excluir publicações.
+- Cria bucket público `public-assets` com upload restrito a administradores.
+- Permite enviar banners de parceiros sem editar o código.
+- Faz as páginas públicas lerem o Supabase com fallback para os dados estáticos.
+- Mantém RLS: visitantes leem somente conteúdo publicado; administradores gerenciam tudo.
+- Atualiza a versão visual e o cache PWA para 0.8.0.

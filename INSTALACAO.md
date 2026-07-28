@@ -1,45 +1,80 @@
-# Correção 0.7.1 — sessão, download e cache PWA
+# JNE App 0.8.0 — painel de conteúdo público
 
-## Problemas corrigidos
+## 1. Instalar os arquivos
 
-- Voltar do download não deixa a tela VIP.
-- Login não permanece no histórico do navegador.
-- Usuário autenticado não volta para uma tela de login antiga.
-- Service Worker antigo é removido automaticamente durante `npm run dev`.
-- HTML e respostas privadas deixam de ser armazenados no cache PWA.
-- Requisições internas do App Router/RSC não são interceptadas pelo Service Worker.
-- Script inicial de tema passa a usar `next/script`.
-- Endpoint de download recebe `Cache-Control: no-store`.
-
-## Instalação
-
-1. Copie as pastas `src` e `public` deste pacote para a raiz do projeto.
-2. Confirme a substituição dos arquivos.
-3. Atualize a versão:
+Use a branch `develop` e copie o conteúdo deste pacote para a raiz do projeto.
 
 ```powershell
-npm version 0.7.1 --no-git-tag-version
+git checkout develop
+git status
 ```
 
-4. Apague o build anterior:
+## 2. Executar a migração no Supabase
+
+No Supabase:
+
+1. Abra o projeto `jneapp`.
+2. Entre em **SQL Editor**.
+3. Clique em **New query**.
+4. Abra localmente `supabase/migrations/0.8.0_public_cms.sql`.
+5. Copie todo o conteúdo para o editor.
+6. Clique em **Run**.
+
+Resultado esperado: `Success. No rows returned`.
+
+A migração cria:
+
+- tabela `public_contents`;
+- políticas RLS;
+- bucket público `public-assets`;
+- restrições de upload para administradores;
+- conteúdo inicial migrado da versão estática.
+
+## 3. Conferir no painel
+
+No **Table Editor**, confirme `public_contents`.
+
+No **Storage**, confirme o bucket `public-assets` como público.
+
+## 4. Atualizar a versão
+
+```powershell
+npm version 0.8.0 --no-git-tag-version
+```
+
+Não há novas dependências.
+
+## 5. Validar
 
 ```powershell
 Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue
-```
-
-5. Execute:
-
-```powershell
 npm run build
 npm run dev
 ```
 
-## Limpeza única no navegador
+Teste:
 
-Depois de abrir `http://localhost:3000`, pressione `F12` e faça:
+```text
+http://localhost:3000/admin/publicacoes
+http://localhost:3000/tutoriais
+http://localhost:3000/aplicativos
+http://localhost:3000/parceiros
+http://localhost:3000/produtos
+```
 
-1. Application → Service Workers → Unregister.
-2. Application → Storage → Clear site data.
-3. Feche a aba e abra o endereço novamente.
+## 6. Fluxo recomendado
 
-O novo código também faz essa limpeza automaticamente em desenvolvimento, mas a limpeza manual garante que o worker antigo não controle a primeira carga.
+1. Envie uma imagem no bloco **Imagens públicas**.
+2. A imagem será aplicada ao formulário automaticamente.
+3. Crie um parceiro, tutorial, aplicativo ou produto.
+4. Abra a página pública correspondente.
+5. Edite a publicação.
+6. Teste despublicar e publicar novamente.
+
+## 7. Publicar na Vercel
+
+```powershell
+git add .
+git commit -m "feat: adicionar gestao de conteudo publico"
+git push origin develop
+```

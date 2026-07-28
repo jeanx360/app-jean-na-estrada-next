@@ -4104,3 +4104,102 @@ button {
     padding-right: 0;
   }
 }
+
+/* JNE App 0.8.0 — gestão de conteúdo público */
+.admin-section__intro {
+  margin: -4px 0 18px;
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.58;
+}
+
+.admin-asset-uploader {
+  max-width: 760px;
+}
+
+.admin-asset-result {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  gap: 16px;
+  align-items: center;
+  padding: 14px;
+  border: 1px solid rgba(57, 217, 138, 0.24);
+  border-radius: 16px;
+  background: rgba(57, 217, 138, 0.06);
+}
+
+.admin-asset-result img {
+  width: 150px;
+  height: 86px;
+  border-radius: 12px;
+  object-fit: cover;
+  background: var(--surface-strong);
+}
+
+.admin-asset-result > div {
+  display: grid;
+  justify-items: start;
+  gap: 7px;
+  min-width: 0;
+}
+
+.admin-asset-result strong {
+  color: var(--text);
+}
+
+.admin-asset-result small {
+  overflow: hidden;
+  max-width: 100%;
+  color: var(--text-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-dynamic-fields {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: rgb(var(--accent-rgb) / 0.035);
+}
+
+.admin-resource-fieldset {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+.admin-resource-fieldset legend {
+  padding: 0 8px;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.admin-form__span-2 {
+  grid-column: span 2;
+}
+
+@media (max-width: 860px) {
+  .admin-form__span-2 {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 580px) {
+  .admin-asset-result {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-asset-result img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 7;
+  }
+}

@@ -142,7 +142,7 @@ export default function Home() {
 
       <footer className="site-footer">
         <p>JNE App — Jean na Estrada</p>
-        <span>Versão de desenvolvimento 0.5.0</span>
+        <span>Versão de desenvolvimento 0.8.0</span>
       </footer>
     </div>
   );
