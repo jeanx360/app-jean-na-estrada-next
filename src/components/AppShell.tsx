@@ -32,15 +32,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     };
   }, [menuOpen]);
 
-  const mobileItems = useMemo(
-    () => [
-      primaryNavigation[0],
-      primaryNavigation[1],
-      primaryNavigation[4],
-      primaryNavigation[6],
-    ],
-    [],
-  );
+  const mobileItems = useMemo(() => {
+    const mobileHrefs = ["/", "/videos", "/aplicativos", "/membros"];
+    return primaryNavigation.filter((item) => mobileHrefs.includes(item.href));
+  }, []);
 
   return (
     <div className="app-shell">
@@ -61,12 +56,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <ThemePicker />
 
         <div className="topbar__actions">
-          <label className="search-box">
+          <label className="search-box" title="A busca será ativada em uma próxima etapa">
             <Search size={18} />
-            <input type="search" placeholder="Buscar no JNE App" aria-label="Buscar" />
+            <input
+              type="search"
+              placeholder="Busca em breve"
+              aria-label="Busca em desenvolvimento"
+              disabled
+            />
           </label>
 
-          <button className="icon-button" type="button" aria-label="Notificações">
+          <button className="icon-button" type="button" aria-label="Notificações em desenvolvimento" disabled>
             <Bell size={20} />
             <span className="notification-dot" />
           </button>
@@ -127,7 +127,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <p>Vídeos, tutoriais, aplicativos, parceiros e área VIP em um só lugar.</p>
         </div>
 
-        <p className="sidebar__version">Versão de desenvolvimento 0.2.0</p>
+        <p className="sidebar__version">Versão de desenvolvimento 0.3.0</p>
       </aside>
 
       <main className="app-main">{children}</main>

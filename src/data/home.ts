@@ -1,8 +1,10 @@
 import {
   BookOpenText,
+  Calculator,
   Handshake,
   PlaySquare,
   ShieldCheck,
+  ShoppingBag,
   Smartphone,
   Sparkles,
   type LucideIcon,
@@ -39,11 +41,25 @@ export const quickAccessItems: QuickAccessItem[] = [
     accent: "orange",
   },
   {
+    title: "Produtos recomendados",
+    description: "Itens automotivos e tecnológicos selecionados para a comunidade.",
+    href: "/produtos",
+    icon: ShoppingBag,
+    accent: "violet",
+  },
+  {
+    title: "Calculadora EV",
+    description: "Compare custos de energia, combustível e manutenção.",
+    href: "/calculadora",
+    icon: Calculator,
+    accent: "cyan",
+  },
+  {
     title: "Membros VIP",
     description: "Estrutura reservada para futuros conteúdos e benefícios.",
     href: "/membros",
     icon: ShieldCheck,
-    accent: "violet",
+    accent: "orange",
   },
 ];
 

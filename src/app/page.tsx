@@ -63,7 +63,7 @@ export default function Home() {
           </div>
           <div className="hero-visual__metric hero-visual__metric--bottom">
             <small>PRÓXIMO PASSO</small>
-            <strong>Integração automática</strong>
+            <strong>Busca e integração automática</strong>
           </div>
         </div>
       </section>
@@ -146,7 +146,7 @@ export default function Home() {
 
       <footer className="site-footer">
         <p>JNE App — Jean na Estrada</p>
-        <span>Versão de desenvolvimento 0.2.0</span>
+        <span>Versão de desenvolvimento 0.3.0</span>
       </footer>
     </div>
   );

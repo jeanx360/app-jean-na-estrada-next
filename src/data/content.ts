@@ -40,6 +40,28 @@ export type PartnerItem = {
   services: string[];
 };
 
+export type ProductItem = {
+  name: string;
+  description: string;
+  category: string;
+  retailer: "Shopee" | "Mercado Livre" | "Amazon";
+  href: string;
+  highlight?: string;
+};
+
+export type GuideSection = {
+  title: string;
+  description: string;
+  points: string[];
+};
+
+export type ContactItem = {
+  label: string;
+  description: string;
+  href: string;
+  kind: "email" | "video" | "short-video" | "photo";
+};
+
 export const videos: VideoItem[] = [
   {
     title: "BYD Dolphin aos 300 mil km",
@@ -145,5 +167,146 @@ export const partners: PartnerItem[] = [
     href: "https://wa.me/555198303983",
     actionLabel: "Falar pelo WhatsApp",
     services: ["Pintura automotiva", "Retoques", "Polimento e cristalização"],
+  },
+];
+
+export const products: ProductItem[] = [
+  {
+    name: "Tapete para BYD Dolphin",
+    description: "Jogo de tapetes para as versões do Dolphin, com peça traseira inteiriça.",
+    category: "Acessórios",
+    retailer: "Shopee",
+    href: "https://s.shopee.com.br/60QGhL6SzG?share_channel_code=1",
+    highlight: "Selecionado para o Dolphin",
+  },
+  {
+    name: "Adaptador V2L 16A",
+    description: "Adaptador com botão liga/desliga para veículos elétricos compatíveis com V2L.",
+    category: "Energia e recarga",
+    retailer: "Shopee",
+    href: "https://s.shopee.com.br/7VF4U8v0Vd?share_channel_code=1",
+    highlight: "Uso automotivo",
+  },
+  {
+    name: "Streaming Box Carlinkit",
+    description: "Solução Android para centrais com CarPlay ou Android Auto compatível.",
+    category: "Multimídia",
+    retailer: "Mercado Livre",
+    href: "https://meli.la/1CG7XUY",
+  },
+  {
+    name: "Adaptador CarPlay e Android Auto sem fio",
+    description: "Alternativa para transformar uma conexão compatível por cabo em conexão sem fio.",
+    category: "Multimídia",
+    retailer: "Mercado Livre",
+    href: "https://meli.la/1jRbS9B",
+  },
+  {
+    name: "Câmera veicular 1080p",
+    description: "Câmera compacta para registro do trânsito e apoio durante viagens.",
+    category: "Segurança",
+    retailer: "Amazon",
+    href: "https://www.amazon.com/dp/B06bUJWik",
+  },
+  {
+    name: "Azdome M550 Pro — 3 canais",
+    description: "Conjunto de câmeras para gravação frontal, interna e traseira.",
+    category: "Segurança",
+    retailer: "Amazon",
+    href: "https://www.amazon.com/dp/B0areF0CL",
+  },
+  {
+    name: "Pneu Pirelli 215/50R17",
+    description: "Opção de medida usada em projetos e configurações compatíveis com o Dolphin Plus.",
+    category: "Pneus",
+    retailer: "Mercado Livre",
+    href: "https://meli.la/33xa5QL",
+  },
+  {
+    name: "Pneu Pirelli 195/60R16",
+    description: "Opção de medida para configurações compatíveis com o BYD Dolphin GS.",
+    category: "Pneus",
+    retailer: "Mercado Livre",
+    href: "https://meli.la/2oVRfCq",
+  },
+];
+
+export const beginnerGuide: GuideSection[] = [
+  {
+    title: "Entenda o carro elétrico",
+    description:
+      "Conheça os componentes principais antes de comparar modelos ou planejar a compra.",
+    points: [
+      "Motor elétrico, inversor, bateria de alta tensão e sistema de regeneração.",
+      "Diferença entre potência, capacidade da bateria e autonomia.",
+      "Consumo pode aparecer em km/kWh ou kWh/100 km.",
+    ],
+  },
+  {
+    title: "Aprenda sobre recarga",
+    description:
+      "A rotina melhora quando você entende potência, conectores e tempo de carregamento.",
+    points: [
+      "Recarga AC costuma ser usada em casa, condomínios e estacionamentos.",
+      "Recarga DC é indicada para viagens e reposições mais rápidas.",
+      "A potência aceita pelo carro pode limitar a velocidade mesmo em um carregador mais forte.",
+    ],
+  },
+  {
+    title: "Planeje seus custos",
+    description:
+      "Compare o custo por quilômetro e não apenas o valor total de uma recarga.",
+    points: [
+      "Use seu preço real de energia e a média de consumo do veículo.",
+      "Inclua manutenção, seguro, pneus e desvalorização na decisão.",
+      "A calculadora do JNE App ajuda a montar uma estimativa inicial.",
+    ],
+  },
+  {
+    title: "Cuide da bateria",
+    description:
+      "Uso normal não exige paranoia, mas alguns hábitos ajudam na rotina e na durabilidade.",
+    points: [
+      "Siga as recomendações do manual do veículo sobre carga e armazenamento.",
+      "Evite deixar o carro parado por longos períodos em extremos de carga.",
+      "Em viagens, considere margem de segurança e disponibilidade dos pontos de recarga.",
+    ],
+  },
+  {
+    title: "Avalie um elétrico usado",
+    description:
+      "Histórico, estado geral e garantia são mais importantes que uma única porcentagem isolada.",
+    points: [
+      "Confira revisões, campanhas, garantia e histórico de uso.",
+      "Observe pneus, suspensão, freios, sistema de recarga e funcionamento da multimídia.",
+      "Quando possível, solicite uma avaliação técnica da bateria e do veículo.",
+    ],
+  },
+];
+
+export const contactItems: ContactItem[] = [
+  {
+    label: "E-mail",
+    description: "Contato comercial, propostas e assuntos profissionais.",
+    href: "mailto:contato.jeannaestrada@gmail.com",
+    kind: "email",
+  },
+  {
+    label: "YouTube",
+    description: "Vídeos completos, análises, tutoriais e transmissões.",
+    href: "https://www.youtube.com/@jeannaestrada",
+    kind: "video",
+  },
+  {
+    label: "TikTok",
+    description: "Vídeos curtos, cortes e atualizações rápidas.",
+    href: "https://www.tiktok.com/@jeannaestrada",
+    kind: "short-video",
+  },
+  {
+    label: "Instagram",
+    description: "Reels, stories, bastidores e contato com a comunidade.",
+    href: "https://www.instagram.com/jeannaestradaoficial/",
+    kind: "photo",
   },
 ];

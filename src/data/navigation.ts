@@ -1,10 +1,13 @@
 import {
   BookOpenText,
+  Calculator,
   Handshake,
   Home,
+  Mail,
   Newspaper,
   PlaySquare,
   ShieldCheck,
+  ShoppingBag,
   Smartphone,
   type LucideIcon,
 } from "lucide-react";
@@ -23,6 +26,10 @@ export const primaryNavigation: NavigationItem[] = [
   { label: "Notícias", href: "/noticias", icon: Newspaper },
   { label: "Guias e tutoriais", shortLabel: "Guias", href: "/tutoriais", icon: BookOpenText },
   { label: "Aplicativos", shortLabel: "Apps", href: "/aplicativos", icon: Smartphone },
+  { label: "Produtos recomendados", href: "/produtos", icon: ShoppingBag },
+  { label: "Guia do iniciante", href: "/guia", icon: BookOpenText },
+  { label: "Calculadora EV", href: "/calculadora", icon: Calculator },
   { label: "Parceiros", href: "/parceiros", icon: Handshake },
+  { label: "Fale comigo", href: "/contato", icon: Mail },
   { label: "Área de membros", shortLabel: "VIP", href: "/membros", icon: ShieldCheck, badge: "EM BREVE" },
 ];

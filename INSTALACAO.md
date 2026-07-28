@@ -1,13 +1,21 @@
-# JNE App 0.2.0 — Conteúdo real
+# JNE App 0.3.0 — Paridade funcional
 
-Esta atualização substitui as páginas demonstrativas de Vídeos, Tutoriais, Aplicativos e Parceiros por conteúdo real e organizado em arquivos de dados.
+Este pacote adiciona:
+
+- Produtos recomendados;
+- Guia do iniciante;
+- Calculadora EV x combustão;
+- Página de contato;
+- Navegação atualizada;
+- Home atualizada;
+- Versão 0.3.0;
+- Controles ainda não funcionais identificados como "em breve".
 
 ## Instalação
 
-1. Extraia o ZIP.
-2. Copie as pastas `src` e `public` para a raiz do projeto.
-3. Confirme a substituição dos arquivos.
-4. Execute:
+Copie as pastas `src` para a raiz do projeto e permita substituir os arquivos.
+
+Depois execute:
 
 ```powershell
 Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue
@@ -15,20 +23,9 @@ npm run build
 npm run dev
 ```
 
-## Publicação
+Rotas novas:
 
-```powershell
-git add .
-git commit -m "feat: adicionar conteudo real ao JNE App"
-git push origin main
-```
-
-## Conteúdo centralizado
-
-Os dados desta fase ficam em:
-
-```text
-src/data/content.ts
-```
-
-Isso permite editar vídeos, tutoriais, aplicativos e parceiros sem alterar o código visual das páginas.
+- `/produtos`
+- `/guia`
+- `/calculadora`
+- `/contato`
