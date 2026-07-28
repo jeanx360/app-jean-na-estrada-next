@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { AppShell } from "@/components/AppShell";
+import { PwaManager } from "@/components/PwaManager";
 import "./globals.css";
 
 const basePath = process.env.PAGES_BASE_PATH ?? "";
@@ -41,6 +42,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       </head>
       <body>
         <AppShell>{children}</AppShell>
+        <PwaManager />
       </body>
     </html>
   );

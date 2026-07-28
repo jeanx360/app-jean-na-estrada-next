@@ -9,6 +9,7 @@ import {
   ShieldCheck,
   ShoppingBag,
   Smartphone,
+  Settings,
   type LucideIcon,
 } from "lucide-react";
 
@@ -31,5 +32,6 @@ export const primaryNavigation: NavigationItem[] = [
   { label: "Calculadora EV", href: "/calculadora", icon: Calculator },
   { label: "Parceiros", href: "/parceiros", icon: Handshake },
   { label: "Fale comigo", href: "/contato", icon: Mail },
+  { label: "Configurações", href: "/configuracoes", icon: Settings },
   { label: "Área de membros", shortLabel: "VIP", href: "/membros", icon: ShieldCheck, badge: "EM BREVE" },
 ];

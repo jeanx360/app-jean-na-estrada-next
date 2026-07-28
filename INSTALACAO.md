@@ -1,21 +1,14 @@
-# JNE App 0.3.0 — Paridade funcional
+# JNE App 0.4.0 — PWA e funcionamento offline
 
-Este pacote adiciona:
+1. Extraia o ZIP na raiz do projeto e confirme a substituição dos arquivos.
+2. Não é necessário instalar nova dependência.
+3. Atualize a versão:
 
-- Produtos recomendados;
-- Guia do iniciante;
-- Calculadora EV x combustão;
-- Página de contato;
-- Navegação atualizada;
-- Home atualizada;
-- Versão 0.3.0;
-- Controles ainda não funcionais identificados como "em breve".
+```powershell
+npm version 0.4.0 --no-git-tag-version
+```
 
-## Instalação
-
-Copie as pastas `src` para a raiz do projeto e permita substituir os arquivos.
-
-Depois execute:
+4. Limpe o build e compile:
 
 ```powershell
 Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue
@@ -23,9 +16,7 @@ npm run build
 npm run dev
 ```
 
-Rotas novas:
+5. Confira o visual em `http://localhost:3000/configuracoes`.
+6. Envie para o GitHub Pages para testar instalação, atualização e modo offline em ambiente de produção.
 
-- `/produtos`
-- `/guia`
-- `/calculadora`
-- `/contato`
+> O Service Worker fica desativado durante `npm run dev` para não prender arquivos antigos no cache. O botão de instalação depende do navegador. Em Chrome/Edge ele aparece quando os critérios do PWA forem atendidos. No iPhone, a instalação é feita pelo menu Compartilhar do Safari.
