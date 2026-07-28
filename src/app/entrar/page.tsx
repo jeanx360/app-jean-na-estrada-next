@@ -1,11 +1,17 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { AuthCard } from "@/components/AuthCard";
 import { AuthForm } from "@/components/AuthForm";
+import { getAuthContext } from "@/lib/auth";
 
 export const metadata: Metadata = {
   title: "Entrar",
   description: "Acesse sua conta no JNE App.",
 };
+
+function safeNext(value: string | undefined) {
+  return value?.startsWith("/") && !value.startsWith("//") ? value : "/membros";
+}
 
 export default async function LoginPage({
   searchParams,
@@ -13,7 +19,12 @@ export default async function LoginPage({
   searchParams: Promise<{ next?: string; erro?: string }>;
 }) {
   const params = await searchParams;
-  const next = params.next?.startsWith("/") ? params.next : "/membros";
+  const next = safeNext(params.next);
+  const { userId, profile } = await getAuthContext();
+
+  if (userId && !profile?.is_blocked) {
+    redirect(next);
+  }
 
   return (
     <AuthCard

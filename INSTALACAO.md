@@ -1,137 +1,45 @@
-# JNE App 0.6.0 — Node, Supabase e área VIP
+# Correção 0.7.1 — sessão, download e cache PWA
 
-Esta atualização deve ser aplicada na branch `develop`. Ela remove a exportação estática e transforma o projeto em uma aplicação Next.js com servidor na Vercel.
+## Problemas corrigidos
 
-## 1. Confirmar a branch
+- Voltar do download não deixa a tela VIP.
+- Login não permanece no histórico do navegador.
+- Usuário autenticado não volta para uma tela de login antiga.
+- Service Worker antigo é removido automaticamente durante `npm run dev`.
+- HTML e respostas privadas deixam de ser armazenados no cache PWA.
+- Requisições internas do App Router/RSC não são interceptadas pelo Service Worker.
+- Script inicial de tema passa a usar `next/script`.
+- Endpoint de download recebe `Cache-Control: no-store`.
+
+## Instalação
+
+1. Copie as pastas `src` e `public` deste pacote para a raiz do projeto.
+2. Confirme a substituição dos arquivos.
+3. Atualize a versão:
 
 ```powershell
-git checkout develop
-git status
+npm version 0.7.1 --no-git-tag-version
 ```
 
-## 2. Extrair o pacote
-
-Copie todo o conteúdo deste ZIP para a raiz do projeto e confirme a substituição dos arquivos.
-
-## 3. Instalar o Supabase
-
-```powershell
-npm install @supabase/ssr @supabase/supabase-js
-npm version 0.6.0 --no-git-tag-version
-```
-
-## 4. Variáveis locais
-
-Crie `.env.local` na raiz usando `.env.example` como referência:
-
-```env
-NEXT_PUBLIC_SUPABASE_URL=https://SEU-PROJETO.supabase.co
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_SUBSTITUA_AQUI
-```
-
-Nunca envie `.env.local`, senha do banco, Secret key ou `service_role` ao GitHub.
-
-## 5. Criar o banco e as regras
-
-No Supabase:
-
-`SQL Editor → New query`
-
-Cole todo o conteúdo de:
-
-`supabase/schema.sql`
-
-Clique em `Run`.
-
-O SQL cria:
-
-- perfis com papéis `member`, `vip` e `admin`;
-- perfil automático para cada nova conta;
-- tabela de conteúdos VIP;
-- regras RLS;
-- bucket privado `vip-files`;
-- políticas para impedir acesso comum aos arquivos VIP.
-
-## 6. Configurar URLs do Supabase Auth
-
-No Supabase:
-
-`Authentication → URL Configuration`
-
-Use:
-
-```text
-Site URL:
-https://app-jean-na-estrada-next.vercel.app
-```
-
-Adicione em Redirect URLs:
-
-```text
-http://localhost:3000/**
-https://app-jean-na-estrada-next.vercel.app/**
-```
-
-## 7. Conferir variáveis na Vercel
-
-Na Vercel:
-
-`Project → Settings → Environment Variables`
-
-Confirme estas duas variáveis em Production, Preview e Development:
-
-```text
-NEXT_PUBLIC_SUPABASE_URL
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
-```
-
-Depois faça um Redeploy ou envie um novo commit.
-
-## 8. Testar localmente
+4. Apague o build anterior:
 
 ```powershell
 Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue
+```
+
+5. Execute:
+
+```powershell
 npm run build
 npm run dev
 ```
 
-Teste:
+## Limpeza única no navegador
 
-```text
-http://localhost:3000/diagnostico
-http://localhost:3000/api/health
-http://localhost:3000/cadastro
-http://localhost:3000/entrar
-http://localhost:3000/membros
-http://localhost:3000/vip
-```
+Depois de abrir `http://localhost:3000`, pressione `F12` e faça:
 
-## 9. Criar a primeira conta
+1. Application → Service Workers → Unregister.
+2. Application → Storage → Clear site data.
+3. Feche a aba e abra o endereço novamente.
 
-Cadastre sua conta pelo próprio JNE App. Se a confirmação de e-mail estiver ativa no Supabase, abra o e-mail e confirme.
-
-Depois, no SQL Editor, substitua o endereço no comando abaixo pelo e-mail da sua conta:
-
-```sql
-update public.profiles
-set role = 'admin'
-where id = (
-  select id from auth.users where email = 'SEU_EMAIL_AQUI'
-);
-```
-
-Não transforme outras contas em administradoras.
-
-## 10. Publicar na Vercel
-
-```powershell
-git add .
-git commit -m "feat: adicionar autenticacao e area VIP"
-git push origin develop
-```
-
-A Vercel fará o deploy automaticamente. O GitHub Pages da branch `main` continuará intacto.
-
-## Observação sobre o PWA
-
-Páginas públicas continuam usando cache. Login, conta, VIP, diagnóstico, rotas de autenticação e API foram excluídos do cache para impedir que dados privados sejam armazenados ou exibidos para outra sessão.
+O novo código também faz essa limpeza automaticamente em desenvolvimento, mas a limpeza manual garante que o worker antigo não controle a primeira carga.

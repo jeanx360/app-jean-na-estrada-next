@@ -9,6 +9,28 @@ type InstallPromptEvent = Event & {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 };
 
+async function removeDevelopmentPwaState() {
+  const tasks: Promise<unknown>[] = [];
+
+  if ("serviceWorker" in navigator) {
+    tasks.push(
+      navigator.serviceWorker
+        .getRegistrations()
+        .then((registrations) => Promise.all(registrations.map((registration) => registration.unregister()))),
+    );
+  }
+
+  if ("caches" in window) {
+    tasks.push(
+      caches
+        .keys()
+        .then((keys) => Promise.all(keys.filter((key) => key.startsWith("jne-app-")).map((key) => caches.delete(key)))),
+    );
+  }
+
+  await Promise.all(tasks);
+}
+
 export function PwaManager() {
   const installPrompt = useRef<InstallPromptEvent | null>(null);
   const registrationRef = useRef<ServiceWorkerRegistration | null>(null);
@@ -19,7 +41,6 @@ export function PwaManager() {
 
   const requestInstall = useCallback(async () => {
     const prompt = installPrompt.current;
-
     if (!prompt) return;
 
     await prompt.prompt();
@@ -34,10 +55,7 @@ export function PwaManager() {
 
   const applyUpdate = useCallback(() => {
     const waitingWorker = registrationRef.current?.waiting;
-
-    if (waitingWorker) {
-      waitingWorker.postMessage({ type: "SKIP_WAITING" });
-    }
+    if (waitingWorker) waitingWorker.postMessage({ type: "SKIP_WAITING" });
   }, []);
 
   useEffect(() => {
@@ -47,9 +65,7 @@ export function PwaManager() {
     const handleOffline = () => setOnline(false);
     const handleInstallRequest = () => void requestInstall();
     const handleInstallQuery = () => {
-      if (installPrompt.current) {
-        window.dispatchEvent(new Event("jne-install-ready"));
-      }
+      if (installPrompt.current) window.dispatchEvent(new Event("jne-install-ready"));
     };
 
     window.addEventListener("online", handleOnline);
@@ -89,7 +105,15 @@ export function PwaManager() {
   }, []);
 
   useEffect(() => {
-    if (process.env.NODE_ENV !== "production" || !("serviceWorker" in navigator)) return;
+    if (!("serviceWorker" in navigator)) return;
+
+    if (process.env.NODE_ENV !== "production") {
+      const hadController = Boolean(navigator.serviceWorker.controller);
+      void removeDevelopmentPwaState().then(() => {
+        if (hadController) window.location.reload();
+      });
+      return;
+    }
 
     let refreshing = false;
 
@@ -102,13 +126,14 @@ export function PwaManager() {
     navigator.serviceWorker.addEventListener("controllerchange", handleControllerChange);
 
     void navigator.serviceWorker
-      .register(publicPath("/sw.js"), { scope: publicPath("/") })
+      .register(publicPath("/sw.js"), {
+        scope: publicPath("/"),
+        updateViaCache: "none",
+      })
       .then((registration) => {
         registrationRef.current = registration;
 
-        if (registration.waiting) {
-          setUpdateAvailable(true);
-        }
+        if (registration.waiting) setUpdateAvailable(true);
 
         registration.addEventListener("updatefound", () => {
           const worker = registration.installing;
@@ -141,7 +166,7 @@ export function PwaManager() {
           <WifiOff size={19} />
           <div>
             <strong>Você está offline</strong>
-            <span>O conteúdo já visitado continua disponível.</span>
+            <span>As áreas de conta e VIP exigem conexão.</span>
           </div>
         </div>
       ) : null}
@@ -172,7 +197,7 @@ export function PwaManager() {
           <RefreshCw size={19} />
           <div>
             <strong>Nova versão disponível</strong>
-            <span>Atualize para receber as últimas melhorias.</span>
+            <span>Atualize para evitar arquivos antigos no navegador.</span>
           </div>
           <button className="pwa-toast__action" type="button" onClick={applyUpdate}>
             Atualizar

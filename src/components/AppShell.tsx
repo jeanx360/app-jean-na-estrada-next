@@ -14,7 +14,6 @@ function normalizePath(pathname: string) {
   if (pathname.length > 1 && pathname.endsWith("/")) {
     return pathname.slice(0, -1);
   }
-
   return pathname;
 }
 
@@ -28,7 +27,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "";
-
     return () => {
       document.body.style.overflow = "";
     };
@@ -59,7 +57,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
         <div className="topbar__actions">
           <GlobalSearch />
-
           <Link className="icon-button" href="/configuracoes" aria-label="Configurações do aplicativo">
             <Settings size={20} />
           </Link>
@@ -97,7 +94,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           {primaryNavigation.map((item) => {
             const active = pathname === normalizePath(item.href);
             const Icon = item.icon;
-
             return (
               <Link
                 key={item.href}
@@ -119,7 +115,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <p>Vídeos, tutoriais, aplicativos, parceiros e área VIP em um só lugar.</p>
         </div>
 
-        <p className="sidebar__version">Versão de desenvolvimento 0.6.0</p>
+        <p className="sidebar__version" suppressHydrationWarning>Versão de desenvolvimento 0.7.1</p>
       </aside>
 
       <main className="app-main">{children}</main>
@@ -128,7 +124,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         {mobileItems.map((item) => {
           const active = pathname === normalizePath(item.href);
           const Icon = item.icon;
-
           return (
             <Link
               key={item.href}
@@ -141,7 +136,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </Link>
           );
         })}
-
         <button
           className="bottom-navigation__item"
           type="button"

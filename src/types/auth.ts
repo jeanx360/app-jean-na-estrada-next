@@ -5,6 +5,9 @@ export type MemberProfile = {
   full_name: string | null;
   avatar_url: string | null;
   role: MemberRole;
+  is_blocked: boolean;
+  blocked_at: string | null;
+  blocked_reason: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -12,4 +15,8 @@ export type MemberProfile = {
 export type AuthActionState = {
   error?: string;
   success?: string;
+};
+
+export type AdminActionState = AuthActionState & {
+  code?: string;
 };

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Crown, LockKeyhole, ShieldAlert } from "lucide-react";
+import { Crown, Download, ExternalLink, FileText, LockKeyhole, ShieldAlert, Star } from "lucide-react";
 import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/PageHeader";
 import { getAuthContext } from "@/lib/auth";
@@ -14,6 +14,11 @@ type VipContent = {
   title: string;
   description: string | null;
   category: string;
+  content_type: "text" | "file" | "link";
+  external_url: string | null;
+  file_path: string | null;
+  content: { body?: string } | null;
+  is_featured: boolean;
   published_at: string;
 };
 
@@ -24,7 +29,8 @@ export default async function VipPage() {
     redirect("/entrar?next=/vip");
   }
 
-  const hasVipAccess = profile?.role === "vip" || profile?.role === "admin";
+  const hasVipAccess =
+    !profile?.is_blocked && (profile?.role === "vip" || profile?.role === "admin");
 
   if (!hasVipAccess) {
     return (
@@ -37,10 +43,11 @@ export default async function VipPage() {
         />
         <section className="vip-locked-card">
           <ShieldAlert size={38} />
-          <h2>Seu perfil ainda não possui acesso VIP</h2>
+          <h2>{profile?.is_blocked ? "Sua conta está bloqueada" : "Seu perfil ainda não possui acesso VIP"}</h2>
           <p>
-            Sua conta continua ativa como membro gratuito. A liberação VIP será feita por convite,
-            benefício ou autorização administrativa.
+            {profile?.is_blocked
+              ? "Entre em contato com a administração do JNE App."
+              : "Sua conta continua ativa como membro gratuito. Use um convite ou aguarde a liberação administrativa."}
           </p>
         </section>
       </div>
@@ -49,8 +56,9 @@ export default async function VipPage() {
 
   const { data, error } = await supabase
     .from("vip_content")
-    .select("id, title, description, category, published_at")
+    .select("id, title, description, category, content_type, external_url, file_path, content, is_featured, published_at")
     .eq("is_published", true)
+    .order("is_featured", { ascending: false })
     .order("published_at", { ascending: false });
 
   const items = (data ?? []) as VipContent[];
@@ -69,7 +77,7 @@ export default async function VipPage() {
           <ShieldAlert size={20} />
           <div>
             <strong>Conteúdo ainda não configurado</strong>
-            <p>Execute o SQL da versão 0.6.0 no Supabase antes de publicar conteúdos VIP.</p>
+            <p>Execute a migração SQL da versão 0.7.0 no Supabase.</p>
           </div>
         </div>
       ) : null}
@@ -77,18 +85,43 @@ export default async function VipPage() {
       <section className="vip-grid">
         {items.length ? (
           items.map((item) => (
-            <article className="vip-content-card" key={item.id}>
-              <span>{item.category}</span>
+            <article className={`vip-content-card ${item.is_featured ? "vip-content-card--featured" : ""}`} key={item.id}>
+              <div className="vip-content-card__topline">
+                <span>{item.category}</span>
+                {item.is_featured ? <small><Star size={13} /> Destaque</small> : null}
+              </div>
               <h2>{item.title}</h2>
               <p>{item.description || "Conteúdo exclusivo liberado para membros VIP."}</p>
-              <small>{new Intl.DateTimeFormat("pt-BR", { dateStyle: "medium" }).format(new Date(item.published_at))}</small>
+
+              {item.content_type === "text" && item.content?.body ? (
+                <div className="vip-content-card__body"><FileText size={17} /><p>{item.content.body}</p></div>
+              ) : null}
+
+              <div className="vip-content-card__footer">
+                <small>{new Intl.DateTimeFormat("pt-BR", { dateStyle: "medium" }).format(new Date(item.published_at))}</small>
+                {item.content_type === "file" && item.file_path ? (
+                  <a
+                    className="button button--primary"
+                    href={`/api/vip/download?id=${encodeURIComponent(item.id)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Download size={17} /> Baixar arquivo
+                  </a>
+                ) : null}
+                {item.content_type === "link" && item.external_url ? (
+                  <a className="button button--primary" href={item.external_url} target="_blank" rel="noopener noreferrer">
+                    <ExternalLink size={17} /> Abrir conteúdo
+                  </a>
+                ) : null}
+              </div>
             </article>
           ))
         ) : (
           <article className="vip-content-card vip-content-card--empty">
             <Crown size={30} />
             <h2>A área VIP está funcionando</h2>
-            <p>O acesso foi validado. Agora podemos cadastrar os primeiros conteúdos exclusivos.</p>
+            <p>O acesso foi validado. Cadastre o primeiro conteúdo pelo painel administrativo.</p>
           </article>
         )}
       </section>

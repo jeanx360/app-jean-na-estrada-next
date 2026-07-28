@@ -1,7 +1,7 @@
 "use server";
 
 import { headers } from "next/headers";
-import { redirect } from "next/navigation";
+import { redirect, RedirectType } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import type { AuthActionState } from "@/types/auth";
@@ -37,14 +37,24 @@ export async function loginAction(
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
-
-  if (error) {
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error || !data.user) {
     return { error: "Não foi possível entrar. Confira o e-mail, a senha e a confirmação da conta." };
   }
 
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("is_blocked")
+    .eq("id", data.user.id)
+    .maybeSingle();
+
+  if (profile?.is_blocked) {
+    await supabase.auth.signOut();
+    return { error: "Esta conta está bloqueada. Entre em contato com a administração do JNE App." };
+  }
+
   revalidatePath("/", "layout");
-  redirect(next);
+  redirect(next, RedirectType.replace);
 }
 
 export async function signupAction(
@@ -59,7 +69,6 @@ export async function signupAction(
   if (!fullName || !email || !password) {
     return { error: "Preencha nome, e-mail e senha." };
   }
-
   if (password.length < 8) {
     return { error: "A senha precisa ter pelo menos 8 caracteres." };
   }
@@ -78,7 +87,6 @@ export async function signupAction(
       emailRedirectTo: `${origin}/auth/confirm?next=/membros`,
     },
   });
-
   if (error) {
     return { error: "Não foi possível criar a conta. Verifique os dados ou tente outro e-mail." };
   }
@@ -90,7 +98,7 @@ export async function signupAction(
   }
 
   revalidatePath("/", "layout");
-  redirect("/membros");
+  redirect("/membros", RedirectType.replace);
 }
 
 export async function requestPasswordResetAction(
@@ -98,7 +106,6 @@ export async function requestPasswordResetAction(
   formData: FormData,
 ): Promise<AuthActionState> {
   const email = readText(formData, "email");
-
   if (!email) {
     return { error: "Informe o e-mail cadastrado." };
   }
@@ -147,5 +154,5 @@ export async function logoutAction() {
   const supabase = await createClient();
   await supabase.auth.signOut();
   revalidatePath("/", "layout");
-  redirect("/entrar");
+  redirect("/entrar", RedirectType.replace);
 }

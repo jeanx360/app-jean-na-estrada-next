@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { AppShell } from "@/components/AppShell";
 import { PwaManager } from "@/components/PwaManager";
 import "./globals.css";
@@ -31,16 +32,14 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
+const themeBootstrap = `(function(){try{var t=localStorage.getItem("jne-app-theme");var a=["dark","light","red","green","blue"];if(a.indexOf(t)===-1)t="dark";document.documentElement.dataset.theme=t;document.documentElement.style.colorScheme=t==="light"?"light":"dark"}catch(e){document.documentElement.dataset.theme="dark"}})();`;
+
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="pt-BR" data-theme="dark" suppressHydrationWarning>
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem("jne-app-theme");var a=["dark","light","red","green","blue"];if(a.indexOf(t)===-1)t="dark";document.documentElement.dataset.theme=t;document.documentElement.style.colorScheme=t==="light"?"light":"dark"}catch(e){document.documentElement.dataset.theme="dark"}})();`,
-          }}
-        />
-      </head>
+      <Script id="jne-theme-bootstrap" strategy="beforeInteractive">
+        {themeBootstrap}
+      </Script>
       <body>
         <AppShell>{children}</AppShell>
         <PwaManager />
