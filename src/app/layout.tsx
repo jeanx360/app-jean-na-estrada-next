@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { AppShell } from "@/components/AppShell";
 import { PwaManager } from "@/components/PwaManager";
 import "./globals.css";
+import "./auth.css";
 
 const basePath = process.env.PAGES_BASE_PATH ?? "";
 

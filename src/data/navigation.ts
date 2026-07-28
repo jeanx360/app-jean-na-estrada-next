@@ -1,6 +1,7 @@
 import {
   BookOpenText,
   Calculator,
+  Crown,
   Handshake,
   Home,
   Mail,
@@ -33,5 +34,6 @@ export const primaryNavigation: NavigationItem[] = [
   { label: "Parceiros", href: "/parceiros", icon: Handshake },
   { label: "Fale comigo", href: "/contato", icon: Mail },
   { label: "Configurações", href: "/configuracoes", icon: Settings },
-  { label: "Área de membros", shortLabel: "VIP", href: "/membros", icon: ShieldCheck, badge: "EM BREVE" },
+  { label: "Área de membros", shortLabel: "Conta", href: "/membros", icon: ShieldCheck, badge: "LOGIN" },
+  { label: "Área VIP", shortLabel: "VIP", href: "/vip", icon: Crown, badge: "VIP" },
 ];

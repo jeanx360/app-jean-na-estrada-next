@@ -1,33 +1,38 @@
-const CACHE_VERSION = "jne-app-v0.5.0";
+const CACHE_VERSION = "jne-app-v0.6.0";
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const APP_ROUTES = [
-  "./",
-  "./offline.html",
-  "./manifest.webmanifest",
-  "./data/content-feed.json",
-  "./videos/",
-  "./noticias/",
-  "./tutoriais/",
-  "./aplicativos/",
-  "./produtos/",
-  "./guia/",
-  "./calculadora/",
-  "./parceiros/",
-  "./contato/",
-  "./membros/",
-  "./configuracoes/",
-  "./icons/app-icon-192.png",
-  "./icons/app-icon-512.png",
+  "/",
+  "/offline.html",
+  "/manifest.webmanifest",
+  "/data/content-feed.json",
+  "/videos",
+  "/noticias",
+  "/tutoriais",
+  "/aplicativos",
+  "/produtos",
+  "/guia",
+  "/calculadora",
+  "/parceiros",
+  "/contato",
+  "/configuracoes",
+  "/icons/app-icon-192.png",
+  "/icons/app-icon-512.png",
 ];
 
-function scopedUrl(relativePath) {
-  return new URL(relativePath, self.registration.scope).toString();
-}
+const PRIVATE_PREFIXES = [
+  "/membros",
+  "/vip",
+  "/entrar",
+  "/cadastro",
+  "/recuperar-senha",
+  "/atualizar-senha",
+  "/auth/",
+  "/api/",
+  "/diagnostico",
+];
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE_VERSION).then((cache) => cache.addAll(APP_ROUTES.map(scopedUrl)))
-  );
+  event.waitUntil(caches.open(CACHE_VERSION).then((cache) => cache.addAll(APP_ROUTES)));
 });
 
 self.addEventListener("activate", (event) => {
@@ -39,18 +44,16 @@ self.addEventListener("activate", (event) => {
           Promise.all(
             keys
               .filter((key) => key.startsWith("jne-app-") && key !== CACHE_VERSION && key !== RUNTIME_CACHE)
-              .map((key) => caches.delete(key))
-          )
+              .map((key) => caches.delete(key)),
+          ),
         ),
       self.clients.claim(),
-    ])
+    ]),
   );
 });
 
 self.addEventListener("message", (event) => {
-  if (event.data?.type === "SKIP_WAITING") {
-    self.skipWaiting();
-  }
+  if (event.data?.type === "SKIP_WAITING") self.skipWaiting();
 });
 
 async function networkFirst(request) {
@@ -58,18 +61,15 @@ async function networkFirst(request) {
 
   try {
     const response = await fetch(request);
-
-    if (response.ok) {
-      await cache.put(request, response.clone());
-    }
-
+    const canCache = response.ok && !response.headers.has("set-cookie") && response.type === "basic";
+    if (canCache) await cache.put(request, response.clone());
     return response;
   } catch {
     return (
       (await cache.match(request)) ||
       (await caches.match(request)) ||
-      (await caches.match(scopedUrl("./"))) ||
-      (await caches.match(scopedUrl("./offline.html")))
+      (await caches.match("/")) ||
+      (await caches.match("/offline.html"))
     );
   }
 }
@@ -79,12 +79,10 @@ async function cacheFirst(request) {
   if (cached) return cached;
 
   const response = await fetch(request);
-
-  if (response.ok) {
+  if (response.ok && response.type === "basic") {
     const cache = await caches.open(RUNTIME_CACHE);
     await cache.put(request, response.clone());
   }
-
   return response;
 }
 
@@ -92,7 +90,10 @@ self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  if (request.method !== "GET" || url.origin !== self.location.origin) {
+  if (request.method !== "GET" || url.origin !== self.location.origin) return;
+
+  if (PRIVATE_PREFIXES.some((prefix) => url.pathname.startsWith(prefix))) {
+    event.respondWith(fetch(request));
     return;
   }
 
@@ -105,7 +106,5 @@ self.addEventListener("fetch", (event) => {
     url.pathname.includes("/_next/static/") ||
     /\.(?:css|js|png|jpg|jpeg|webp|svg|ico|woff2?)$/i.test(url.pathname);
 
-  if (isStaticAsset) {
-    event.respondWith(cacheFirst(request));
-  }
+  if (isStaticAsset) event.respondWith(cacheFirst(request));
 });
