@@ -1,20 +1,18 @@
-# JNE App 0.1.1 — Sistema de temas
+# JNE App 0.1.2 — Tema Escuro preto
 
-## Incluído
+## Alteração
 
-- Temas Escuro, Claro, Vermelho, Verde e Azul.
-- Seletor com bolinhas no cabeçalho.
-- Troca instantânea em todas as páginas.
-- Preferência salva no `localStorage`.
-- Tema aplicado antes da interface aparecer, evitando a piscada do tema padrão.
-- Atualização dinâmica da cor da barra do navegador/PWA.
-- Correção do manifesto compatível com `output: "export"`.
+- O tema Escuro agora usa preto e cinzas neutros como base.
+- O tema Azul permanece separado, com fundo azulado.
+- Claro, Vermelho, Verde e Azul não foram alterados.
+- A bolinha do tema Escuro agora é preta.
+- A cor padrão do PWA e da barra do navegador foi atualizada para preto.
 
 ## Instalação
 
 1. Extraia o ZIP.
 2. Copie a pasta `src` para a raiz do projeto.
-3. Confirme a substituição dos arquivos existentes.
+3. Confirme a substituição dos arquivos.
 4. Execute:
 
 ```powershell
@@ -23,12 +21,10 @@ npm run build
 npm run dev
 ```
 
-Acesse `http://localhost:3000` e teste as cinco bolinhas no cabeçalho.
-
 ## Publicação
 
 ```powershell
 git add .
-git commit -m "feat: adicionar sistema de temas"
+git commit -m "style: diferenciar tema escuro do tema azul"
 git push origin main
 ```

@@ -11,7 +11,7 @@ export const themes: Array<{
   color: string;
   lightDot?: boolean;
 }> = [
-  { id: "dark", label: "Escuro", color: "#1e293b" },
+  { id: "dark", label: "Escuro", color: "#050505" },
   { id: "light", label: "Claro", color: "#f1f5f9", lightDot: true },
   { id: "red", label: "Vermelho", color: "#7f1d1d" },
   { id: "green", label: "Verde", color: "#14532d" },

@@ -10,8 +10,8 @@ export default function manifest(): MetadataRoute.Manifest {
       "Conteúdo automotivo, tutoriais, vídeos e benefícios em um só lugar.",
     start_url: ".",
     display: "standalone",
-    background_color: "#07101d",
-    theme_color: "#07101d",
+    background_color: "#050505",
+    theme_color: "#050505",
     orientation: "portrait",
     icons: [
       {

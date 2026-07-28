@@ -11,7 +11,7 @@ import {
 } from "@/data/themes";
 
 const themeColors: Record<ThemeId, string> = {
-  dark: "#070b16",
+  dark: "#050505",
   light: "#f8fafc",
   red: "#0c0506",
   green: "#030d07",
