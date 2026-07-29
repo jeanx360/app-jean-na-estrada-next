@@ -12,7 +12,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         icon={<ShieldCheck size={24} />}
         eyebrow="ADMINISTRAÇÃO JNE"
         title="Painel administrativo"
-        description="Gerencie membros, validade do VIP, assinaturas, pagamentos, publicações, manuais, aplicativos, carrossel e conteúdos exclusivos sem editar o código."
+        description="Gerencie membros, validade do VIP, assinaturas, pagamentos, comunidade, publicações, manuais, aplicativos, carrossel e conteúdos exclusivos sem editar o código."
       />
       <AdminNav />
       {children}

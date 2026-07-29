@@ -104,6 +104,7 @@ export default async function SubscribePage() {
             </div>
             <ul>
               <li><CheckCircle2 size={17} /> Conteúdos e arquivos exclusivos</li>
+              <li><CheckCircle2 size={17} /> Acesso à Comunidade VIP do JNE App</li>
               <li><CheckCircle2 size={17} /> Benefícios e materiais para membros</li>
               <li><CheckCircle2 size={17} /> Liberação vinculada à sua conta JNE</li>
             </ul>

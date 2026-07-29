@@ -9,6 +9,7 @@ import {
   KeyRound,
   LayoutDashboard,
   Megaphone,
+  MessageCircle,
   ScrollText,
   UsersRound,
 } from "lucide-react";
@@ -17,6 +18,7 @@ const items = [
   { href: "/admin", label: "Visão geral", icon: LayoutDashboard },
   { href: "/admin/membros", label: "Membros e VIP", icon: UsersRound },
   { href: "/admin/assinatura", label: "Assinatura e pagamentos", icon: CreditCard },
+  { href: "/admin/comunidade", label: "Comunidade VIP", icon: MessageCircle },
   { href: "/admin/convites", label: "Convites VIP", icon: KeyRound },
   { href: "/admin/recados", label: "Recados", icon: Megaphone },
   { href: "/admin/notificacoes", label: "Notificações", icon: BellRing },

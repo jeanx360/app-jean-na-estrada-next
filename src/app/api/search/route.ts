@@ -27,6 +27,12 @@ type PublicContentRow = {
 
 type VehicleBrandRow = { id: string; name: string; slug: string };
 type VehicleModelRow = { id: string; brand_id: string; name: string; slug: string };
+type CommunitySearchRow = {
+  id: string;
+  title: string;
+  body: string;
+};
+
 type VehicleDocumentRow = {
   id: string;
   model_id: string;
@@ -64,7 +70,7 @@ export async function GET() {
   const canAccessVip = !profile?.is_blocked && (profile?.role === "vip" || profile?.role === "admin");
   const now = new Date().toISOString();
 
-  const [contentsResult, brandsResult, modelsResult, documentsResult] = await Promise.all([
+  const [contentsResult, brandsResult, modelsResult, documentsResult, communityResult] = await Promise.all([
     supabase
       .from("public_contents")
       .select("content_type, title, slug, summary, category, metadata")
@@ -91,12 +97,21 @@ export async function GET() {
       .or(`published_at.is.null,published_at.lte.${now}`)
       .order("sort_order", { ascending: true })
       .limit(500),
+    canAccessVip
+      ? supabase
+          .from("community_posts")
+          .select("id, title, body")
+          .eq("is_hidden", false)
+          .order("created_at", { ascending: false })
+          .limit(100)
+      : Promise.resolve({ data: [] as CommunitySearchRow[] }),
   ]);
 
   const contents = (contentsResult.data ?? []) as PublicContentRow[];
   const brands = (brandsResult.data ?? []) as VehicleBrandRow[];
   const models = (modelsResult.data ?? []) as VehicleModelRow[];
   const documents = (documentsResult.data ?? []) as VehicleDocumentRow[];
+  const communityPosts = (communityResult.data ?? []) as CommunitySearchRow[];
 
   const brandById = new Map(brands.map((brand) => [brand.id, brand]));
   const modelById = new Map(models.map((model) => [model.id, model]));
@@ -116,6 +131,16 @@ export async function GET() {
       href: contentHref(item),
       category: contentCategory(item.content_type),
       keywords: [item.category, compatibility, origin, version, item.slug].filter(Boolean).join(" "),
+    });
+  }
+
+  for (const post of communityPosts) {
+    items.push({
+      title: post.title,
+      description: post.body.length > 160 ? `${post.body.slice(0, 160).trim()}…` : post.body,
+      href: `/comunidade/${post.id}`,
+      category: "Comunidade",
+      keywords: `comunidade vip membros conversa ${post.body}`,
     });
   }
 

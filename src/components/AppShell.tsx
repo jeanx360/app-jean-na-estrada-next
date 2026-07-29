@@ -34,7 +34,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }, [menuOpen]);
 
   const mobileItems = useMemo(() => {
-    const mobileHrefs = ["/", "/videos", "/aplicativos", "/membros"];
+    const mobileHrefs = ["/", "/videos", "/comunidade", "/membros"];
     return primaryNavigation.filter((item) => mobileHrefs.includes(item.href));
   }, []);
 
@@ -114,7 +114,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <p>Vídeos, tutoriais, aplicativos, parceiros e área VIP em um só lugar.</p>
         </div>
 
-        <p className="sidebar__version" suppressHydrationWarning>Versão 1.3.0</p>
+        <p className="sidebar__version" suppressHydrationWarning>Versão 1.4.0</p>
       </aside>
 
       <main className="app-main">

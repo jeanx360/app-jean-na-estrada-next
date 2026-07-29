@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Crown, Download, ExternalLink, FileText, LockKeyhole, ShieldAlert, Star } from "lucide-react";
+import { Crown, Download, ExternalLink, FileText, LockKeyhole, MessageCircle, ShieldAlert, Star } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/PageHeader";
@@ -77,6 +77,18 @@ export default async function VipPage() {
         title="Área VIP"
         description="Tutoriais, arquivos, recados e benefícios exclusivos do JNE App."
       />
+
+      <section className="vip-community-banner">
+        <div>
+          <MessageCircle size={25} />
+          <div>
+            <span>COMUNIDADE VIP</span>
+            <h2>Converse com outros membros do JNE App</h2>
+            <p>Publique dúvidas, experiências, imagens e enquetes em um espaço exclusivo e moderado.</p>
+          </div>
+        </div>
+        <Link className="button button--primary" href="/comunidade">Entrar na comunidade</Link>
+      </section>
 
       {error ? (
         <div className="member-warning">
