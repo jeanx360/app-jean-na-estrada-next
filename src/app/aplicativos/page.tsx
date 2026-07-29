@@ -8,6 +8,7 @@ import {
   Globe2,
   LockKeyhole,
   PackageCheck,
+  SearchX,
   ShieldCheck,
 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
@@ -32,8 +33,27 @@ function formatFileSize(value?: number) {
   return `${size >= 10 || index === 0 ? size.toFixed(0) : size.toFixed(1)} ${units[index]}`;
 }
 
-export default async function AppsPage() {
-  const applications = await getApplications();
+function normalize(value: string) {
+  return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+
+type Props = {
+  searchParams: Promise<{ busca?: string }>;
+};
+
+export default async function AppsPage({ searchParams }: Props) {
+  const [{ busca }, applications] = await Promise.all([searchParams, getApplications()]);
+  const query = typeof busca === "string" ? busca.trim() : "";
+  const normalizedQuery = normalize(query);
+  const visibleApplications = normalizedQuery
+    ? applications.filter((application) => normalize([
+        application.name,
+        application.description,
+        application.compatibility,
+        application.origin,
+        application.version,
+      ].filter(Boolean).join(" ")).includes(normalizedQuery))
+    : applications;
 
   return (
     <div className="page-stack">
@@ -43,8 +63,18 @@ export default async function AppsPage() {
         description="Arquivos hospedados no JNE App e aplicativos externos reunidos com versão, origem, compatibilidade e informações de segurança."
       />
 
+      {query ? (
+        <section className="catalog-search-context" aria-live="polite">
+          <div>
+            <span>RESULTADO DA BUSCA</span>
+            <strong>{visibleApplications.length} item(ns) para “{query}”</strong>
+          </div>
+          <a href="/aplicativos">Limpar busca</a>
+        </section>
+      ) : null}
+
       <section className="apps-grid" aria-label="Aplicativos disponíveis">
-        {applications.map((application) => {
+        {visibleApplications.map((application) => {
           const isUpload = application.deliveryType === "upload";
           const isVip = application.accessLevel === "vip";
           const size = formatFileSize(application.fileSize);
@@ -72,24 +102,13 @@ export default async function AppsPage() {
               <p>{application.description}</p>
 
               <dl>
-                <div>
-                  <dt>Compatibilidade informada</dt>
-                  <dd>{application.compatibility}</dd>
-                </div>
-                <div>
-                  <dt>Origem</dt>
-                  <dd>{application.origin || "Origem não informada"}</dd>
-                </div>
+                <div><dt>Compatibilidade informada</dt><dd>{application.compatibility}</dd></div>
+                <div><dt>Origem</dt><dd>{application.origin || "Origem não informada"}</dd></div>
                 <div>
                   <dt>Forma de acesso</dt>
                   <dd>{isUpload ? <><FileArchive size={14} /> Download pelo JNE App{size ? ` · ${size}` : ""}</> : <><Globe2 size={14} /> Site ou repositório externo</>}</dd>
                 </div>
-                {application.fileName ? (
-                  <div>
-                    <dt>Arquivo</dt>
-                    <dd>{application.fileName}</dd>
-                  </div>
-                ) : null}
+                {application.fileName ? <div><dt>Arquivo</dt><dd>{application.fileName}</dd></div> : null}
               </dl>
 
               {application.checksumSha256 ? (
@@ -99,18 +118,22 @@ export default async function AppsPage() {
                 </details>
               ) : null}
 
-              <a
-                className="button button--primary app-card__action"
-                href={application.href}
-                target="_blank"
-                rel="noreferrer"
-              >
+              <a className="button button--primary app-card__action" href={application.href} target="_blank" rel="noreferrer">
                 {isUpload ? <CloudDownload size={17} /> : <ExternalLink size={17} />}
                 {application.buttonLabel || (isUpload ? "Baixar arquivo" : "Abrir aplicativo")}
               </a>
             </article>
           );
         })}
+
+        {!visibleApplications.length ? (
+          <div className="catalog-search-empty">
+            <SearchX size={28} />
+            <strong>Nenhum aplicativo encontrado.</strong>
+            <p>Tente outro termo ou limpe a busca para visualizar todo o catálogo.</p>
+            <a className="button button--secondary" href="/aplicativos">Ver todos</a>
+          </div>
+        ) : null}
       </section>
 
       <section className="security-panel">
@@ -118,9 +141,7 @@ export default async function AppsPage() {
         <div>
           <span>CATÁLOGO ORGANIZADO</span>
           <h2>Arquivos próprios e fontes externas no mesmo lugar.</h2>
-          <p>
-            Cada item pode indicar versão, origem, compatibilidade, tamanho e checksum. Aplicativos externos abrem a página informada pelo administrador; arquivos hospedados são entregues por link temporário.
-          </p>
+          <p>Cada item pode indicar versão, origem, compatibilidade, tamanho e checksum. Aplicativos externos abrem a página informada pelo administrador; arquivos hospedados são entregues por link temporário.</p>
         </div>
         <BadgeCheck size={25} />
       </section>

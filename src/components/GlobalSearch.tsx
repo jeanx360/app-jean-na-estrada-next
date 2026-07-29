@@ -21,6 +21,11 @@ type SearchItem = {
   href: string;
   category: string;
   external?: boolean;
+  keywords?: string;
+};
+
+type SearchApiResponse = {
+  items?: SearchItem[];
 };
 
 function normalize(value: string) {
@@ -46,7 +51,7 @@ const staticItems: SearchItem[] = [
   ...applications.map((item) => ({
     title: item.name,
     description: `${item.description} ${item.compatibility}`,
-    href: "/aplicativos",
+    href: `/aplicativos?busca=${encodeURIComponent(item.name)}`,
     category: "Aplicativo",
   })),
   ...products.map((item) => ({
@@ -84,6 +89,8 @@ export function GlobalSearch() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [feed, setFeed] = useState<LiveContentFeed | null>(null);
+  const [catalogItems, setCatalogItems] = useState<SearchItem[]>([]);
+  const [catalogLoaded, setCatalogLoaded] = useState(false);
 
   useEffect(() => {
     setOpen(false);
@@ -101,6 +108,19 @@ export function GlobalSearch() {
       .then(setFeed)
       .catch(() => setFeed(null));
   }, [feed, open]);
+
+  useEffect(() => {
+    if (!open || catalogLoaded) return;
+
+    void fetch("/api/search", { cache: "no-store" })
+      .then((response) => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return response.json() as Promise<SearchApiResponse>;
+      })
+      .then((data) => setCatalogItems(Array.isArray(data.items) ? data.items : []))
+      .catch(() => setCatalogItems([]))
+      .finally(() => setCatalogLoaded(true));
+  }, [catalogLoaded, open]);
 
   useEffect(() => {
     if (!open) return;
@@ -155,7 +175,7 @@ export function GlobalSearch() {
     ];
 
     const deduped = new Map<string, SearchItem>();
-    [...liveItems, ...staticItems].forEach((item) => {
+    [...catalogItems, ...liveItems, ...staticItems].forEach((item) => {
       deduped.set(`${item.category}:${item.title}`, item);
     });
 
@@ -163,7 +183,9 @@ export function GlobalSearch() {
     const all = Array.from(deduped.values());
 
     if (!normalizedQuery) {
-      return all.filter((item) => ["Página", "Tutorial", "Aplicativo"].includes(item.category)).slice(0, 7);
+      return all
+        .filter((item) => ["Página", "Manual", "Aplicativo", "Tutorial"].includes(item.category))
+        .slice(0, 9);
     }
 
     return all
@@ -171,19 +193,21 @@ export function GlobalSearch() {
         const title = normalize(item.title);
         const description = normalize(item.description);
         const category = normalize(item.category);
+        const keywords = normalize(item.keywords ?? "");
         let score = 0;
-        if (title === normalizedQuery) score += 8;
-        if (title.startsWith(normalizedQuery)) score += 5;
-        if (title.includes(normalizedQuery)) score += 3;
+        if (title === normalizedQuery) score += 10;
+        if (title.startsWith(normalizedQuery)) score += 6;
+        if (title.includes(normalizedQuery)) score += 4;
         if (category.includes(normalizedQuery)) score += 2;
+        if (keywords.includes(normalizedQuery)) score += 2;
         if (description.includes(normalizedQuery)) score += 1;
         return { item, score };
       })
       .filter((result) => result.score > 0)
       .sort((a, b) => b.score - a.score)
-      .slice(0, 10)
+      .slice(0, 12)
       .map((result) => result.item);
-  }, [feed, query]);
+  }, [catalogItems, feed, query]);
 
   function openSearch() {
     setOpen(true);
@@ -202,14 +226,21 @@ export function GlobalSearch() {
 
   return (
     <>
-      <button className="search-box" type="button" onClick={openSearch} aria-label="Pesquisar no JNE App">
+      <button className="search-box global-search__desktop-trigger" type="button" onClick={openSearch} aria-label="Pesquisar no JNE App">
         <Search size={18} />
         <span>Pesquisar no JNE App</span>
         <kbd>Ctrl K</kbd>
       </button>
 
-      <button className="icon-button global-search__mobile-button" type="button" onClick={openSearch} aria-label="Pesquisar">
-        <Search size={20} />
+      <button
+        className="global-search__mobile-trigger"
+        type="button"
+        onClick={openSearch}
+        aria-label="Pesquisar no JNE App"
+        aria-expanded={open}
+      >
+        <Search size={17} />
+        <span>Pesquisar no JNE App</span>
       </button>
 
       {open ? (
@@ -228,7 +259,7 @@ export function GlobalSearch() {
                 type="search"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="Vídeos, tutoriais, aplicativos, parceiros..."
+                placeholder="Veículo, manual, aplicativo, vídeo..."
                 aria-label="Digite sua pesquisa"
               />
               <button type="button" onClick={() => setOpen(false)} aria-label="Fechar pesquisa">
@@ -255,7 +286,7 @@ export function GlobalSearch() {
                 <div className="search-empty">
                   <Search size={25} />
                   <strong>Nenhum resultado encontrado.</strong>
-                  <p>Tente pesquisar por veículo, tutorial, aplicativo ou parceiro.</p>
+                  <p>Tente pesquisar por veículo, manual, aplicativo, tutorial ou parceiro.</p>
                 </div>
               )}
             </div>

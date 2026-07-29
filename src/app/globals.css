@@ -4864,3 +4864,185 @@ button {
 .admin-uploaded-file-box strong { color:var(--text); }
 .admin-uploaded-file-box small { overflow-wrap:anywhere; color:var(--text-muted); }
 .auth-message--warning { border-color:rgb(245 158 11/.34); color:#f59e0b; background:rgb(245 158 11/.08); }
+
+/* =========================================================
+   JNE APP 1.1.1 — BUSCA CENTRAL NO MOBILE
+   ========================================================= */
+.topbar__search {
+  min-width: 0;
+  display: flex;
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.topbar__search .search-box {
+  width: min(360px, 34vw);
+}
+
+.topbar__actions {
+  flex: 0 0 auto;
+}
+
+.global-search__mobile-trigger {
+  display: none;
+}
+
+.catalog-search-context {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 15px 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--elevated-panel);
+}
+
+.catalog-search-context div {
+  display: grid;
+  gap: 3px;
+}
+
+.catalog-search-context span {
+  color: var(--accent-secondary);
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.catalog-search-context strong {
+  font-size: 13px;
+}
+
+.catalog-search-context a {
+  color: var(--accent-secondary);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.catalog-search-empty {
+  grid-column: 1 / -1;
+  display: grid;
+  justify-items: center;
+  gap: 9px;
+  padding: 42px 22px;
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius-md);
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.catalog-search-empty svg {
+  color: var(--accent-secondary);
+}
+
+.catalog-search-empty strong {
+  color: var(--text);
+}
+
+.catalog-search-empty p {
+  max-width: 440px;
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+@media (max-width: 960px) {
+  :root {
+    --header-height: 116px;
+  }
+
+  .topbar {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    grid-template-areas:
+      "menu brand theme actions"
+      "search search search search";
+    align-content: center;
+    column-gap: 10px;
+    row-gap: 7px;
+    padding: 7px 14px 9px;
+  }
+
+  .topbar__menu-button {
+    grid-area: menu;
+  }
+
+  .topbar__brand-link {
+    grid-area: brand;
+    min-width: 0;
+  }
+
+  .topbar > .theme-picker {
+    grid-area: theme;
+  }
+
+  .topbar__search {
+    grid-area: search;
+    width: 100%;
+  }
+
+  .topbar__actions {
+    grid-area: actions;
+  }
+
+  .global-search__desktop-trigger {
+    display: none;
+  }
+
+  .global-search__mobile-trigger {
+    width: 100%;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 0 14px;
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    color: var(--text-muted);
+    background: var(--input-bg);
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  }
+
+  .global-search__mobile-trigger:hover,
+  .global-search__mobile-trigger:focus-visible {
+    border-color: var(--line-strong);
+    outline: 0;
+    color: var(--text);
+    background: rgb(var(--accent-rgb) / 0.1);
+  }
+
+  .global-search__mobile-trigger span {
+    overflow: hidden;
+    font-size: 11px;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 430px) {
+  .topbar {
+    padding-right: 8px;
+    padding-left: 8px;
+  }
+
+  .topbar__actions .notification-button {
+    display: inline-flex;
+  }
+
+  .topbar__settings-button {
+    display: none !important;
+  }
+
+  .global-search__mobile-trigger {
+    height: 39px;
+  }
+
+  .catalog-search-context {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

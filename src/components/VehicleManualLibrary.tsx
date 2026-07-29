@@ -55,15 +55,28 @@ function documentHref(document: VehicleDocumentRow) {
 type Props = {
   brands: VehicleLibraryBrand[];
   canAccessVip: boolean;
+  initialBrandSlug?: string;
+  initialModelSlug?: string;
+  initialYear?: string;
 };
 
-export function VehicleManualLibrary({ brands, canAccessVip }: Props) {
-  const firstBrand = brands[0];
+export function VehicleManualLibrary({
+  brands,
+  canAccessVip,
+  initialBrandSlug,
+  initialModelSlug,
+  initialYear,
+}: Props) {
+  const firstBrand = brands.find((brand) => brand.slug === initialBrandSlug) ?? brands[0];
+  const initialModel = firstBrand?.models.find((model) => model.slug === initialModelSlug) ?? firstBrand?.models[0];
+  const availableInitialYears = initialModel?.documents.flatMap((item) => item.years).sort((a, b) => b - a) ?? [];
+  const requestedYear = initialYear ? Number(initialYear) : undefined;
+  const selectedInitialYear = requestedYear && availableInitialYears.includes(requestedYear)
+    ? requestedYear
+    : availableInitialYears[0];
   const [brandId, setBrandId] = useState(firstBrand?.id ?? "");
-  const initialModel = firstBrand?.models[0];
   const [modelId, setModelId] = useState(initialModel?.id ?? "");
-  const initialYear = initialModel?.documents.flatMap((item) => item.years).sort((a, b) => b - a)[0];
-  const [year, setYear] = useState(initialYear ? String(initialYear) : "");
+  const [year, setYear] = useState(selectedInitialYear ? String(selectedInitialYear) : "");
 
   const selectedBrand = useMemo(
     () => brands.find((brand) => brand.id === brandId) ?? brands[0],

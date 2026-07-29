@@ -56,14 +56,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
         <ThemePicker />
 
-        <div className="topbar__actions">
+        <div className="topbar__search">
           <GlobalSearch />
-          <Link className="icon-button" href="/configuracoes" aria-label="Configurações do aplicativo">
+        </div>
+
+        <div className="topbar__actions">
+          <Link className="icon-button topbar__settings-button" href="/configuracoes" aria-label="Configurações do aplicativo">
             <Settings size={20} />
           </Link>
-
           <NotificationBell />
-
           <AccountChip />
         </div>
       </header>
@@ -113,7 +114,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <p>Vídeos, tutoriais, aplicativos, parceiros e área VIP em um só lugar.</p>
         </div>
 
-        <p className="sidebar__version" suppressHydrationWarning>Versão 1.1.0</p>
+        <p className="sidebar__version" suppressHydrationWarning>Versão 1.1.1</p>
       </aside>
 
       <main className="app-main">
