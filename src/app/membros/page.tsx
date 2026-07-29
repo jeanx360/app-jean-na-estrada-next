@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { BadgeCheck, Crown, KeyRound, LogOut, Megaphone, ShieldAlert, ShieldCheck, UserRound, Video, Wrench } from "lucide-react";
+import { CalendarClock, Crown, KeyRound, LogOut, Megaphone, ShieldAlert, ShieldCheck, UserRound, WalletCards, Wrench } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { logoutAction } from "@/app/auth/actions";
@@ -10,7 +10,7 @@ import { getLegalAcceptanceStatus } from "@/lib/legal";
 
 export const metadata: Metadata = {
   title: "Área de membros",
-  description: "Perfil, recados e conteúdos liberados para membros do JNE App.",
+  description: "Perfil, recados, assinatura e conteúdos liberados para membros do JNE App.",
 };
 
 const roleLabels = {
@@ -27,12 +27,25 @@ type Announcement = {
   published_at: string;
 };
 
+type VipEntitlement = {
+  source: "admin" | "invite" | "youtube" | "partner" | "subscription" | "legacy";
+  label: string | null;
+  expires_at: string | null;
+};
+
+const sourceLabels: Record<VipEntitlement["source"], string> = {
+  admin: "Liberação manual",
+  invite: "Convite VIP",
+  youtube: "Membro do YouTube",
+  partner: "Parceiro",
+  subscription: "Assinatura direta",
+  legacy: "Acesso anterior",
+};
+
 export default async function MembersPage() {
   const { userId, email, profile, supabase } = await getAuthContext();
 
-  if (!userId) {
-    redirect("/entrar?next=/membros");
-  }
+  if (!userId) redirect("/entrar?next=/membros");
 
   const legal = await getLegalAcceptanceStatus(supabase, userId);
   if (!legal.complete) redirect("/aceite?next=/membros");
@@ -43,110 +56,80 @@ export default async function MembersPage() {
   if (profile?.is_blocked) {
     return (
       <div className="page-stack">
-        <PageHeader
-          icon={<ShieldAlert size={24} />}
-          eyebrow="CONTA RESTRITA"
-          title="Acesso bloqueado"
-          description="Sua conta está autenticada, mas o acesso às áreas de membros foi suspenso."
-        />
+        <PageHeader icon={<ShieldAlert size={24} />} eyebrow="CONTA RESTRITA" title="Acesso bloqueado" description="Sua conta está autenticada, mas o acesso às áreas de membros foi suspenso." />
         <section className="vip-locked-card">
           <ShieldAlert size={38} />
           <h2>Esta conta foi bloqueada</h2>
           <p>{profile.blocked_reason || "Entre em contato com a administração do JNE App para verificar a situação."}</p>
-          <form action={logoutAction}>
-            <button className="button button--secondary" type="submit"><LogOut size={18} /> Sair da conta</button>
-          </form>
+          <form action={logoutAction}><button className="button button--secondary" type="submit"><LogOut size={18} /> Sair da conta</button></form>
         </section>
       </div>
     );
   }
 
-  const { data: announcementsData } = await supabase
-    .from("announcements")
-    .select("id, title, message, audience, published_at")
-    .order("published_at", { ascending: false })
-    .limit(10);
-  const announcements = (announcementsData ?? []) as Announcement[];
+  const [{ data: announcementsData }, { data: entitlementData }, { data: planData }] = await Promise.all([
+    supabase.from("announcements").select("id, title, message, audience, published_at").order("published_at", { ascending: false }).limit(10),
+    supabase
+      .from("vip_entitlements")
+      .select("source, label, expires_at")
+      .eq("user_id", userId)
+      .eq("is_active", true)
+      .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    supabase.from("vip_plan_settings").select("plan_name, price_cents, is_active").eq("id", 1).maybeSingle(),
+  ]);
 
-  const { data: youtubeLink } = await supabase
-    .from("youtube_member_links")
-    .select("member_channel_id, display_name, last_verified_at")
-    .eq("user_id", userId)
-    .maybeSingle();
+  const announcements = (announcementsData ?? []) as Announcement[];
+  const entitlement = entitlementData as VipEntitlement | null;
+  const planPrice = Number(planData?.price_cents ?? 0);
 
   return (
     <div className="page-stack">
-      <PageHeader
-        icon={<UserRound size={24} />}
-        eyebrow="CONTA JNE"
-        title={`Olá, ${displayName}`}
-        description="Acompanhe sua conta, os recados da comunidade e os conteúdos liberados para seu perfil."
-      />
+      <PageHeader icon={<UserRound size={24} />} eyebrow="CONTA JNE" title={`Olá, ${displayName}`} description="Acompanhe sua conta, validade do VIP, pagamentos e comunicados da comunidade." />
 
       {!profile ? (
-        <div className="member-warning">
-          <ShieldCheck size={20} />
-          <div>
-            <strong>Perfil ainda não sincronizado</strong>
-            <p>Execute os arquivos SQL do Supabase para criar e atualizar a tabela de perfis.</p>
-          </div>
-        </div>
+        <div className="member-warning"><ShieldCheck size={20} /><div><strong>Perfil ainda não sincronizado</strong><p>Execute os arquivos SQL do Supabase para criar e atualizar a tabela de perfis.</p></div></div>
       ) : null}
 
       <section className="member-dashboard">
         <article className="member-profile-card">
           <div className="member-avatar">{displayName.slice(0, 2).toUpperCase()}</div>
-          <div>
-            <span className={`role-badge role-badge--${role}`}>{roleLabels[role]}</span>
-            <h2>{displayName}</h2>
-            <p>{email}</p>
-          </div>
+          <div><span className={`role-badge role-badge--${role}`}>{roleLabels[role]}</span><h2>{displayName}</h2><p>{email}</p></div>
         </article>
 
         <article className="member-action-card">
           <Crown size={24} />
           <div>
             <h2>Área VIP</h2>
-            <p>
-              {role === "vip" || role === "admin"
-                ? "Seu perfil possui acesso aos conteúdos exclusivos."
-                : "Use um convite válido ou aguarde a liberação administrativa."}
-            </p>
+            <p>{role === "vip" || role === "admin" ? "Seu perfil possui acesso aos conteúdos exclusivos." : "Assine o plano, use um convite ou aguarde a liberação administrativa."}</p>
+            {entitlement ? (
+              <small className="member-vip-validity"><CalendarClock size={14} /> {sourceLabels[entitlement.source]} · {entitlement.expires_at ? `até ${new Intl.DateTimeFormat("pt-BR", { dateStyle: "medium" }).format(new Date(entitlement.expires_at))}` : "sem validade"}</small>
+            ) : null}
           </div>
           <Link className="button button--primary" href="/vip">Abrir área VIP</Link>
         </article>
 
-        <article className="member-action-card member-action-card--youtube">
-          {youtubeLink ? <BadgeCheck size={24} /> : <Video size={24} />}
+        <article className="member-action-card member-action-card--subscription">
+          <WalletCards size={24} />
           <div>
-            <h2>Assinatura do YouTube</h2>
-            <p>
-              {youtubeLink
-                ? `Canal ${youtubeLink.display_name || "YouTube"} vinculado ao seu perfil.`
-                : "Vincule sua assinatura do canal Jean na Estrada para ativar o acesso VIP automaticamente."}
-            </p>
+            <h2>{planData?.plan_name || "Assinatura VIP"}</h2>
+            <p>{planData?.is_active ? `Plano disponível por ${new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(planPrice / 100)}.` : "Novas assinaturas estão temporariamente pausadas."}</p>
           </div>
-          <Link className="button button--secondary" href="/membros/youtube">
-            {youtubeLink ? "Ver vínculo" : "Vincular conta"}
-          </Link>
+          <Link className="button button--secondary" href="/assinar">Ver assinatura</Link>
         </article>
 
         <article className="member-action-card">
           <ShieldCheck size={24} />
-          <div>
-            <h2>Conta protegida</h2>
-            <p>Sua sessão é mantida por cookies seguros e validada pelo servidor.</p>
-          </div>
+          <div><h2>Conta protegida</h2><p>Sua sessão é mantida por cookies seguros e validada pelo servidor.</p></div>
           <div className="member-button-row"><Link className="button button--secondary" href="/perfil">Editar perfil</Link><Link className="button button--secondary" href="/atualizar-senha">Alterar senha</Link></div>
         </article>
 
         {role === "admin" ? (
           <article className="member-action-card member-action-card--admin">
             <Wrench size={24} />
-            <div>
-              <h2>Painel administrativo</h2>
-              <p>Gerencie membros, convites, recados, conteúdos e arquivos privados.</p>
-            </div>
+            <div><h2>Painel administrativo</h2><p>Gerencie membros, validade do VIP, pagamentos, conteúdos e arquivos privados.</p></div>
             <Link className="button button--primary" href="/admin">Abrir painel</Link>
           </article>
         ) : null}
@@ -154,47 +137,25 @@ export default async function MembersPage() {
 
       {role === "member" ? (
         <section className="member-invite-card">
-          <div>
-            <KeyRound size={24} />
-            <div>
-              <span>CONVITE VIP</span>
-              <h2>Recebeu um código de acesso?</h2>
-              <p>Digite o convite exatamente como recebeu para liberar sua conta.</p>
-            </div>
-          </div>
+          <div><KeyRound size={24} /><div><span>CONVITE VIP</span><h2>Recebeu um código de acesso?</h2><p>Digite o convite exatamente como recebeu para liberar sua conta.</p></div></div>
           <RedeemInviteForm />
         </section>
       ) : null}
 
       <section className="member-announcements">
-        <div className="member-announcements__heading">
-          <Megaphone size={22} />
-          <div><span>COMUNICADOS</span><h2>Recados para você</h2></div>
-        </div>
+        <div className="member-announcements__heading"><Megaphone size={22} /><div><span>COMUNICADOS</span><h2>Recados para você</h2></div></div>
         <div className="member-announcements__list">
           {announcements.map((item) => (
             <article key={item.id}>
-              <div>
-                <span>{item.audience === "vip" ? "VIP" : item.audience === "admin" ? "ADMIN" : "JNE APP"}</span>
-                <small>{new Intl.DateTimeFormat("pt-BR", { dateStyle: "medium" }).format(new Date(item.published_at))}</small>
-              </div>
-              <h3>{item.title}</h3>
-              <p>{item.message}</p>
+              <div><span>{item.audience === "vip" ? "VIP" : item.audience === "admin" ? "ADMIN" : "JNE APP"}</span><small>{new Intl.DateTimeFormat("pt-BR", { dateStyle: "medium" }).format(new Date(item.published_at))}</small></div>
+              <h3>{item.title}</h3><p>{item.message}</p>
             </article>
           ))}
-          {!announcements.length ? (
-            <article className="member-announcements__empty">
-              <Megaphone size={26} />
-              <h3>Nenhum recado novo</h3>
-              <p>Os comunicados publicados aparecerão aqui.</p>
-            </article>
-          ) : null}
+          {!announcements.length ? <article className="member-announcements__empty"><Megaphone size={26} /><h3>Nenhum recado novo</h3><p>Os comunicados publicados aparecerão aqui.</p></article> : null}
         </div>
       </section>
 
-      <form action={logoutAction}>
-        <button className="button button--secondary" type="submit"><LogOut size={18} /> Sair da conta</button>
-      </form>
+      <form action={logoutAction}><button className="button button--secondary" type="submit"><LogOut size={18} /> Sair da conta</button></form>
     </div>
   );
 }

@@ -2,6 +2,7 @@ import Link from "next/link";
 import {
   BellRing,
   BookOpenText,
+  CreditCard,
   Crown,
   FileText,
   Images,
@@ -10,13 +11,12 @@ import {
   Megaphone,
   ScrollText,
   UsersRound,
-  Video,
 } from "lucide-react";
 
 const items = [
   { href: "/admin", label: "Visão geral", icon: LayoutDashboard },
-  { href: "/admin/membros", label: "Membros", icon: UsersRound },
-  { href: "/admin/youtube", label: "Membros do YouTube", icon: Video },
+  { href: "/admin/membros", label: "Membros e VIP", icon: UsersRound },
+  { href: "/admin/assinatura", label: "Assinatura e pagamentos", icon: CreditCard },
   { href: "/admin/convites", label: "Convites VIP", icon: KeyRound },
   { href: "/admin/recados", label: "Recados", icon: Megaphone },
   { href: "/admin/notificacoes", label: "Notificações", icon: BellRing },

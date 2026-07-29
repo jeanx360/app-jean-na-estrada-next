@@ -3,6 +3,7 @@
 import { createHash, randomBytes } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/admin";
+import { createAdminClient } from "@/lib/supabase/admin";
 import type { AdminActionState, MemberRole } from "@/types/auth";
 
 function readText(formData: FormData, key: string) {
@@ -240,4 +241,204 @@ export async function deleteVipContentAction(formData: FormData) {
   if (error) throw new Error(error.message);
   revalidatePath("/admin/conteudos");
   revalidatePath("/vip");
+}
+
+
+function parseMoneyToCents(value: string) {
+  const normalized = value
+    .replace(/\s/g, "")
+    .replace(/^R\$/i, "")
+    .replace(/\./g, "")
+    .replace(",", ".");
+  const amount = Number(normalized);
+  if (!Number.isFinite(amount) || amount < 0) return null;
+  return Math.round(amount * 100);
+}
+
+function normalizeDateTime(value: string) {
+  if (!value) return null;
+  const date = new Date(`${value}T23:59:59-03:00`);
+  return Number.isNaN(date.getTime()) ? null : date.toISOString();
+}
+
+export async function setMemberAdminAction(formData: FormData) {
+  const { supabase } = await requireAdmin();
+  const targetUserId = readText(formData, "userId");
+  const makeAdmin = readText(formData, "makeAdmin") === "true";
+
+  if (!targetUserId) throw new Error("Membro inválido.");
+
+  const { error } = await supabase.rpc("admin_set_member_admin", {
+    target_user_id: targetUserId,
+    make_admin: makeAdmin,
+  });
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/admin/membros");
+  revalidatePath("/membros");
+}
+
+export async function grantVipAccessAction(formData: FormData) {
+  const { supabase } = await requireAdmin();
+  const targetUserId = readText(formData, "userId");
+  const source = readText(formData, "source");
+  const label = readText(formData, "label");
+  const noExpiry = readBoolean(formData, "noExpiry");
+  const expiresAt = normalizeDateTime(readText(formData, "expiresAt"));
+
+  if (!targetUserId) throw new Error("Membro inválido.");
+  if (!noExpiry && !expiresAt) throw new Error("Informe a validade ou marque sem validade.");
+
+  const { error } = await supabase.rpc("admin_upsert_vip_entitlement", {
+    target_user_id: targetUserId,
+    entitlement_source: source,
+    entitlement_label: label || null,
+    entitlement_expires_at: expiresAt,
+    entitlement_no_expiry: noExpiry,
+  });
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/admin/membros");
+  revalidatePath("/membros");
+  revalidatePath("/vip");
+}
+
+export async function revokeVipAccessAction(formData: FormData) {
+  const { supabase } = await requireAdmin();
+  const entitlementId = readText(formData, "entitlementId");
+  if (!entitlementId) throw new Error("Acesso VIP inválido.");
+
+  const { error } = await supabase.rpc("admin_revoke_vip_entitlement", {
+    target_entitlement_id: entitlementId,
+  });
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/admin/membros");
+  revalidatePath("/membros");
+  revalidatePath("/vip");
+}
+
+export async function updateVipPlanSettingsAction(formData: FormData) {
+  const { supabase, userId } = await requireAdmin();
+  const planName = readText(formData, "planName");
+  const description = readText(formData, "description");
+  const priceCents = parseMoneyToCents(readText(formData, "price"));
+  const billingDays = Number(readText(formData, "billingDays") || "30");
+  const recurringPaymentLink = readText(formData, "recurringPaymentLink");
+  const pixEnabled = readBoolean(formData, "pixEnabled");
+  const pixKeyType = readText(formData, "pixKeyType");
+  const pixKey = readText(formData, "pixKey");
+  const pixHolderName = readText(formData, "pixHolderName");
+  const pixInstructions = readText(formData, "pixInstructions");
+  const isActive = readBoolean(formData, "isActive");
+
+  if (!planName || !description) throw new Error("Informe o nome e a descrição do plano.");
+  if (priceCents === null) throw new Error("Valor da assinatura inválido.");
+  if (!Number.isInteger(billingDays) || billingDays < 1 || billingDays > 366) {
+    throw new Error("A validade padrão precisa ficar entre 1 e 366 dias.");
+  }
+  if (recurringPaymentLink && !/^https:\/\//i.test(recurringPaymentLink)) {
+    throw new Error("O link de pagamento precisa começar com https://");
+  }
+  if (pixEnabled && (!pixKey || !pixHolderName || !pixKeyType)) {
+    throw new Error("Preencha o tipo, a chave e o titular do Pix.");
+  }
+
+  const { error } = await supabase
+    .from("vip_plan_settings")
+    .update({
+      plan_name: planName,
+      description,
+      price_cents: priceCents,
+      billing_days: billingDays,
+      recurring_payment_link: recurringPaymentLink || null,
+      pix_enabled: pixEnabled,
+      pix_key_type: pixEnabled ? pixKeyType : null,
+      pix_key: pixEnabled ? pixKey : null,
+      pix_holder_name: pixEnabled ? pixHolderName : null,
+      pix_instructions: pixEnabled ? pixInstructions || null : null,
+      is_active: isActive,
+      updated_by: userId,
+    })
+    .eq("id", 1);
+
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin/assinatura");
+  revalidatePath("/assinar");
+  revalidatePath("/membros");
+}
+
+export async function reviewSubscriptionRequestAction(formData: FormData) {
+  const { supabase } = await requireAdmin();
+  const requestId = readText(formData, "requestId");
+  const decision = readText(formData, "decision");
+  const noExpiry = readBoolean(formData, "noExpiry");
+  const expiresAt = normalizeDateTime(readText(formData, "expiresAt"));
+  const notes = readText(formData, "notes");
+
+  if (!requestId || !["approve", "reject"].includes(decision)) {
+    throw new Error("Pedido de assinatura inválido.");
+  }
+  if (decision === "approve" && !noExpiry && !expiresAt) {
+    throw new Error("Informe a validade do acesso aprovado.");
+  }
+
+  const { error } = await supabase.rpc("admin_review_subscription_request", {
+    target_request_id: requestId,
+    approve_request: decision === "approve",
+    entitlement_expires_at: decision === "approve" ? expiresAt : null,
+    entitlement_no_expiry: decision === "approve" ? noExpiry : false,
+    review_notes: notes || null,
+  });
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/admin/assinatura");
+  revalidatePath("/admin/membros");
+  revalidatePath("/membros");
+  revalidatePath("/vip");
+}
+
+export async function deleteMemberAccountAction(formData: FormData) {
+  const { supabase, userId } = await requireAdmin();
+  const targetUserId = readText(formData, "userId");
+
+  if (!targetUserId) throw new Error("Conta inválida.");
+  if (targetUserId === userId) throw new Error("Você não pode excluir a própria conta pelo painel.");
+
+  const { data: target, error: targetError } = await supabase
+    .from("profiles")
+    .select("id, role, avatar_path")
+    .eq("id", targetUserId)
+    .maybeSingle();
+  if (targetError) throw new Error(targetError.message);
+  if (!target) throw new Error("Conta não encontrada.");
+  if (target.role === "admin") {
+    throw new Error("Remova o nível administrativo antes de excluir esta conta.");
+  }
+
+  const admin = createAdminClient();
+
+  await admin
+    .from("push_subscriptions")
+    .update({ is_active: false, user_id: null })
+    .eq("user_id", targetUserId);
+
+  if (target.avatar_path) {
+    await admin.storage.from("avatars").remove([target.avatar_path]);
+  }
+
+  const { data: proofFiles } = await admin.storage
+    .from("vip-payment-proofs")
+    .list(targetUserId, { limit: 100 });
+  if (proofFiles?.length) {
+    await admin.storage
+      .from("vip-payment-proofs")
+      .remove(proofFiles.map((file) => `${targetUserId}/${file.name}`));
+  }
+
+  const { error } = await admin.auth.admin.deleteUser(targetUserId);
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/admin/membros");
+  revalidatePath("/admin/assinatura");
 }

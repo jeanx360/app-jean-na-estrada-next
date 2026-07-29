@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Crown, Download, ExternalLink, FileText, LockKeyhole, ShieldAlert, Star } from "lucide-react";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/PageHeader";
 import { getAuthContext } from "@/lib/auth";
@@ -51,8 +52,9 @@ export default async function VipPage() {
           <p>
             {profile?.is_blocked
               ? "Entre em contato com a administração do JNE App."
-              : "Sua conta continua ativa como membro gratuito. Use um convite ou aguarde a liberação administrativa."}
+              : "Sua conta continua ativa como membro gratuito. Assine o plano, use um convite ou aguarde a liberação administrativa."}
           </p>
+          {!profile?.is_blocked ? <Link className="button button--primary" href="/assinar">Conhecer assinatura VIP</Link> : null}
         </section>
       </div>
     );

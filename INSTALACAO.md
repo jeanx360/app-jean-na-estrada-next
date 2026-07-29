@@ -1,23 +1,65 @@
-# Instalação — JNE App 1.2.2
+# Instalação — JNE App 1.3.0
 
-1. Extraia o ZIP.
-2. Copie `src` e `public` para a raiz do projeto e confirme as substituições.
-3. Execute:
+## 1. Copiar os arquivos
+
+Copie todo o conteúdo deste pacote para a raiz do projeto e confirme as substituições.
+
+## 2. Executar a migração
+
+No Supabase, abra o SQL Editor e execute:
+
+```text
+supabase/migrations/1.3.0_manual_vip_subscriptions.sql
+```
+
+Resultado esperado:
+
+```text
+Success. No rows returned
+```
+
+## 3. Atualizar a versão e compilar
 
 ```powershell
-npm version 1.2.2 --no-git-tag-version
+npm version 1.3.0 --no-git-tag-version
 Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue
 npm run build
 npm run dev
 ```
 
-Não existe migração do Supabase nesta atualização.
+## 4. Configurar a assinatura
 
-## Testes
+Abra:
 
-- Teste larguras de 360 px, 390 px, 430 px e 768 px.
-- Confirme dois atalhos por linha.
-- Em 380 px ou menos, confirme que somente as descrições dos atalhos são ocultadas.
-- Abra o menu e confirme que o card “JNE APP 2.0” não aparece.
-- Passe por todos os slides e confirme que títulos longos não ultrapassam as laterais.
-- Atualize ou reinstale o PWA caso o navegador mantenha CSS antigo em cache.
+```text
+http://localhost:3000/admin/assinatura
+```
+
+Cadastre:
+
+- nome do plano;
+- valor;
+- validade padrão;
+- link de assinatura recorrente;
+- Pix, caso seja usado;
+- status do plano.
+
+## 5. Testar
+
+- `/admin/membros`: conceder VIP por YouTube com validade e sem validade;
+- `/assinar`: abrir o link, copiar Pix e enviar pedido;
+- `/admin/assinatura`: abrir comprovante, aprovar e rejeitar;
+- `/vip`: confirmar liberação e bloqueio após expiração;
+- `/admin/membros`: excluir uma conta comum de teste.
+
+## 6. Publicar
+
+```powershell
+git add .
+git commit -m "feat: adicionar vip manual e assinatura direta"
+git push
+```
+
+## Google OAuth
+
+A integração automática ficou pausada e saiu da navegação e do cron. As tabelas antigas foram mantidas para uma possível retomada futura. Depois do deploy, as variáveis `GOOGLE_OAUTH_CLIENT_ID`, `GOOGLE_OAUTH_CLIENT_SECRET`, `GOOGLE_TOKEN_ENCRYPTION_KEY` e `YOUTUBE_CHANNEL_ID` podem ser removidas da Vercel caso não sejam usadas por outra função.

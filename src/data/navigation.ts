@@ -13,6 +13,7 @@ import {
   ShoppingBag,
   Smartphone,
   Settings,
+  WalletCards,
   type LucideIcon,
 } from "lucide-react";
 
@@ -39,5 +40,6 @@ export const primaryNavigation: NavigationItem[] = [
   { label: "Notificações", href: "/notificacoes", icon: BellRing },
   { label: "Configurações", href: "/configuracoes", icon: Settings },
   { label: "Área de membros", shortLabel: "Conta", href: "/membros", icon: ShieldCheck, badge: "LOGIN" },
+  { label: "Assinar VIP", shortLabel: "Assinar", href: "/assinar", icon: WalletCards, badge: "VIP" },
   { label: "Área VIP", shortLabel: "VIP", href: "/vip", icon: Crown, badge: "VIP" },
 ];

@@ -12,6 +12,10 @@ export async function getAuthContext() {
   }
 
   const email = typeof claims?.email === "string" ? claims.email : null;
+
+  // Recalcula o papel quando a validade de um acesso VIP termina.
+  await supabase.rpc("refresh_member_vip_role", { target_user_id: userId });
+
   const { data } = await supabase
     .from("profiles")
     .select(

@@ -3,6 +3,7 @@ import Link from "next/link";
 import {
   BellRing,
   BookOpenText,
+  CreditCard,
   Crown,
   Download,
   FileText,
@@ -12,10 +13,8 @@ import {
   ScrollText,
   UserPlus,
   UsersRound,
-  Video,
 } from "lucide-react";
 import { requireAdmin } from "@/lib/admin";
-import { createAdminClient } from "@/lib/supabase/admin";
 
 export const metadata: Metadata = {
   title: "Painel administrativo",
@@ -24,7 +23,6 @@ export const metadata: Metadata = {
 
 export default async function AdminDashboardPage() {
   const { supabase } = await requireAdmin();
-  const adminSupabase = createAdminClient();
   const [
     { data: metricsData },
     publicResult,
@@ -34,8 +32,8 @@ export default async function AdminDashboardPage() {
     inviteResult,
     manualsResult,
     carouselResult,
-    youtubeMembersResult,
-    youtubeLinksResult,
+    pendingSubscriptionsResult,
+    activeSubscriptionsResult,
   ] = await Promise.all([
     supabase.rpc("admin_dashboard_metrics"),
     supabase.from("public_contents").select("id", { count: "exact", head: true }),
@@ -45,15 +43,15 @@ export default async function AdminDashboardPage() {
     supabase.from("vip_invites").select("id", { count: "exact", head: true }),
     supabase.from("vehicle_documents").select("id", { count: "exact", head: true }),
     supabase.from("home_carousel_slides").select("id", { count: "exact", head: true }),
-    adminSupabase.from("youtube_members").select("member_channel_id", { count: "exact", head: true }).eq("is_active", true),
-    adminSupabase.from("vip_entitlements").select("id", { count: "exact", head: true }).eq("source", "youtube").eq("is_active", true),
+    supabase.from("vip_subscription_requests").select("id", { count: "exact", head: true }).eq("status", "pending"),
+    supabase.from("vip_entitlements").select("id", { count: "exact", head: true }).eq("source", "subscription").eq("is_active", true),
   ]);
   const metrics = Array.isArray(metricsData) ? metricsData[0] : metricsData;
 
   const cards = [
     { href: "/admin/membros", icon: UsersRound, label: "Contas", value: Number(metrics?.total_members ?? 0), detail: `${metrics?.vip_members ?? 0} VIP · ${metrics?.blocked_members ?? 0} bloqueados` },
     { href: "/admin/membros", icon: UserPlus, label: "Cadastros em 7 dias", value: Number(metrics?.recent_members ?? 0), detail: "Novas contas confirmadas" },
-    { href: "/admin/youtube", icon: Video, label: "Membros do YouTube", value: youtubeMembersResult.count ?? 0, detail: `${youtubeLinksResult.count ?? 0} acessos VIP ativos` },
+    { href: "/admin/assinatura", icon: CreditCard, label: "Pagamentos pendentes", value: pendingSubscriptionsResult.count ?? 0, detail: `${activeSubscriptionsResult.count ?? 0} assinaturas diretas ativas` },
     { href: "/admin/conteudos", icon: Download, label: "Downloads VIP", value: Number(metrics?.total_downloads ?? 0), detail: `${metrics?.downloads_last_7_days ?? 0} nos últimos 7 dias` },
     { href: "/admin/convites", icon: KeyRound, label: "Convites", value: inviteResult.count ?? 0, detail: `${metrics?.invite_redemptions ?? 0} ativações realizadas` },
     { href: "/admin/notificacoes", icon: BellRing, label: "Notificações", value: notificationResult.count ?? 0, detail: "Central interna e Web Push" },
