@@ -77,10 +77,25 @@ function buildMetadata(type: PublicContentType, formData: FormData) {
   }
 
   if (type === "application") {
+    const deliveryType = readText(formData, "deliveryType") === "upload" ? "upload" : "external";
+    const filePath = readText(formData, "appFilePath");
+    const fileName = readText(formData, "appFileName");
+    const fileSize = Number(readText(formData, "appFileSize") || "0");
+    if (deliveryType === "upload" && (!filePath || !fileName)) {
+      throw new Error("Envie um arquivo ou mantenha o arquivo já cadastrado antes de salvar.");
+    }
     return {
       compatibility: readText(formData, "compatibility") || "Compatibilidade não informada",
-      status: readText(formData, "status") || "Disponível no Drive",
+      status: readText(formData, "status") || "Disponível",
       origin: readText(formData, "origin") || "Jean na Estrada",
+      version: readText(formData, "version") || null,
+      deliveryType,
+      accessLevel: readText(formData, "accessLevel") === "vip" ? "vip" : "public",
+      filePath: deliveryType === "upload" ? filePath : null,
+      fileName: deliveryType === "upload" ? fileName : null,
+      fileSize: deliveryType === "upload" && Number.isFinite(fileSize) && fileSize > 0 ? fileSize : null,
+      checksumSha256: readText(formData, "checksumSha256") || null,
+      buttonLabel: readText(formData, "buttonLabel") || (deliveryType === "upload" ? "Baixar arquivo" : "Abrir página oficial"),
     };
   }
 
@@ -144,7 +159,9 @@ export async function savePublicContentAction(
   if (!isImageReference(imageUrl)) {
     return { error: "A imagem precisa começar com https:// ou usar um caminho interno iniciado por /." };
   }
-  if (type !== "tutorial" && !isHttpUrl(externalUrl)) {
+  const applicationDelivery = readText(formData, "deliveryType") === "upload" ? "upload" : "external";
+  const needsExternalUrl = type === "partner" || type === "product" || (type === "application" && applicationDelivery === "external");
+  if (needsExternalUrl && !isHttpUrl(externalUrl)) {
     return { error: "Informe um endereço externo iniciado por https://." };
   }
 
@@ -166,7 +183,7 @@ export async function savePublicContentAction(
     category: category || null,
     image_url: imageUrl || null,
     image_path: imagePath || null,
-    external_url: type === "tutorial" ? null : externalUrl,
+    external_url: type === "tutorial" || (type === "application" && applicationDelivery === "upload") ? null : externalUrl,
     metadata,
     is_published: isPublished,
     is_featured: isFeatured,
@@ -290,7 +307,7 @@ export async function deletePublicContentAction(formData: FormData) {
 
   const { data: item, error: readError } = await supabase
     .from("public_contents")
-    .select("image_path")
+    .select("image_path, metadata")
     .eq("id", contentId)
     .maybeSingle();
 
@@ -298,6 +315,12 @@ export async function deletePublicContentAction(formData: FormData) {
   if (item?.image_path) {
     const { error: storageError } = await supabase.storage.from("public-assets").remove([item.image_path]);
     if (storageError) throw new Error(storageError.message);
+  }
+  const metadata = (item?.metadata ?? {}) as Record<string, unknown>;
+  const appFilePath = typeof metadata.filePath === "string" ? metadata.filePath : "";
+  if (appFilePath) {
+    const { error: appStorageError } = await supabase.storage.from("app-files").remove([appFilePath]);
+    if (appStorageError) throw new Error(appStorageError.message);
   }
 
   const { error } = await supabase.from("public_contents").delete().eq("id", contentId);

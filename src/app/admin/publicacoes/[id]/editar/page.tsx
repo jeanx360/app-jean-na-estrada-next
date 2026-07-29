@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, ImageUp, Pencil } from "lucide-react";
 import { notFound } from "next/navigation";
+import { AdminApplicationFileUploader } from "@/components/AdminApplicationFileUploader";
 import { AdminPublicAssetUploader } from "@/components/AdminPublicAssetUploader";
 import { AdminPublicContentForm } from "@/components/AdminPublicContentForm";
 import { requireAdmin } from "@/lib/admin";
@@ -34,6 +35,13 @@ export default async function EditPublicContentPage({ params }: { params: Promis
           <div><span>ALTERAR IMAGEM</span><h2><ImageUp size={22} /> Enviar nova imagem</h2></div>
         </div>
         <AdminPublicAssetUploader />
+      </section>
+
+      <section className="admin-section">
+        <div className="admin-section__heading">
+          <div><span>NOVO ARQUIVO DO APP</span><h2><ImageUp size={22} /> Substituir arquivo hospedado</h2></div>
+        </div>
+        <AdminApplicationFileUploader />
       </section>
 
       <section className="admin-section">

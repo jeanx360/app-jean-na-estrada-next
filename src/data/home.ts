@@ -27,9 +27,9 @@ export const quickAccessItems: QuickAccessItem[] = [
     accent: "blue",
   },
   {
-    title: "Guias e tutoriais",
-    description: "Vídeos, PDFs e arquivos reunidos por veículo.",
-    href: "/tutoriais",
+    title: "Guia e manuais",
+    description: "Aprenda o básico e encontre documentos por veículo e ano.",
+    href: "/guia",
     icon: BookOpenText,
     accent: "cyan",
   },
@@ -56,7 +56,7 @@ export const quickAccessItems: QuickAccessItem[] = [
   },
   {
     title: "Membros VIP",
-    description: "Estrutura reservada para futuros conteúdos e benefícios.",
+    description: "Conteúdos, arquivos e benefícios exclusivos para membros.",
     href: "/membros",
     icon: ShieldCheck,
     accent: "orange",

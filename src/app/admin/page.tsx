@@ -1,19 +1,42 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { BellRing, Crown, Download, FileText, KeyRound, Megaphone, ScrollText, UserPlus, UsersRound } from "lucide-react";
+import {
+  BellRing,
+  BookOpenText,
+  Crown,
+  Download,
+  FileText,
+  Images,
+  KeyRound,
+  Megaphone,
+  ScrollText,
+  UserPlus,
+  UsersRound,
+} from "lucide-react";
 import { requireAdmin } from "@/lib/admin";
 
 export const metadata: Metadata = { title: "Painel administrativo", description: "Administração e métricas do JNE App." };
 
 export default async function AdminDashboardPage() {
   const { supabase } = await requireAdmin();
-  const [{ data: metricsData }, publicResult, vipResult, notificationResult, announcementResult, inviteResult] = await Promise.all([
+  const [
+    { data: metricsData },
+    publicResult,
+    vipResult,
+    notificationResult,
+    announcementResult,
+    inviteResult,
+    manualsResult,
+    carouselResult,
+  ] = await Promise.all([
     supabase.rpc("admin_dashboard_metrics"),
     supabase.from("public_contents").select("id", { count: "exact", head: true }),
     supabase.from("vip_content").select("id", { count: "exact", head: true }),
     supabase.from("notifications").select("id", { count: "exact", head: true }),
     supabase.from("announcements").select("id", { count: "exact", head: true }),
     supabase.from("vip_invites").select("id", { count: "exact", head: true }),
+    supabase.from("vehicle_documents").select("id", { count: "exact", head: true }),
+    supabase.from("home_carousel_slides").select("id", { count: "exact", head: true }),
   ]);
   const metrics = Array.isArray(metricsData) ? metricsData[0] : metricsData;
 
@@ -24,6 +47,8 @@ export default async function AdminDashboardPage() {
     { href: "/admin/convites", icon: KeyRound, label: "Convites", value: inviteResult.count ?? 0, detail: `${metrics?.invite_redemptions ?? 0} ativações realizadas` },
     { href: "/admin/notificacoes", icon: BellRing, label: "Notificações", value: notificationResult.count ?? 0, detail: "Central interna e Web Push" },
     { href: "/admin/publicacoes", icon: FileText, label: "Conteúdo público", value: publicResult.count ?? 0, detail: "Tutoriais, apps, parceiros e produtos" },
+    { href: "/admin/manuais", icon: BookOpenText, label: "Manuais", value: manualsResult.count ?? 0, detail: "Veículos, anos e documentação" },
+    { href: "/admin/home", icon: Images, label: "Carrossel", value: carouselResult.count ?? 0, detail: "Destaques rotativos da página inicial" },
     { href: "/admin/conteudos", icon: Crown, label: "Conteúdo VIP", value: vipResult.count ?? 0, detail: "Textos, links e arquivos privados" },
     { href: "/admin/recados", icon: Megaphone, label: "Recados", value: announcementResult.count ?? 0, detail: "Mensagens segmentadas" },
     { href: "/admin/logs", icon: ScrollText, label: "Auditoria", value: Number(metrics?.audit_events ?? 0), detail: "Alterações administrativas registradas" },

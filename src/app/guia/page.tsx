@@ -3,6 +3,7 @@ import Link from "next/link";
 import {
   ArrowRight,
   BatteryCharging,
+  BookOpenCheck,
   Car,
   CheckCircle2,
   Gauge,
@@ -10,27 +11,39 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
+import { VehicleManualLibrary } from "@/components/VehicleManualLibrary";
 import { beginnerGuide } from "@/data/content";
+import { getAuthContext } from "@/lib/auth";
+import { getVehicleLibrary } from "@/lib/vehicle-library";
 
-export const metadata: Metadata = { title: "Guia do iniciante" };
+export const metadata: Metadata = {
+  title: "Guia e manuais",
+  description: "Guia do iniciante e biblioteca de manuais por marca, veículo e ano.",
+};
+
+export const dynamic = "force-dynamic";
 
 const icons = [Car, Plug, Gauge, BatteryCharging, ShieldCheck];
 
-export default function BeginnerGuidePage() {
+export default async function BeginnerGuidePage() {
+  const [brands, auth] = await Promise.all([getVehicleLibrary(), getAuthContext()]);
+  const canAccessVip = auth.profile?.role === "vip" || auth.profile?.role === "admin";
+
   return (
     <div className="page-stack">
       <PageHeader
-        eyebrow="COMECE PELO ESSENCIAL"
-        title="Guia do iniciante em carros elétricos"
-        description="Uma visão prática para entender funcionamento, recarga, custos, bateria e compra de um veículo elétrico."
+        icon={<BookOpenCheck size={24} />}
+        eyebrow="APRENDA E CONSULTE"
+        title="Guia do iniciante e biblioteca do veículo"
+        description="Entenda os fundamentos dos carros elétricos e encontre manuais organizados por marca, modelo e ano."
       />
 
       <section className="guide-intro">
         <div>
-          <span>SEM COMPLICAÇÃO</span>
+          <span>COMECE SEM COMPLICAÇÃO</span>
           <h2>Você não precisa dominar engenharia para fazer uma boa escolha.</h2>
           <p>
-            Comece pelos conceitos que afetam sua rotina. Depois aprofunde apenas o que realmente importa para o modelo e o tipo de uso que você está avaliando.
+            Comece pelos conceitos que afetam sua rotina. Depois consulte os documentos específicos do veículo que você possui ou pretende comprar.
           </p>
         </div>
         <Link className="button button--primary" href="/calculadora">
@@ -60,12 +73,23 @@ export default function BeginnerGuidePage() {
         })}
       </section>
 
+      <section className="vehicle-library-section" id="manuais">
+        <div className="section-heading section-heading--inline">
+          <div>
+            <span className="eyebrow">BIBLIOTECA DO VEÍCULO</span>
+            <h2>Selecione o carro e encontre os documentos disponíveis.</h2>
+          </div>
+          <p>Manuais do proprietário, manutenção, garantia, multimídia, guias rápidos e documentos técnicos.</p>
+        </div>
+        <VehicleManualLibrary brands={brands} canAccessVip={canAccessVip} />
+      </section>
+
       <section className="info-panel">
         <div>
-          <span>CONTEÚDO EM EVOLUÇÃO</span>
-          <h2>O guia será transformado em uma biblioteca completa.</h2>
+          <span>FONTE E RESPONSABILIDADE</span>
+          <h2>Documentos organizados com identificação de origem.</h2>
           <p>
-            Nas próximas versões, cada tema poderá ganhar uma página própria, vídeos relacionados, perguntas frequentes e materiais para download.
+            Sempre confira a versão, o ano/modelo e a fonte do material antes de executar manutenção ou alterar configurações do veículo. As orientações oficiais da montadora prevalecem.
           </p>
         </div>
       </section>

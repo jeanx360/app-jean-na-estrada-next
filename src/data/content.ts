@@ -24,11 +24,21 @@ export type TutorialItem = {
 };
 
 export type ApplicationItem = {
+  id?: string;
   name: string;
   description: string;
   compatibility: string;
-  status: "Disponível no Drive" | "Em validação";
+  status: string;
   href: string;
+  image?: string;
+  version?: string;
+  origin?: string;
+  deliveryType?: "upload" | "external";
+  fileName?: string;
+  fileSize?: number;
+  checksumSha256?: string;
+  accessLevel?: "public" | "vip";
+  buttonLabel?: string;
 };
 
 export type PartnerItem = {
@@ -127,16 +137,24 @@ export const applications: ApplicationItem[] = [
     description:
       "Arquivo disponibilizado como apoio para instalação em centrais multimídia compatíveis.",
     compatibility: "Pasta de apoio do Geely EX2",
-    status: "Disponível no Drive",
+    status: "Disponível",
     href: "https://drive.google.com/drive/folders/1RPzQlNtSc0YC_rpFQf_IIgdB6WvejiLI?usp=drive_link",
+    origin: "Jean na Estrada",
+    deliveryType: "external",
+    accessLevel: "public",
+    buttonLabel: "Abrir arquivos",
   },
   {
     name: "GPack",
     description:
       "Pacote disponibilizado junto aos materiais do tutorial de desbloqueio da multimídia.",
     compatibility: "Pasta de apoio do Geely EX2",
-    status: "Disponível no Drive",
+    status: "Disponível",
     href: "https://drive.google.com/drive/folders/1RPzQlNtSc0YC_rpFQf_IIgdB6WvejiLI?usp=drive_link",
+    origin: "Jean na Estrada",
+    deliveryType: "external",
+    accessLevel: "public",
+    buttonLabel: "Abrir arquivos",
   },
 ];
 

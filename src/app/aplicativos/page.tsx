@@ -1,17 +1,36 @@
 import type { Metadata } from "next";
 import {
-  AlertTriangle,
+  BadgeCheck,
   CloudDownload,
   ExternalLink,
+  FileArchive,
+  Fingerprint,
+  Globe2,
+  LockKeyhole,
   PackageCheck,
   ShieldCheck,
 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { getApplications } from "@/lib/public-content";
 
-export const metadata: Metadata = { title: "Aplicativos" };
+export const metadata: Metadata = {
+  title: "Aplicativos",
+  description: "Aplicativos automotivos hospedados no JNE App ou indicados por links externos.",
+};
 
 export const dynamic = "force-dynamic";
+
+function formatFileSize(value?: number) {
+  if (!value || value < 1) return null;
+  const units = ["B", "KB", "MB", "GB"];
+  let size = value;
+  let index = 0;
+  while (size >= 1024 && index < units.length - 1) {
+    size /= 1024;
+    index += 1;
+  }
+  return `${size >= 10 || index === 0 ? size.toFixed(0) : size.toFixed(1)} ${units[index]}`;
+}
 
 export default async function AppsPage() {
   const applications = await getApplications();
@@ -21,63 +40,90 @@ export default async function AppsPage() {
       <PageHeader
         eyebrow="APLICATIVOS AUTOMOTIVOS"
         title="Aplicativos para carros"
-        description="Arquivos de apoio organizados com identificação de compatibilidade, origem e alertas antes do acesso."
+        description="Arquivos hospedados no JNE App e aplicativos externos reunidos com versão, origem, compatibilidade e informações de segurança."
       />
 
       <section className="apps-grid" aria-label="Aplicativos disponíveis">
-        {applications.map((application) => (
-          <article className="app-card" key={application.name}>
-            <div className="app-card__topline">
-              <span className="app-card__icon">
-                <PackageCheck size={24} />
-              </span>
-              <span className="status-pill">{application.status}</span>
-            </div>
-            <h2>{application.name}</h2>
-            <p>{application.description}</p>
-            <dl>
-              <div>
-                <dt>Compatibilidade informada</dt>
-                <dd>{application.compatibility}</dd>
+        {applications.map((application) => {
+          const isUpload = application.deliveryType === "upload";
+          const isVip = application.accessLevel === "vip";
+          const size = formatFileSize(application.fileSize);
+          return (
+            <article className="app-card app-card--complete" key={application.id ?? application.name}>
+              <div className="app-card__topline">
+                {application.image ? (
+                  <span className="app-card__image"><img src={application.image} alt="" /></span>
+                ) : (
+                  <span className="app-card__icon"><PackageCheck size={24} /></span>
+                )}
+                <div className="app-card__badges">
+                  <span className="status-pill">{application.status}</span>
+                  {isVip ? <span className="status-pill status-pill--vip"><LockKeyhole size={12} /> VIP</span> : null}
+                </div>
               </div>
-              <div>
-                <dt>Origem</dt>
-                <dd>Conteúdo cadastrado no JNE App</dd>
+
+              <div className="app-card__heading">
+                <div>
+                  <span>{isUpload ? "ARQUIVO NO JNE APP" : "APLICATIVO EXTERNO"}</span>
+                  <h2>{application.name}</h2>
+                </div>
+                {application.version ? <strong>v{application.version}</strong> : null}
               </div>
-            </dl>
-            <a
-              className="button button--primary app-card__action"
-              href={application.href}
-              target="_blank"
-              rel="noreferrer"
-            >
-              <CloudDownload size={17} />
-              Abrir pasta de arquivos
-              <ExternalLink size={15} />
-            </a>
-          </article>
-        ))}
+              <p>{application.description}</p>
+
+              <dl>
+                <div>
+                  <dt>Compatibilidade informada</dt>
+                  <dd>{application.compatibility}</dd>
+                </div>
+                <div>
+                  <dt>Origem</dt>
+                  <dd>{application.origin || "Origem não informada"}</dd>
+                </div>
+                <div>
+                  <dt>Forma de acesso</dt>
+                  <dd>{isUpload ? <><FileArchive size={14} /> Download pelo JNE App{size ? ` · ${size}` : ""}</> : <><Globe2 size={14} /> Site ou repositório externo</>}</dd>
+                </div>
+                {application.fileName ? (
+                  <div>
+                    <dt>Arquivo</dt>
+                    <dd>{application.fileName}</dd>
+                  </div>
+                ) : null}
+              </dl>
+
+              {application.checksumSha256 ? (
+                <details className="app-checksum">
+                  <summary><Fingerprint size={15} /> Ver checksum SHA-256</summary>
+                  <code>{application.checksumSha256}</code>
+                </details>
+              ) : null}
+
+              <a
+                className="button button--primary app-card__action"
+                href={application.href}
+                target="_blank"
+                rel="noreferrer"
+              >
+                {isUpload ? <CloudDownload size={17} /> : <ExternalLink size={17} />}
+                {application.buttonLabel || (isUpload ? "Baixar arquivo" : "Abrir aplicativo")}
+              </a>
+            </article>
+          );
+        })}
       </section>
 
       <section className="security-panel">
-        <div className="security-panel__icon">
-          <ShieldCheck size={28} />
-        </div>
+        <div className="security-panel__icon"><ShieldCheck size={28} /></div>
         <div>
-          <span>SEGURANÇA PRIMEIRO</span>
-          <h2>Esta ainda é uma área de arquivos externos.</h2>
+          <span>CATÁLOGO ORGANIZADO</span>
+          <h2>Arquivos próprios e fontes externas no mesmo lugar.</h2>
           <p>
-            Antes do lançamento oficial, vamos registrar versão, tamanho, checksum SHA-256, origem, compatibilidade testada e histórico de atualização de cada arquivo.
+            Cada item pode indicar versão, origem, compatibilidade, tamanho e checksum. Aplicativos externos abrem a página informada pelo administrador; arquivos hospedados são entregues por link temporário.
           </p>
         </div>
+        <BadgeCheck size={25} />
       </section>
-
-      <div className="warning-strip warning-strip--large">
-        <AlertTriangle size={20} />
-        <p>
-          Instale somente aplicativos cuja origem e finalidade você conheça. O uso de arquivos de terceiros pode causar falhas, perda de configurações ou incompatibilidade com a central do veículo.
-        </p>
-      </div>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BellRing, Crown, FileText, KeyRound, LayoutDashboard, Megaphone, ScrollText, UsersRound } from "lucide-react";
+import { BellRing, BookOpenText, Crown, FileText, Images, KeyRound, LayoutDashboard, Megaphone, ScrollText, UsersRound } from "lucide-react";
 
 const items = [
   { href: "/admin", label: "Visão geral", icon: LayoutDashboard },
@@ -8,6 +8,8 @@ const items = [
   { href: "/admin/recados", label: "Recados", icon: Megaphone },
   { href: "/admin/notificacoes", label: "Notificações", icon: BellRing },
   { href: "/admin/publicacoes", label: "Conteúdo público", icon: FileText },
+  { href: "/admin/manuais", label: "Veículos e manuais", icon: BookOpenText },
+  { href: "/admin/home", label: "Carrossel da home", icon: Images },
   { href: "/admin/conteudos", label: "Conteúdo VIP", icon: Crown },
   { href: "/admin/logs", label: "Logs", icon: ScrollText },
 ];

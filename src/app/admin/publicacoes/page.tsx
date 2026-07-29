@@ -5,6 +5,7 @@ import {
   deletePublicContentAction,
   togglePublicContentAction,
 } from "@/app/admin/publicacoes/actions";
+import { AdminApplicationFileUploader } from "@/components/AdminApplicationFileUploader";
 import { AdminPublicAssetUploader } from "@/components/AdminPublicAssetUploader";
 import { AdminPublicContentForm } from "@/components/AdminPublicContentForm";
 import { ConfirmSubmitButton } from "@/components/ConfirmSubmitButton";
@@ -42,6 +43,14 @@ export default async function AdminPublicationsPage() {
           Use para banners de parceiros. Ao terminar o upload, a imagem será aplicada automaticamente ao formulário abaixo.
         </p>
         <AdminPublicAssetUploader />
+      </section>
+
+      <section className="admin-section">
+        <div className="admin-section__heading">
+          <div><span>ARQUIVOS DE APLICATIVOS</span><h2><FileText size={22} /> Enviar APK ou pacote</h2></div>
+        </div>
+        <p className="admin-section__intro">O arquivo será aplicado automaticamente ao formulário. Depois escolha o tipo Aplicativo e a forma de acesso Arquivo hospedado.</p>
+        <AdminApplicationFileUploader />
       </section>
 
       <section className="admin-section">

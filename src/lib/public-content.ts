@@ -91,13 +91,30 @@ export async function getApplications(): Promise<ApplicationItem[]> {
   const rows = await fetchPublished("application");
   if (!rows.length) return fallbackApplications;
 
-  return rows.map((row) => ({
-    name: row.title,
-    description: row.summary ?? "Aplicativo cadastrado no JNE App.",
-    compatibility: text(row.metadata.compatibility, row.category ?? "Compatibilidade não informada"),
-    status: text(row.metadata.status) === "Em validação" ? "Em validação" : "Disponível no Drive",
-    href: row.external_url ?? "#",
-  }));
+  return rows.map((row) => {
+    const metadata = row.metadata ?? {};
+    const deliveryType = text(metadata.deliveryType) === "upload" ? "upload" : "external";
+    const accessLevel = text(metadata.accessLevel) === "vip" ? "vip" : "public";
+    const fileSizeValue = Number(metadata.fileSize ?? 0);
+
+    return {
+      id: row.id,
+      name: row.title,
+      description: row.summary ?? "Aplicativo cadastrado no JNE App.",
+      compatibility: text(metadata.compatibility, row.category ?? "Compatibilidade não informada"),
+      status: text(metadata.status, "Disponível"),
+      href: deliveryType === "upload" ? `/api/aplicativos/download?id=${encodeURIComponent(row.id)}` : row.external_url ?? "#",
+      image: row.image_url ?? undefined,
+      version: text(metadata.version) || undefined,
+      origin: text(metadata.origin, "Jean na Estrada"),
+      deliveryType,
+      fileName: text(metadata.fileName) || undefined,
+      fileSize: Number.isFinite(fileSizeValue) && fileSizeValue > 0 ? fileSizeValue : undefined,
+      checksumSha256: text(metadata.checksumSha256) || undefined,
+      accessLevel,
+      buttonLabel: text(metadata.buttonLabel) || (deliveryType === "upload" ? "Baixar arquivo" : "Abrir página externa"),
+    };
+  });
 }
 
 export async function getPartners(): Promise<PartnerItem[]> {
