@@ -1,48 +1,20 @@
 import Link from "next/link";
-import { ArrowRight, BellRing, Route } from "lucide-react";
+import { ArrowRight, Route } from "lucide-react";
 import { HomeCarousel } from "@/components/HomeCarousel";
 import { LiveVideoGrid } from "@/components/LiveVideoGrid";
 import { videos } from "@/data/content";
 import { quickAccessItems, trustItems } from "@/data/home";
-import { getAuthContext } from "@/lib/auth";
 import { getHomeCarouselSlides } from "@/lib/home-carousel";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const [{ supabase }, carouselSlides] = await Promise.all([getAuthContext(), getHomeCarouselSlides()]);
-  const { data: featuredNotifications } = await supabase
-    .from("notifications")
-    .select("id, title, message, action_url, category")
-    .eq("is_published", true)
-    .eq("is_featured", true)
-    .lte("published_at", new Date().toISOString())
-    .order("published_at", { ascending: false })
-    .limit(3);
+  const carouselSlides = await getHomeCarouselSlides();
 
   return (
     <div className="page-stack">
       <HomeCarousel slides={carouselSlides} />
 
-      {featuredNotifications?.length ? (
-        <section className="home-notification-strip">
-          <div className="home-notification-strip__heading">
-            <BellRing size={22} />
-            <div><span>AVISOS IMPORTANTES</span><h2>Novidades do JNE App</h2></div>
-            <Link href="/notificacoes" className="text-link">Ver central <ArrowRight size={16} /></Link>
-          </div>
-          <div className="home-notification-strip__grid">
-            {featuredNotifications.map((item) => (
-              <article key={item.id}>
-                <span>{item.category === "videos" ? "VÍDEO" : item.category === "tutorials" ? "TUTORIAL" : item.category === "apps" ? "APP" : item.category === "benefits" ? "BENEFÍCIO" : "JNE APP"}</span>
-                <h3>{item.title}</h3>
-                <p>{item.message}</p>
-                {item.action_url ? <Link href={item.action_url}>Abrir <ArrowRight size={15} /></Link> : null}
-              </article>
-            ))}
-          </div>
-        </section>
-      ) : null}
 
       <section className="section-block">
         <div className="section-heading">

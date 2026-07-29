@@ -3,6 +3,7 @@
 import { ExternalLink, Search, X } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   applications,
   beginnerGuide,
@@ -91,6 +92,11 @@ export function GlobalSearch() {
   const [feed, setFeed] = useState<LiveContentFeed | null>(null);
   const [catalogItems, setCatalogItems] = useState<SearchItem[]>([]);
   const [catalogLoaded, setCatalogLoaded] = useState(false);
+  const [portalReady, setPortalReady] = useState(false);
+
+  useEffect(() => {
+    setPortalReady(true);
+  }, []);
 
   useEffect(() => {
     setOpen(false);
@@ -243,56 +249,63 @@ export function GlobalSearch() {
         <span>Pesquisar no JNE App</span>
       </button>
 
-      {open ? (
-        <div className="search-overlay" role="presentation" onMouseDown={() => setOpen(false)}>
-          <section
-            className="search-dialog"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Pesquisa global"
-            onMouseDown={(event) => event.stopPropagation()}
-          >
-            <div className="search-dialog__input">
-              <Search size={20} />
-              <input
-                ref={inputRef}
-                type="search"
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder="Veículo, manual, aplicativo, vídeo..."
-                aria-label="Digite sua pesquisa"
-              />
-              <button type="button" onClick={() => setOpen(false)} aria-label="Fechar pesquisa">
-                <X size={19} />
-              </button>
-            </div>
-
-            <div className="search-dialog__heading">
-              <span>{query.trim() ? `Resultados para “${query.trim()}”` : "Acessos rápidos"}</span>
-              <small>{results.length} encontrados</small>
-            </div>
-
-            <div className="search-results">
-              {results.length ? results.map((item) => (
-                <button type="button" className="search-result" onClick={() => selectItem(item)} key={`${item.category}-${item.title}-${item.href}`}>
-                  <span>{item.category}</span>
-                  <div>
-                    <strong>{item.title}</strong>
-                    <p>{item.description}</p>
-                  </div>
-                  {item.external ? <ExternalLink size={16} /> : null}
-                </button>
-              )) : (
-                <div className="search-empty">
-                  <Search size={25} />
-                  <strong>Nenhum resultado encontrado.</strong>
-                  <p>Tente pesquisar por veículo, manual, aplicativo, tutorial ou parceiro.</p>
+      {portalReady && open
+        ? createPortal(
+            <div
+              className="search-overlay"
+              role="presentation"
+              onPointerDown={() => setOpen(false)}
+            >
+              <section
+                className="search-dialog"
+                role="dialog"
+                aria-modal="true"
+                aria-label="Pesquisa global"
+                onPointerDown={(event) => event.stopPropagation()}
+              >
+                <div className="search-dialog__input">
+                  <Search size={20} />
+                  <input
+                    ref={inputRef}
+                    type="search"
+                    value={query}
+                    onChange={(event) => setQuery(event.target.value)}
+                    placeholder="Veículo, manual, aplicativo, vídeo..."
+                    aria-label="Digite sua pesquisa"
+                  />
+                  <button type="button" onClick={() => setOpen(false)} aria-label="Fechar pesquisa">
+                    <X size={19} />
+                  </button>
                 </div>
-              )}
-            </div>
-          </section>
-        </div>
-      ) : null}
+
+                <div className="search-dialog__heading" aria-live="polite">
+                  <span>{query.trim() ? `Resultados para “${query.trim()}”` : "Acessos rápidos"}</span>
+                  <small>{results.length} encontrados</small>
+                </div>
+
+                <div className="search-results">
+                  {results.length ? results.map((item) => (
+                    <button type="button" className="search-result" onClick={() => selectItem(item)} key={`${item.category}-${item.title}-${item.href}`}>
+                      <span>{item.category}</span>
+                      <div>
+                        <strong>{item.title}</strong>
+                        <p>{item.description}</p>
+                      </div>
+                      {item.external ? <ExternalLink size={16} /> : null}
+                    </button>
+                  )) : (
+                    <div className="search-empty">
+                      <Search size={25} />
+                      <strong>Nenhum resultado encontrado.</strong>
+                      <p>Tente pesquisar por veículo, manual, aplicativo, tutorial ou parceiro.</p>
+                    </div>
+                  )}
+                </div>
+              </section>
+            </div>,
+            document.body,
+          )
+        : null}
     </>
   );
 }

@@ -1,34 +1,17 @@
-# JNE App 1.2.0
+# JNE App 1.2.1
 
-## VIP e monetização
+## Correções de interface
 
-- Novo registro de origem do acesso VIP: administrador, convite, YouTube, parceiro, assinatura direta ou legado.
-- O papel `vip` passa a ser recalculado com base nos acessos ativos.
-- O painel de membros mostra de onde veio cada acesso VIP.
-- Convites antigos e contas VIP existentes são preservados na migração.
+- A pesquisa mobile agora é renderizada diretamente no `body` por meio de um portal React.
+- O painel de pesquisa ocupa toda a tela no smartphone e fica acima do cabeçalho, da home e da navegação inferior.
+- Os resultados possuem rolagem independente, cartões mais legíveis e suporte às áreas seguras do aparelho.
+- O bloco duplicado de notificações foi removido da página inicial.
+- A central de notificações continua acessível pelo sino do cabeçalho.
+- O carrossel da home passa a manter altura padronizada em cada faixa de tela.
+- Títulos e descrições longas são limitados ao espaço disponível, evitando que o carrossel aumente ou diminua durante a rotação.
+- Cache do Service Worker atualizado para `jne-app-v1.2.1`.
+- Versão visual do menu atualizada para 1.2.1.
 
-## Integração com o YouTube
+## Banco de dados
 
-- Conexão OAuth da conta proprietária do canal.
-- Token permanente criptografado com AES-256-GCM antes de ser armazenado.
-- Sincronização de níveis e membros atuais do canal.
-- Sincronização manual pelo administrador e automática diária pela Vercel.
-- Página administrativa com métricas, níveis, membros vinculados e erros de sincronização.
-- Membro pode vincular a própria conta Google/YouTube e ativar o VIP automaticamente.
-- Membro pode verificar novamente ou remover o vínculo.
-- Um canal do YouTube só pode ser associado a uma conta do JNE App.
-- Cancelamento ou perda da assinatura remove somente o acesso fornecido pelo YouTube; outras origens continuam válidas.
-
-## Privacidade
-
-- Política de Privacidade atualizada para a versão 1.1.0.
-- Novo aceite obrigatório após a atualização.
-- O JNE App não guarda senha Google, dados de pagamento nem histórico de vídeos.
-
-## Interface
-
-- Nova área `/admin/youtube`.
-- Nova área `/membros/youtube`.
-- Card de assinatura do YouTube na área de membros.
-- Métricas do YouTube no painel administrativo.
-- Indicadores da origem VIP na gestão de membros.
+Esta atualização não possui nova migração do Supabase.
