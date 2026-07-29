@@ -1,35 +1,23 @@
-# Instalação — JNE App 1.2.1
+# Instalação — JNE App 1.2.2
 
-1. Extraia o pacote.
-2. Copie as pastas `src` e `public` para a raiz do projeto.
-3. Confirme a substituição dos arquivos.
-4. Atualize a versão:
-
-```powershell
-npm version 1.2.1 --no-git-tag-version
-```
-
-5. Limpe o build anterior e compile:
+1. Extraia o ZIP.
+2. Copie `src` e `public` para a raiz do projeto e confirme as substituições.
+3. Execute:
 
 ```powershell
+npm version 1.2.2 --no-git-tag-version
 Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue
 npm run build
-```
-
-6. Teste localmente:
-
-```powershell
 npm run dev
 ```
 
-## Testes obrigatórios
+Não existe migração do Supabase nesta atualização.
 
-- Abra a pesquisa em um smartphone ou no modo responsivo.
-- Confirme que o painel fica por cima de toda a tela.
-- Pesquise termos com vários resultados e role a lista até o final.
-- Feche a pesquisa pelo X, pelo fundo no desktop e pela tecla Escape.
-- Confirme que o bloco de notificações não aparece mais na home.
-- Confirme que o sino do cabeçalho continua funcionando.
-- Deixe o carrossel percorrer todos os slides e verifique que sua altura não muda.
+## Testes
 
-Não existe SQL novo nesta versão.
+- Teste larguras de 360 px, 390 px, 430 px e 768 px.
+- Confirme dois atalhos por linha.
+- Em 380 px ou menos, confirme que somente as descrições dos atalhos são ocultadas.
+- Abra o menu e confirme que o card “JNE APP 2.0” não aparece.
+- Passe por todos os slides e confirme que títulos longos não ultrapassam as laterais.
+- Atualize ou reinstale o PWA caso o navegador mantenha CSS antigo em cache.

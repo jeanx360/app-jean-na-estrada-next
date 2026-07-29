@@ -5723,3 +5723,236 @@ button {
     height: 470px;
   }
 }
+
+/* =========================================================
+   JNE APP 1.2.2 — RESPONSIVIDADE EM TELAS MÓVEIS PEQUENAS
+   ========================================================= */
+
+/* O título nunca ultrapassa a margem segura do carrossel. */
+.home-carousel__content,
+.home-carousel__content > * {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.home-carousel__content .eyebrow,
+.home-carousel__content h1,
+.home-carousel__content p {
+  overflow-wrap: anywhere;
+  word-break: normal;
+  hyphens: auto;
+}
+
+.home-carousel__content h1 {
+  text-wrap: pretty;
+}
+
+@media (max-width: 960px) {
+  /* O card promocional permanece no desktop e sai do menu lateral móvel. */
+  .sidebar__card {
+    display: none;
+  }
+
+  .sidebar__version {
+    margin-top: 18px;
+    padding-bottom: max(8px, env(safe-area-inset-bottom));
+  }
+}
+
+@media (max-width: 760px) {
+  /* Dois atalhos por linha em celulares, sem cards excessivamente altos. */
+  .quick-access-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .quick-card {
+    min-width: 0;
+    min-height: 154px;
+    padding: 14px;
+    border-radius: 16px;
+  }
+
+  .quick-card__icon {
+    width: 42px;
+    height: 42px;
+    margin-bottom: 12px;
+    border-radius: 13px;
+  }
+
+  .quick-card h3 {
+    display: -webkit-box;
+    overflow: hidden;
+    margin-right: 18px;
+    font-size: 13px;
+    line-height: 1.28;
+    overflow-wrap: anywhere;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .quick-card p {
+    display: -webkit-box;
+    overflow: hidden;
+    margin-top: 6px;
+    font-size: 10px;
+    line-height: 1.42;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .quick-card__arrow {
+    right: 13px;
+    bottom: 13px;
+    width: 17px;
+    height: 17px;
+  }
+
+  .quick-card::after {
+    right: -50px;
+    bottom: -62px;
+    width: 122px;
+    height: 122px;
+  }
+
+  .home-carousel__content {
+    gap: 11px;
+    padding: 24px max(18px, env(safe-area-inset-right)) 88px max(18px, env(safe-area-inset-left));
+  }
+
+  .home-carousel__content .eyebrow {
+    width: fit-content;
+    max-width: 100%;
+    line-height: 1.35;
+    white-space: normal;
+  }
+
+  .home-carousel__content h1 {
+    width: 100%;
+    max-width: 100%;
+    font-size: clamp(1.65rem, 8.2vw, 2.45rem);
+    line-height: 1.04;
+    letter-spacing: -0.035em;
+    -webkit-line-clamp: 4;
+  }
+
+  .home-carousel__content p {
+    width: 100%;
+    max-width: 100%;
+    font-size: 0.9rem;
+    line-height: 1.45;
+    -webkit-line-clamp: 3;
+  }
+
+  .home-carousel__content .button {
+    max-width: 100%;
+    min-width: 0;
+    justify-content: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 430px) {
+  .section-heading h2,
+  .page-header h1 {
+    overflow-wrap: anywhere;
+  }
+
+  .quick-card {
+    min-height: 142px;
+    padding: 13px;
+  }
+
+  .quick-card__icon {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 10px;
+  }
+
+  .quick-card h3 {
+    font-size: 12px;
+  }
+
+  .quick-card p {
+    font-size: 9.5px;
+    -webkit-line-clamp: 2;
+  }
+
+  .home-carousel {
+    height: 455px;
+  }
+
+  .home-carousel__content {
+    padding-right: 17px;
+    padding-left: 17px;
+  }
+
+  .home-carousel__content h1 {
+    font-size: clamp(1.55rem, 8vw, 2.1rem);
+    line-height: 1.06;
+    letter-spacing: -0.03em;
+  }
+}
+
+@media (max-width: 380px) {
+  /* Em aparelhos realmente estreitos, preserva ícone e título e remove só a descrição. */
+  .quick-access-grid {
+    gap: 8px;
+  }
+
+  .quick-card {
+    min-height: 116px;
+    padding: 12px;
+  }
+
+  .quick-card__icon {
+    width: 37px;
+    height: 37px;
+    margin-bottom: 9px;
+  }
+
+  .quick-card__icon svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .quick-card h3 {
+    margin-right: 15px;
+    font-size: 11px;
+    line-height: 1.22;
+  }
+
+  .quick-card p {
+    display: none;
+  }
+
+  .quick-card__arrow {
+    right: 10px;
+    bottom: 10px;
+    width: 15px;
+    height: 15px;
+  }
+
+  .home-carousel {
+    height: 445px;
+  }
+
+  .home-carousel__content {
+    padding: 22px 15px 84px;
+  }
+
+  .home-carousel__content h1 {
+    font-size: clamp(1.45rem, 7.7vw, 1.9rem);
+    line-height: 1.08;
+    -webkit-line-clamp: 4;
+  }
+
+  .home-carousel__content p {
+    font-size: 0.82rem;
+    line-height: 1.4;
+    -webkit-line-clamp: 2;
+  }
+}
