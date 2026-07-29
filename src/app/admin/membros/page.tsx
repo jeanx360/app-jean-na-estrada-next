@@ -18,6 +18,15 @@ type AdminMember = {
   created_at: string;
 };
 
+type VipEntitlement = {
+  user_id: string;
+  source: "admin" | "invite" | "youtube" | "partner" | "subscription" | "legacy";
+  source_key: string;
+  label: string | null;
+  expires_at: string | null;
+  is_active: boolean;
+};
+
 const roleLabels: Record<MemberRole, string> = {
   member: "Membro",
   vip: "VIP",
@@ -26,8 +35,21 @@ const roleLabels: Record<MemberRole, string> = {
 
 export default async function AdminMembersPage() {
   const { supabase, userId } = await requireAdmin();
-  const { data, error } = await supabase.rpc("admin_list_members");
+  const [{ data, error }, { data: entitlementData, error: entitlementError }] = await Promise.all([
+    supabase.rpc("admin_list_members"),
+    supabase
+      .from("vip_entitlements")
+      .select("user_id, source, source_key, label, expires_at, is_active")
+      .eq("is_active", true),
+  ]);
   const members = (data ?? []) as AdminMember[];
+  const entitlements = (entitlementData ?? []) as VipEntitlement[];
+  const entitlementsByUser = new Map<string, VipEntitlement[]>();
+  entitlements.forEach((item) => {
+    const current = entitlementsByUser.get(item.user_id) ?? [];
+    current.push(item);
+    entitlementsByUser.set(item.user_id, current);
+  });
 
   return (
     <section className="admin-section">
@@ -40,11 +62,21 @@ export default async function AdminMembersPage() {
       </div>
 
       {error ? <p className="auth-message auth-message--error">{error.message}</p> : null}
+      {entitlementError ? <p className="auth-message auth-message--error">{entitlementError.message}</p> : null}
 
       <div className="admin-member-list">
         {members.map((member) => {
           const isSelf = member.id === userId;
           const initials = (member.full_name || member.email).slice(0, 2).toUpperCase();
+          const sources = entitlementsByUser.get(member.id) ?? [];
+          const sourceLabels: Record<VipEntitlement["source"], string> = {
+            admin: "Manual",
+            invite: "Convite",
+            youtube: "YouTube",
+            partner: "Parceiro",
+            subscription: "Assinatura direta",
+            legacy: "Legado",
+          };
           return (
             <article className={`admin-member-card ${member.is_blocked ? "is-blocked" : ""}`} key={member.id}>
               <div className="admin-member-card__identity">
@@ -94,6 +126,11 @@ export default async function AdminMembersPage() {
               <div className="admin-member-card__status">
                 <span className={`role-badge role-badge--${member.role}`}>{roleLabels[member.role]}</span>
                 {member.is_blocked ? <span className="admin-status admin-status--danger">Bloqueado</span> : <span className="admin-status">Ativo</span>}
+                {sources.map((source) => (
+                  <span className={`vip-source-badge vip-source-badge--${source.source}`} key={`${source.source}-${source.source_key}`}>
+                    {sourceLabels[source.source]}
+                  </span>
+                ))}
                 {isSelf ? <small>Sua conta</small> : null}
               </div>
             </article>

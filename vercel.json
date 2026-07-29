@@ -4,6 +4,10 @@
     {
       "path": "/api/cron/youtube-notification",
       "schedule": "0 12 * * *"
+    },
+    {
+      "path": "/api/cron/youtube-memberships",
+      "schedule": "30 13 * * *"
     }
   ]
 }

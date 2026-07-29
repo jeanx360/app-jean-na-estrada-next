@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Crown, KeyRound, LogOut, Megaphone, ShieldAlert, ShieldCheck, UserRound, Wrench } from "lucide-react";
+import { BadgeCheck, Crown, KeyRound, LogOut, Megaphone, ShieldAlert, ShieldCheck, UserRound, Video, Wrench } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { logoutAction } from "@/app/auth/actions";
@@ -68,6 +68,12 @@ export default async function MembersPage() {
     .limit(10);
   const announcements = (announcementsData ?? []) as Announcement[];
 
+  const { data: youtubeLink } = await supabase
+    .from("youtube_member_links")
+    .select("member_channel_id, display_name, last_verified_at")
+    .eq("user_id", userId)
+    .maybeSingle();
+
   return (
     <div className="page-stack">
       <PageHeader
@@ -108,6 +114,21 @@ export default async function MembersPage() {
             </p>
           </div>
           <Link className="button button--primary" href="/vip">Abrir área VIP</Link>
+        </article>
+
+        <article className="member-action-card member-action-card--youtube">
+          {youtubeLink ? <BadgeCheck size={24} /> : <Video size={24} />}
+          <div>
+            <h2>Assinatura do YouTube</h2>
+            <p>
+              {youtubeLink
+                ? `Canal ${youtubeLink.display_name || "YouTube"} vinculado ao seu perfil.`
+                : "Vincule sua assinatura do canal Jean na Estrada para ativar o acesso VIP automaticamente."}
+            </p>
+          </div>
+          <Link className="button button--secondary" href="/membros/youtube">
+            {youtubeLink ? "Ver vínculo" : "Vincular conta"}
+          </Link>
         </article>
 
         <article className="member-action-card">

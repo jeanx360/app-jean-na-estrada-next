@@ -20,7 +20,7 @@ export default function PrivacyPage() {
       />
       <LegalDocument
         version={LEGAL_VERSIONS.privacy}
-        updatedAt="28 de julho de 2026"
+        updatedAt="29 de julho de 2026"
         sections={[
           {
             title: "1. Controlador e contato",
@@ -28,30 +28,34 @@ export default function PrivacyPage() {
           },
           {
             title: "2. Dados tratados",
-            content: <><p>Podemos tratar:</p><ul><li>nome, e-mail, identificador da conta, nível de acesso e avatar;</li><li>cookies e tokens estritamente necessários para autenticação e segurança;</li><li>preferências de tema e notificações;</li><li>assinatura Web Push, categoria de avisos e informações técnicas do navegador;</li><li>registros de convites, downloads VIP, aceitações legais e ações administrativas;</li><li>mensagens enviadas voluntariamente pelos canais de contato.</li></ul></>,
+            content: <><p>Podemos tratar:</p><ul><li>nome, e-mail, identificador da conta, nível de acesso e avatar;</li><li>cookies e tokens estritamente necessários para autenticação e segurança;</li><li>preferências de tema e notificações;</li><li>assinatura Web Push, categoria de avisos e informações técnicas do navegador;</li><li>registros de convites, downloads VIP, aceitações legais e ações administrativas;</li><li>quando você vincular o YouTube: ID, nome e imagem pública do canal, nível da assinatura e data da última verificação;</li><li>mensagens enviadas voluntariamente pelos canais de contato.</li></ul></>,
           },
           {
             title: "3. Finalidades",
-            content: <p>Os dados são utilizados para criar e proteger contas, controlar acessos, entregar conteúdo autorizado, registrar aceites, enviar notificações solicitadas, prestar suporte, prevenir abuso, medir o funcionamento da plataforma e cumprir obrigações legais.</p>,
+            content: <p>Os dados são utilizados para criar e proteger contas, controlar acessos, confirmar benefícios de membros do canal Jean na Estrada, entregar conteúdo autorizado, registrar aceites, enviar notificações solicitadas, prestar suporte, prevenir abuso, medir o funcionamento da plataforma e cumprir obrigações legais.</p>,
           },
           {
             title: "4. Prestadores e transferências",
-            content: <p>O funcionamento utiliza provedores de infraestrutura e autenticação, como Supabase e Vercel, além de serviços externos acessados por links, como YouTube e lojas parceiras. Esses provedores podem processar dados em outros países conforme seus contratos e políticas, sempre limitados às finalidades necessárias ao serviço.</p>,
+            content: <p>O funcionamento utiliza provedores de infraestrutura e autenticação, como Supabase e Vercel, além de serviços externos acessados por links, como YouTube e lojas parceiras. Esses provedores podem processar dados em outros países conforme seus contratos e políticas, sempre limitados às finalidades necessárias ao serviço. Na vinculação voluntária com o YouTube, o Google fornece somente as informações autorizadas na tela de consentimento para localizar o canal e confirmar a assinatura.</p>,
           },
           {
             title: "5. Cookies e armazenamento local",
             content: <p>Utilizamos cookies de sessão e armazenamento local necessários para login, segurança, tema, instalação PWA e preferências. O JNE App não depende de cookies publicitários próprios para liberar as funções essenciais.</p>,
           },
           {
-            title: "6. Retenção e exclusão",
+            title: "6. Vinculação com o YouTube",
+            content: <p>A vinculação é opcional e serve exclusivamente para confirmar se o canal associado à conta Google possui uma assinatura ativa do Jean na Estrada. O JNE App não armazena senha Google, dados de pagamento ou histórico de vídeos. O vínculo pode ser removido na área de membros, e o acesso concedido por essa origem será recalculado.</p>,
+          },
+          {
+            title: "7. Retenção e exclusão",
             content: <p>Os dados são mantidos enquanto a conta estiver ativa ou pelo período necessário para segurança, exercício de direitos e cumprimento de obrigação legal. A exclusão da conta remove os dados vinculados, ressalvados registros cuja conservação seja permitida ou exigida pela legislação.</p>,
           },
           {
-            title: "7. Direitos do titular",
+            title: "8. Direitos do titular",
             content: <p>Você pode solicitar confirmação e acesso, corrigir dados, revogar permissões, pedir informações sobre compartilhamento e, quando aplicável, solicitar bloqueio ou eliminação. O perfil permite atualizar informações e excluir a conta.</p>,
           },
           {
-            title: "8. Segurança e incidentes",
+            title: "9. Segurança e incidentes",
             content: <p>Adotamos autenticação, autorização por função, políticas de acesso no banco, links temporários para arquivos privados e registros administrativos. Nenhum sistema é totalmente imune a incidentes; ocorrências relevantes serão tratadas conforme a legislação e os riscos envolvidos.</p>,
           },
         ]}
