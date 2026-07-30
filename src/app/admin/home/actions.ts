@@ -3,6 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/admin";
 import type { HomeCarouselActionState, HomeCarouselSource } from "@/types/home-carousel";
+import type {
+  HomeQuickAccessAccent,
+  HomeQuickAccessActionState,
+  HomeQuickAccessIcon,
+} from "@/types/home-quick-access";
 
 function readText(formData: FormData, key: string) {
   const value = formData.get(key);
@@ -16,6 +21,73 @@ function optionalDate(value: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) throw new Error("Data ou horário inválido.");
   return date.toISOString();
+}
+
+export async function saveQuickAccessItemAction(
+  _previousState: HomeQuickAccessActionState,
+  formData: FormData,
+): Promise<HomeQuickAccessActionState> {
+  const { supabase } = await requireAdmin();
+  const itemId = readText(formData, "itemId");
+  const title = readText(formData, "title");
+  const description = readText(formData, "description");
+  const href = readText(formData, "href");
+  const icon = readText(formData, "icon") as HomeQuickAccessIcon;
+  const accent = readText(formData, "accent") as HomeQuickAccessAccent;
+  const sortOrder = Number(readText(formData, "sortOrder") || "100");
+
+  const validIcons: HomeQuickAccessIcon[] = [
+    "videos", "manuals", "apps", "products", "calculator", "vip", "community", "news", "partners",
+  ];
+  const validAccents: HomeQuickAccessAccent[] = ["blue", "cyan", "orange", "violet"];
+
+  if (title.length < 2 || title.length > 70) return { error: "O título precisa ter entre 2 e 70 caracteres." };
+  if (description.length < 3 || description.length > 180) return { error: "A descrição precisa ter entre 3 e 180 caracteres." };
+  if (!href.startsWith("/") && !/^https:\/\//i.test(href)) return { error: "O destino deve começar com / ou https://." };
+  if (!validIcons.includes(icon)) return { error: "Ícone inválido." };
+  if (!validAccents.includes(accent)) return { error: "Cor inválida." };
+  if (!Number.isInteger(sortOrder) || sortOrder < 0 || sortOrder > 100000) return { error: "A ordem deve ser um número inteiro entre 0 e 100.000." };
+
+  const payload = {
+    title,
+    description,
+    href,
+    icon,
+    accent,
+    sort_order: sortOrder,
+    is_published: readBoolean(formData, "isPublished"),
+  };
+
+  const query = itemId
+    ? supabase.from("home_quick_access_items").update(payload).eq("id", itemId)
+    : supabase.from("home_quick_access_items").insert(payload);
+  const { error } = await query;
+  if (error) return { error: `Não foi possível salvar o atalho: ${error.message}` };
+
+  revalidatePath("/");
+  revalidatePath("/admin/home");
+  return { success: itemId ? "Atalho atualizado." : "Atalho criado." };
+}
+
+export async function toggleQuickAccessItemAction(formData: FormData) {
+  const { supabase } = await requireAdmin();
+  const id = readText(formData, "itemId");
+  const publish = readText(formData, "publish") === "true";
+  if (!id) throw new Error("Atalho inválido.");
+  const { error } = await supabase.from("home_quick_access_items").update({ is_published: publish }).eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/");
+  revalidatePath("/admin/home");
+}
+
+export async function deleteQuickAccessItemAction(formData: FormData) {
+  const { supabase } = await requireAdmin();
+  const id = readText(formData, "itemId");
+  if (!id) throw new Error("Atalho inválido.");
+  const { error } = await supabase.from("home_quick_access_items").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/");
+  revalidatePath("/admin/home");
 }
 
 export async function saveHomeSlideAction(

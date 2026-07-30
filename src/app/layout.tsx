@@ -6,6 +6,11 @@ import { PushSubscriptionSync } from "@/components/PushSubscriptionSync";
 import "./globals.css";
 import "./auth.css";
 
+// O layout contém componentes dependentes da sessão. Renderizar por requisição
+// evita reutilização de HTML/RSC entre usuários diferentes.
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 const basePath = process.env.PAGES_BASE_PATH ?? "";
 const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://app-jean-na-estrada-next.vercel.app";
 

@@ -16,17 +16,19 @@ type CalculatorValues = {
   evVehiclePrice: number;
 };
 
-const initialValues: CalculatorValues = {
-  monthlyKm: 1500,
-  years: 5,
-  fuelEfficiency: 10,
-  fuelPrice: 6.5,
-  fuelMaintenance: 2500,
-  evEfficiency: 6.5,
-  energyPrice: 0.85,
-  evMaintenance: 500,
-  fuelVehiclePrice: 120000,
-  evVehiclePrice: 140000,
+type CalculatorInputs = Record<keyof CalculatorValues, string>;
+
+const initialInputs: CalculatorInputs = {
+  monthlyKm: "1500",
+  years: "5",
+  fuelEfficiency: "10",
+  fuelPrice: "6,5",
+  fuelMaintenance: "2500",
+  evEfficiency: "6,5",
+  energyPrice: "0,85",
+  evMaintenance: "500",
+  fuelVehiclePrice: "120000",
+  evVehiclePrice: "140000",
 };
 
 const currency = new Intl.NumberFormat("pt-BR", {
@@ -39,50 +41,68 @@ const number = new Intl.NumberFormat("pt-BR", {
   maximumFractionDigits: 1,
 });
 
-function safePositive(value: number) {
-  return Number.isFinite(value) && value > 0 ? value : 0;
+function parseInput(value: string) {
+  const normalized = value.trim().replace(",", ".");
+  if (!normalized) return 0;
+
+  const parsed = Number(normalized);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
+}
+
+function acceptsNumericInput(value: string) {
+  return /^\d*(?:[.,]\d*)?$/.test(value);
 }
 
 export function EvCalculator() {
-  const [values, setValues] = useState<CalculatorValues>(initialValues);
+  const [inputs, setInputs] = useState<CalculatorInputs>(initialInputs);
+
+  const values = useMemo<CalculatorValues>(() => ({
+    monthlyKm: parseInput(inputs.monthlyKm),
+    years: parseInput(inputs.years),
+    fuelEfficiency: parseInput(inputs.fuelEfficiency),
+    fuelPrice: parseInput(inputs.fuelPrice),
+    fuelMaintenance: parseInput(inputs.fuelMaintenance),
+    evEfficiency: parseInput(inputs.evEfficiency),
+    energyPrice: parseInput(inputs.energyPrice),
+    evMaintenance: parseInput(inputs.evMaintenance),
+    fuelVehiclePrice: parseInput(inputs.fuelVehiclePrice),
+    evVehiclePrice: parseInput(inputs.evVehiclePrice),
+  }), [inputs]);
 
   const results = useMemo(() => {
-    const monthlyKm = safePositive(values.monthlyKm);
-    const years = safePositive(values.years);
-    const fuelEfficiency = safePositive(values.fuelEfficiency);
-    const evEfficiency = safePositive(values.evEfficiency);
+    const monthlyKm = values.monthlyKm;
+    const years = values.years;
+    const fuelEfficiency = values.fuelEfficiency;
+    const evEfficiency = values.evEfficiency;
 
     const fuelMonthlyEnergy = fuelEfficiency
-      ? (monthlyKm / fuelEfficiency) * safePositive(values.fuelPrice)
+      ? (monthlyKm / fuelEfficiency) * values.fuelPrice
       : 0;
     const evMonthlyEnergy = evEfficiency
-      ? (monthlyKm / evEfficiency) * safePositive(values.energyPrice)
+      ? (monthlyKm / evEfficiency) * values.energyPrice
       : 0;
 
-    const fuelMonthlyOperation = fuelMonthlyEnergy + safePositive(values.fuelMaintenance) / 12;
-    const evMonthlyOperation = evMonthlyEnergy + safePositive(values.evMaintenance) / 12;
+    const fuelMonthlyOperation = fuelMonthlyEnergy + values.fuelMaintenance / 12;
+    const evMonthlyOperation = evMonthlyEnergy + values.evMaintenance / 12;
     const monthlySavings = fuelMonthlyOperation - evMonthlyOperation;
     const yearlySavings = monthlySavings * 12;
 
     const fuelTotal =
-      safePositive(values.fuelVehiclePrice) +
+      values.fuelVehiclePrice +
       fuelMonthlyEnergy * 12 * years +
-      safePositive(values.fuelMaintenance) * years;
+      values.fuelMaintenance * years;
     const evTotal =
-      safePositive(values.evVehiclePrice) +
+      values.evVehiclePrice +
       evMonthlyEnergy * 12 * years +
-      safePositive(values.evMaintenance) * years;
+      values.evMaintenance * years;
 
-    const purchaseDifference =
-      safePositive(values.evVehiclePrice) - safePositive(values.fuelVehiclePrice);
+    const purchaseDifference = values.evVehiclePrice - values.fuelVehiclePrice;
     const breakEvenMonths =
       purchaseDifference > 0 && monthlySavings > 0
         ? purchaseDifference / monthlySavings
         : 0;
 
     return {
-      fuelMonthlyEnergy,
-      evMonthlyEnergy,
       fuelMonthlyOperation,
       evMonthlyOperation,
       monthlySavings,
@@ -96,27 +116,28 @@ export function EvCalculator() {
     };
   }, [values]);
 
-  function updateValue(field: keyof CalculatorValues, rawValue: string) {
-    const parsed = Number(rawValue.replace(",", "."));
-    setValues((current) => ({
+  function updateInput(field: keyof CalculatorInputs, rawValue: string) {
+    if (!acceptsNumericInput(rawValue)) return;
+
+    setInputs((current) => ({
       ...current,
-      [field]: Number.isFinite(parsed) ? parsed : 0,
+      [field]: rawValue,
     }));
   }
 
   const fields: Array<{
-    field: keyof CalculatorValues;
+    field: keyof CalculatorInputs;
     label: string;
-    step?: string;
+    decimal?: boolean;
     group: "Uso" | "Combustão" | "Elétrico" | "Compra";
   }> = [
     { field: "monthlyKm", label: "Km rodados por mês", group: "Uso" },
-    { field: "years", label: "Anos considerados", group: "Uso", step: "1" },
-    { field: "fuelEfficiency", label: "Consumo (km/L)", group: "Combustão", step: "0.1" },
-    { field: "fuelPrice", label: "Combustível (R$/L)", group: "Combustão", step: "0.01" },
+    { field: "years", label: "Anos considerados", group: "Uso" },
+    { field: "fuelEfficiency", label: "Consumo (km/L)", group: "Combustão", decimal: true },
+    { field: "fuelPrice", label: "Combustível (R$/L)", group: "Combustão", decimal: true },
     { field: "fuelMaintenance", label: "Manutenção anual (R$)", group: "Combustão" },
-    { field: "evEfficiency", label: "Consumo (km/kWh)", group: "Elétrico", step: "0.1" },
-    { field: "energyPrice", label: "Energia (R$/kWh)", group: "Elétrico", step: "0.01" },
+    { field: "evEfficiency", label: "Consumo (km/kWh)", group: "Elétrico", decimal: true },
+    { field: "energyPrice", label: "Energia (R$/kWh)", group: "Elétrico", decimal: true },
     { field: "evMaintenance", label: "Manutenção anual (R$)", group: "Elétrico" },
     { field: "fuelVehiclePrice", label: "Preço do carro a combustão", group: "Compra" },
     { field: "evVehiclePrice", label: "Preço do carro elétrico", group: "Compra" },
@@ -135,7 +156,7 @@ export function EvCalculator() {
           <button
             className="button button--secondary calculator-reset"
             type="button"
-            onClick={() => setValues(initialValues)}
+            onClick={() => setInputs(initialInputs)}
           >
             <RotateCcw size={16} />
             Restaurar exemplo
@@ -153,11 +174,12 @@ export function EvCalculator() {
                     <label className="calculator-field" key={item.field}>
                       <span>{item.label}</span>
                       <input
-                        type="number"
-                        min="0"
-                        step={item.step ?? "1"}
-                        value={values[item.field]}
-                        onChange={(event) => updateValue(item.field, event.target.value)}
+                        type="text"
+                        inputMode={item.decimal ? "decimal" : "numeric"}
+                        autoComplete="off"
+                        value={inputs[item.field]}
+                        onChange={(event) => updateInput(item.field, event.target.value)}
+                        aria-label={item.label}
                       />
                     </label>
                   ))}

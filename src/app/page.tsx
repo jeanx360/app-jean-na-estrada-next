@@ -3,18 +3,24 @@ import { ArrowRight, Route } from "lucide-react";
 import { HomeCarousel } from "@/components/HomeCarousel";
 import { LiveVideoGrid } from "@/components/LiveVideoGrid";
 import { videos } from "@/data/content";
-import { quickAccessItems, trustItems } from "@/data/home";
+import { trustItems } from "@/data/home";
 import { getHomeCarouselSlides } from "@/lib/home-carousel";
+import {
+  getHomeQuickAccessIcon,
+  getHomeQuickAccessItems,
+} from "@/lib/home-quick-access";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const carouselSlides = await getHomeCarouselSlides();
+  const [carouselSlides, quickAccessItems] = await Promise.all([
+    getHomeCarouselSlides(),
+    getHomeQuickAccessItems(),
+  ]);
 
   return (
     <div className="page-stack">
       <HomeCarousel slides={carouselSlides} />
-
 
       <section className="section-block">
         <div className="section-heading">
@@ -23,9 +29,9 @@ export default async function Home() {
         </div>
         <div className="quick-access-grid">
           {quickAccessItems.map((item) => {
-            const Icon = item.icon;
+            const Icon = getHomeQuickAccessIcon(item.icon);
             return (
-              <Link href={item.href} className={`quick-card quick-card--${item.accent}`} key={item.title}>
+              <Link href={item.href} className={`quick-card quick-card--${item.accent}`} key={item.id}>
                 <div className="quick-card__icon"><Icon size={24} /></div>
                 <div><h3>{item.title}</h3><p>{item.description}</p></div>
                 <ArrowRight className="quick-card__arrow" size={19} />

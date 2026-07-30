@@ -72,6 +72,13 @@ export function HomeCarousel({ slides }: Props) {
 
   if (!total) return null;
   const current = resolvedSlides[index];
+  const titleLength = current.title.trim().length;
+  const titleSizeClass =
+    titleLength > 100
+      ? "home-carousel__title--extra-long"
+      : titleLength > 68
+        ? "home-carousel__title--long"
+        : "home-carousel__title--standard";
 
   function move(direction: number) {
     setIndex((currentIndex) => (currentIndex + direction + total) % total);
@@ -102,7 +109,7 @@ export function HomeCarousel({ slides }: Props) {
 
       <div className="home-carousel__content" key={current.id}>
         <span className="eyebrow"><Sparkles size={15} /> {current.badge}</span>
-        <h1>{current.title}</h1>
+        <h1 className={`home-carousel__title ${titleSizeClass}`}>{current.title}</h1>
         <p>{current.description}</p>
         <a
           className="button button--primary"

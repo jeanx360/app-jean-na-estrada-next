@@ -114,7 +114,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <p>Vídeos, tutoriais, aplicativos, parceiros e área VIP em um só lugar.</p>
         </div>
 
-        <p className="sidebar__version" suppressHydrationWarning>Versão 1.4.0</p>
+        <p className="sidebar__version" suppressHydrationWarning>Versão 1.4.1</p>
       </aside>
 
       <main className="app-main">

@@ -15,6 +15,12 @@ function readBoolean(formData: FormData, key: string) {
   return formData.get(key) === "true" || formData.get(key) === "on";
 }
 
+
+function titleFromBody(body: string) {
+  const firstLine = body.split(/\r?\n/).find((line) => line.trim())?.trim() ?? body.trim();
+  return firstLine.length <= 110 ? firstLine : `${firstLine.slice(0, 107).trim()}...`;
+}
+
 function normalizeSlug(value: string) {
   return value
     .normalize("NFD")
@@ -45,9 +51,10 @@ export async function createCommunityPostAction(
   if (!context) return { error: "Seu acesso VIP não está ativo." };
 
   const { supabase, userId } = context;
-  const title = readText(formData, "title");
   const body = readText(formData, "body");
-  const categoryId = readText(formData, "categoryId");
+  const explicitTitle = readText(formData, "title");
+  const title = explicitTitle || titleFromBody(body);
+  let categoryId = readText(formData, "categoryId");
   const imagePath = readText(formData, "imagePath");
   const pollQuestion = readText(formData, "pollQuestion");
   const pollOptions = formData
@@ -56,13 +63,9 @@ export async function createCommunityPostAction(
     .map((value) => value.trim())
     .filter(Boolean);
 
-  if (title.length < 3 || title.length > 120) {
-    return { error: "O título precisa ter entre 3 e 120 caracteres." };
-  }
   if (body.length < 3 || body.length > 4000) {
     return { error: "A publicação precisa ter entre 3 e 4.000 caracteres." };
   }
-  if (!categoryId) return { error: "Selecione uma categoria." };
   if (imagePath && !imagePath.startsWith(`${userId}/`)) {
     return { error: "O arquivo enviado não pertence à sua conta." };
   }
@@ -81,13 +84,24 @@ export async function createCommunityPostAction(
     return { error: "Sua conta está temporariamente impedida de criar publicações." };
   }
 
+  if (!categoryId) {
+    const { data: defaultCategory } = await supabase
+      .from("community_categories")
+      .select("id")
+      .eq("is_active", true)
+      .order("sort_order", { ascending: true })
+      .limit(1)
+      .maybeSingle();
+    categoryId = defaultCategory?.id ?? "";
+  }
+
   const { data: category } = await supabase
     .from("community_categories")
     .select("id")
     .eq("id", categoryId)
     .eq("is_active", true)
     .maybeSingle();
-  if (!category) return { error: "A categoria selecionada não está disponível." };
+  if (!category) return { error: "Nenhuma categoria disponível para publicar." };
 
   const { data: post, error } = await supabase
     .from("community_posts")
@@ -124,7 +138,7 @@ export async function createCommunityPostAction(
   }
 
   revalidateCommunity(post.id);
-  return { success: "Publicação criada.", postId: post.id };
+  return { success: "Publicado na comunidade.", postId: post.id };
 }
 
 export async function toggleCommunityPostLikeAction(formData: FormData) {

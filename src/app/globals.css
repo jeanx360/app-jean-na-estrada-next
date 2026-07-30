@@ -7461,3 +7461,863 @@ button {
     font-size: .78rem;
   }
 }
+
+/* =========================================================
+   JNE APP 1.4.1 — COMUNIDADE MINIMALISTA E HOME ADMINISTRÁVEL
+   ========================================================= */
+
+/* Carrossel: tipografia menor e área segura para nunca cortar títulos. */
+.home-carousel__content {
+  align-content: center;
+  width: min(680px, 76%);
+  padding-top: clamp(34px, 5vw, 54px);
+  padding-bottom: clamp(86px, 8vw, 108px);
+}
+
+.home-carousel__content h1 {
+  font-size: clamp(1.85rem, 4.25vw, 3.65rem);
+  line-height: 1.03;
+  letter-spacing: -0.038em;
+  -webkit-line-clamp: 4;
+}
+
+.home-carousel__content p {
+  max-width: 610px;
+  -webkit-line-clamp: 4;
+}
+
+/* Cabeçalho e feed da comunidade. */
+.community-page--minimal {
+  width: min(100%, 760px);
+  gap: 16px;
+}
+
+.community-feed-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 4px 2px 8px;
+}
+
+.community-feed-heading span {
+  color: var(--accent);
+  font-size: .72rem;
+  font-weight: 900;
+  letter-spacing: .14em;
+}
+
+.community-feed-heading h1 {
+  margin: 5px 0 3px;
+  font-size: clamp(1.75rem, 4vw, 2.35rem);
+  letter-spacing: -.035em;
+}
+
+.community-feed-heading p {
+  margin: 0;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.community-icon-link {
+  position: relative;
+  display: grid;
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+}
+
+.community-icon-link small {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  display: grid;
+  min-width: 19px;
+  height: 19px;
+  place-items: center;
+  border-radius: 999px;
+  color: #fff;
+  background: var(--accent);
+  font-size: .65rem;
+  font-weight: 900;
+}
+
+.community-composer--minimal {
+  position: relative;
+  gap: 10px;
+  padding: 16px;
+  border-radius: 20px;
+  box-shadow: none;
+}
+
+.community-composer__main {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 11px;
+}
+
+.community-composer__avatar {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  color: var(--text-muted);
+  background: var(--surface-strong);
+}
+
+.community-composer__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.community-composer--minimal textarea {
+  min-height: 76px;
+  padding: 9px 4px;
+  border: 0;
+  outline: 0;
+  resize: vertical;
+  color: var(--text);
+  background: transparent;
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+.community-composer--minimal textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.community-composer__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+
+.community-action-button,
+.community-plain-button,
+.community-post-button,
+.community-more-menu summary,
+.community-composer__advanced summary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 38px;
+  padding: 8px 11px;
+  border: 0;
+  border-radius: 999px;
+  color: var(--text-soft);
+  background: transparent;
+  cursor: pointer;
+  transition: background .16s ease, color .16s ease, transform .16s ease;
+}
+
+.community-action-button:hover,
+.community-plain-button:hover,
+.community-more-menu summary:hover,
+.community-composer__advanced summary:hover {
+  color: var(--text);
+  background: var(--card-hover);
+}
+
+.community-action-button:active,
+.community-post-button:active {
+  transform: scale(.97);
+}
+
+.community-post-button {
+  margin-left: auto;
+  padding-inline: 17px;
+  color: #fff;
+  background: var(--accent);
+  font-weight: 800;
+}
+
+.community-post-button:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+.community-image-button {
+  position: relative;
+  overflow: hidden;
+}
+
+.community-image-button input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.community-composer__attachment {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 53px;
+  padding: 9px 11px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  color: var(--text-soft);
+  background: var(--surface);
+  font-size: .8rem;
+}
+
+.community-composer__attachment span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.community-composer__attachment button {
+  display: grid;
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  margin-left: auto;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+}
+
+.community-composer__advanced {
+  position: absolute;
+  right: 112px;
+  bottom: 16px;
+}
+
+.community-composer__advanced summary {
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  list-style: none;
+}
+
+.community-composer__advanced summary::-webkit-details-marker,
+.community-more-menu summary::-webkit-details-marker,
+.community-share-menu summary::-webkit-details-marker {
+  display: none;
+}
+
+.community-composer__advanced-panel,
+.community-more-menu__panel,
+.community-share-menu__panel {
+  position: absolute;
+  z-index: 70;
+  right: 0;
+  bottom: calc(100% + 8px);
+  display: grid;
+  width: min(330px, calc(100vw - 32px));
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 17px;
+  background: var(--surface-strong);
+  box-shadow: 0 24px 70px var(--shadow-color);
+}
+
+.community-composer__advanced-panel label {
+  display: grid;
+  gap: 6px;
+}
+
+.community-composer__advanced-panel label > span {
+  color: var(--text-muted);
+  font-size: .75rem;
+  font-weight: 750;
+}
+
+.community-plain-button {
+  width: fit-content;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.community-category-tabs {
+  padding-bottom: 5px;
+  border-bottom: 1px solid var(--line);
+}
+
+.community-post-card--minimal {
+  overflow: visible;
+  border-radius: 0;
+  border-width: 0 0 1px;
+  background: transparent;
+  box-shadow: none;
+}
+
+.community-post-card--minimal:first-child {
+  border-top: 1px solid var(--line);
+}
+
+.community-post-card--minimal .community-post-card__header {
+  align-items: center;
+  padding: 18px 6px 0;
+}
+
+.community-post-card__top-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-muted);
+}
+
+.community-post-card__top-actions > span {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+}
+
+.community-more-menu,
+.community-share-menu {
+  position: relative;
+}
+
+.community-more-menu summary {
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  list-style: none;
+}
+
+.community-more-menu__panel {
+  top: calc(100% + 7px);
+  bottom: auto;
+  width: min(260px, calc(100vw - 30px));
+}
+
+.community-more-menu__panel .community-report-control > button,
+.community-menu-danger {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 9px;
+  padding: 10px;
+  border: 0;
+  border-radius: 10px;
+  color: var(--text-soft);
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+}
+
+.community-menu-danger {
+  color: #ef6c68;
+}
+
+.community-post-card--minimal .community-post-card__content {
+  padding: 13px 6px 15px 59px;
+}
+
+.community-post-card--minimal .community-post-card__content p {
+  margin: 0;
+  color: var(--text);
+  font-size: .98rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.community-post-card--minimal .community-post-card__image {
+  width: min(620px, calc(100% - 65px));
+  max-height: 720px;
+  margin: 0 6px 16px 59px;
+  border-radius: 18px;
+}
+
+.community-post-card--minimal .community-poll {
+  margin-left: 59px;
+}
+
+.community-post-card--minimal .community-post-card__footer {
+  justify-content: flex-start;
+  gap: 8px;
+  padding: 8px 6px 14px 53px;
+  border-top: 0;
+}
+
+.community-post-card--minimal .community-post-card__footer form {
+  margin: 0;
+}
+
+.community-post-card--minimal .community-action-button {
+  min-width: 42px;
+}
+
+.community-action-button.is-active {
+  color: #ff4d67;
+}
+
+.community-share-menu__panel {
+  top: calc(100% + 7px);
+  bottom: auto;
+  left: 0;
+  right: auto;
+  width: 230px;
+}
+
+.community-share-menu__panel button {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px;
+  border: 0;
+  border-radius: 10px;
+  color: var(--text-soft);
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+}
+
+.community-share-menu__panel button:hover {
+  color: var(--text);
+  background: var(--card-hover);
+}
+
+.community-share-x {
+  display: grid;
+  width: 16px;
+  height: 16px;
+  place-items: center;
+  font-size: .8rem;
+  font-weight: 900;
+}
+
+.admin-quick-access-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.admin-quick-access-list > article {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+}
+
+.admin-quick-access-list h3 {
+  margin: 7px 0 4px;
+}
+
+.admin-quick-access-list p {
+  margin: 0;
+  color: var(--text-soft);
+  line-height: 1.5;
+}
+
+.admin-quick-access-list small,
+.admin-quick-access-list code {
+  color: var(--text-muted);
+  font-size: .74rem;
+}
+
+.admin-quick-access-list code {
+  display: block;
+  margin-top: 6px;
+}
+
+@media (max-width: 900px) {
+  .home-carousel__content {
+    width: 100%;
+  }
+
+  .home-carousel__content h1 {
+    font-size: clamp(1.7rem, 6.4vw, 2.8rem);
+  }
+}
+
+@media (max-width: 680px) {
+  .home-carousel__content {
+    padding: 24px 18px 92px;
+  }
+
+  .home-carousel__content h1 {
+    font-size: clamp(1.42rem, 7.1vw, 2rem);
+    line-height: 1.08;
+    -webkit-line-clamp: 5;
+  }
+
+  .home-carousel__content p {
+    font-size: .86rem;
+    line-height: 1.42;
+    -webkit-line-clamp: 4;
+  }
+
+  .community-feed-heading {
+    padding-inline: 3px;
+  }
+
+  .community-feed-heading p {
+    font-size: .88rem;
+  }
+
+  .community-composer--minimal {
+    padding: 13px;
+  }
+
+  .community-composer__main {
+    grid-template-columns: 36px minmax(0, 1fr);
+  }
+
+  .community-composer__avatar {
+    width: 36px;
+    height: 36px;
+  }
+
+  .community-composer__attachment {
+    margin-left: 47px;
+  }
+
+  .community-composer__advanced {
+    right: 102px;
+    bottom: 13px;
+  }
+
+  .community-post-card--minimal .community-post-card__header {
+    align-items: center;
+    flex-direction: row;
+    padding-inline: 2px;
+  }
+
+  .community-post-card--minimal .community-post-card__content {
+    padding-left: 51px;
+  }
+
+  .community-post-card--minimal .community-post-card__image {
+    width: calc(100% - 53px);
+    margin-left: 51px;
+  }
+
+  .community-post-card--minimal .community-poll {
+    margin-left: 51px;
+  }
+
+  .community-post-card--minimal .community-post-card__footer {
+    align-items: center;
+    flex-direction: row;
+    gap: 2px;
+    padding-left: 45px;
+  }
+
+  .community-action-button {
+    padding-inline: 9px;
+  }
+
+  .community-action-button span {
+    font-size: .77rem;
+  }
+
+  .community-share-menu__panel {
+    position: fixed;
+    inset: auto 12px 82px;
+    width: auto;
+  }
+
+  .admin-quick-access-list > article {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 380px) {
+  .home-carousel__content h1 {
+    font-size: clamp(1.28rem, 6.8vw, 1.7rem);
+  }
+
+  .community-action-button span,
+  .community-image-button span {
+    display: none;
+  }
+
+  .community-post-button span {
+    display: inline;
+  }
+
+  .community-composer__advanced {
+    right: 88px;
+  }
+}
+
+/* JNE App 1.4.2 — compositor minimalista inspirado em redes de conversa */
+.community-composer__toolbar {
+  position: relative;
+  justify-content: space-between;
+  overflow: visible;
+}
+
+.community-composer__tools {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 3px;
+}
+
+.community-icon-tool {
+  position: relative;
+  display: inline-grid;
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  place-items: center;
+  border: 0;
+  border-radius: 999px;
+  color: var(--text-soft);
+  background: transparent;
+  cursor: pointer;
+  transition: color .16s ease, background .16s ease, transform .16s ease;
+}
+
+.community-icon-tool:hover,
+.community-icon-tool:focus-visible,
+.community-icon-tool.is-active {
+  color: var(--text);
+  background: var(--card-hover);
+}
+
+.community-icon-tool.is-active {
+  color: var(--accent);
+}
+
+.community-icon-tool:active {
+  transform: scale(.94);
+}
+
+.community-icon-tool:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.community-icon-tool::after {
+  position: absolute;
+  z-index: 120;
+  left: 50%;
+  bottom: calc(100% + 9px);
+  max-width: 190px;
+  padding: 6px 9px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--text);
+  background: var(--surface-strong);
+  box-shadow: 0 12px 34px var(--shadow-color);
+  content: attr(data-tooltip);
+  font-size: .72rem;
+  font-weight: 700;
+  line-height: 1;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 4px);
+  transition: opacity .14s ease, transform .14s ease;
+  white-space: nowrap;
+}
+
+.community-icon-tool:hover::after,
+.community-icon-tool:focus-visible::after {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.community-image-button {
+  overflow: visible;
+}
+
+.community-image-button input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.community-send-button {
+  margin-left: auto;
+  color: #fff;
+  background: var(--accent);
+}
+
+.community-send-button:hover,
+.community-send-button:focus-visible {
+  color: #fff;
+  background: var(--accent);
+  filter: brightness(1.08);
+}
+
+.community-composer__advanced {
+  position: relative;
+  right: auto;
+  bottom: auto;
+  display: inline-flex;
+}
+
+.community-composer__advanced > summary {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+}
+
+.community-composer__advanced[open] > summary {
+  color: var(--text);
+  background: var(--card-hover);
+}
+
+.community-composer__advanced-panel {
+  right: auto;
+  left: 0;
+  bottom: calc(100% + 8px);
+  width: min(300px, calc(100vw - 32px));
+}
+
+.community-poll-editor--minimal {
+  margin-left: 53px;
+  padding: 13px;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  background: var(--surface);
+}
+
+.community-poll-editor__heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.community-poll-editor__heading strong {
+  font-size: .86rem;
+}
+
+.community-poll-editor--minimal .community-poll-editor__fields {
+  gap: 9px;
+}
+
+@media (hover: none) {
+  .community-icon-tool::after {
+    display: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .community-composer__advanced {
+    right: auto;
+    bottom: auto;
+  }
+
+  .community-poll-editor--minimal {
+    margin-left: 47px;
+  }
+
+  .community-composer__advanced-panel {
+    position: fixed;
+    inset: auto 12px 82px;
+    width: auto;
+  }
+}
+
+@media (max-width: 380px) {
+  .community-composer__advanced {
+    right: auto;
+  }
+
+  .community-icon-tool {
+    width: 38px;
+    height: 38px;
+  }
+}
+
+
+/* =========================================================
+   JNE APP 1.4.3 — CARROSSEL DESKTOP COM TÍTULO ADAPTATIVO
+   ========================================================= */
+
+/*
+ * Em telas grandes, o conteúdo do destaque precisa caber inteiro dentro
+ * do bloco fixo. O tamanho do título também varia conforme o comprimento
+ * do texto, evitando que manchetes longas sejam cortadas.
+ */
+@media (min-width: 901px) {
+  .home-carousel__content {
+    width: min(760px, 70%);
+    height: 100%;
+    min-height: 0;
+    align-content: center;
+    gap: 12px;
+    padding: clamp(30px, 3.4vw, 46px) clamp(38px, 5vw, 68px) 92px;
+    overflow: hidden;
+  }
+
+  .home-carousel__content .home-carousel__title {
+    display: block;
+    width: 100%;
+    max-width: 720px;
+    margin: 0;
+    overflow: visible;
+    line-height: 1.07;
+    letter-spacing: -0.034em;
+    text-wrap: balance;
+    overflow-wrap: normal;
+    word-break: normal;
+    hyphens: none;
+    -webkit-line-clamp: unset;
+    -webkit-box-orient: initial;
+  }
+
+  .home-carousel__title--standard {
+    font-size: clamp(2rem, 3.15vw, 3rem);
+  }
+
+  .home-carousel__title--long {
+    font-size: clamp(1.82rem, 2.7vw, 2.55rem);
+  }
+
+  .home-carousel__title--extra-long {
+    font-size: clamp(1.58rem, 2.25vw, 2.15rem);
+    line-height: 1.1;
+  }
+
+  .home-carousel__content p {
+    max-width: 620px;
+    font-size: clamp(.92rem, 1.25vw, 1.06rem);
+    line-height: 1.52;
+    -webkit-line-clamp: 3;
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1180px) {
+  .home-carousel__content {
+    width: min(700px, 76%);
+    padding-inline: 42px;
+  }
+
+  .home-carousel__title--standard {
+    font-size: clamp(1.9rem, 3.4vw, 2.65rem);
+  }
+
+  .home-carousel__title--long {
+    font-size: clamp(1.72rem, 2.9vw, 2.3rem);
+  }
+
+  .home-carousel__title--extra-long {
+    font-size: clamp(1.5rem, 2.45vw, 2rem);
+  }
+}
