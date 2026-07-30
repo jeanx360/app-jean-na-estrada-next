@@ -8677,3 +8677,262 @@ button {
   .driver-dashboard-stats span { font-size: .72rem; }
   .driver-result-card__total { font-size: 2.45rem; }
 }
+
+/* =========================================================
+   JNE APP 1.5.1 — CARROSSEL MOBILE COMPACTO E PLAYER INTERNO
+   ========================================================= */
+.video-card--button {
+  width: 100%;
+  padding: 0;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.youtube-player-overlay {
+  position: fixed;
+  z-index: 2600;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 22px;
+  background: rgba(0, 0, 0, .82);
+  backdrop-filter: blur(12px);
+}
+
+.youtube-player-dialog {
+  width: min(1040px, 100%);
+  max-height: calc(100dvh - 44px);
+  overflow: hidden;
+  border: 1px solid var(--line-strong);
+  border-radius: 22px;
+  background: var(--bg);
+  box-shadow: 0 30px 100px rgba(0, 0, 0, .62);
+}
+
+.youtube-player-dialog__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 15px 17px;
+  border-bottom: 1px solid var(--line);
+}
+
+.youtube-player-dialog__header > div {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.youtube-player-dialog__header span {
+  color: var(--accent);
+  font-size: .65rem;
+  font-weight: 900;
+  letter-spacing: .1em;
+}
+
+.youtube-player-dialog__header h2 {
+  overflow: hidden;
+  margin: 0;
+  font-size: clamp(.95rem, 2vw, 1.25rem);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.youtube-player-dialog__frame {
+  aspect-ratio: 16 / 9;
+  background: #000;
+}
+
+.youtube-player-dialog__frame iframe {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border: 0;
+}
+
+.youtube-player-dialog__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 13px 17px;
+  border-top: 1px solid var(--line);
+}
+
+.youtube-player-dialog__footer p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: .78rem;
+}
+
+.home-carousel__mobile-indicators {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .home-carousel {
+    height: 238px;
+    min-height: 0;
+    border-radius: 20px;
+    box-shadow: 0 16px 38px var(--shadow-color);
+    touch-action: pan-y;
+  }
+
+  .home-carousel--mobile-actionable {
+    cursor: pointer;
+  }
+
+  .home-carousel--mobile-actionable:focus-visible {
+    outline: 3px solid rgb(var(--accent-rgb) / .48);
+    outline-offset: 3px;
+  }
+
+  .home-carousel__background img {
+    opacity: .48;
+  }
+
+  .home-carousel__background span,
+  [data-theme="light"] .home-carousel__background span {
+    background:
+      linear-gradient(0deg, var(--hero-bg-start) 5%, rgb(5 5 5 / .76) 76%, rgb(5 5 5 / .28)),
+      linear-gradient(90deg, rgb(5 5 5 / .7), transparent 88%);
+  }
+
+  [data-theme="light"] .home-carousel__background span {
+    background:
+      linear-gradient(0deg, rgb(247 250 255 / .96) 6%, rgb(247 250 255 / .76) 76%, rgb(247 250 255 / .2)),
+      linear-gradient(90deg, rgb(247 250 255 / .72), transparent 88%);
+  }
+
+  .home-carousel__content {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    align-content: end;
+    gap: 7px;
+    padding: 17px 17px 31px;
+  }
+
+  .home-carousel__content .eyebrow {
+    gap: 5px;
+    font-size: .6rem;
+    letter-spacing: .09em;
+  }
+
+  .home-carousel__content .eyebrow svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .home-carousel__content h1,
+  .home-carousel__title--standard,
+  .home-carousel__title--long,
+  .home-carousel__title--extra-long {
+    margin: 0;
+    font-size: clamp(1.18rem, 5.6vw, 1.55rem);
+    line-height: 1.08;
+    letter-spacing: -.028em;
+    -webkit-line-clamp: 3;
+  }
+
+  .home-carousel__content p {
+    max-width: 95%;
+    font-size: .76rem;
+    line-height: 1.35;
+    -webkit-line-clamp: 2;
+  }
+
+  .home-carousel__content .button,
+  .home-carousel__controls {
+    display: none;
+  }
+
+  .home-carousel__mobile-indicators {
+    position: absolute;
+    right: 14px;
+    bottom: 12px;
+    left: 14px;
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    pointer-events: none;
+  }
+
+  .home-carousel__mobile-indicators span {
+    width: 5px;
+    height: 5px;
+    border-radius: 99px;
+    background: currentColor;
+    opacity: .32;
+    transition: width .2s ease, opacity .2s ease, background .2s ease;
+  }
+
+  .home-carousel__mobile-indicators span.is-active {
+    width: 18px;
+    opacity: 1;
+    background: var(--accent);
+  }
+
+  .youtube-player-overlay {
+    align-items: center;
+    padding: 0;
+    background: #000;
+    backdrop-filter: none;
+  }
+
+  .youtube-player-dialog {
+    width: 100%;
+    max-height: 100dvh;
+    border: 0;
+    border-radius: 0;
+    background: #000;
+  }
+
+  .youtube-player-dialog__header {
+    padding: max(12px, env(safe-area-inset-top)) 13px 12px;
+    color: #fff;
+    background: #090909;
+  }
+
+  .youtube-player-dialog__header h2 {
+    font-size: .9rem;
+  }
+
+  .youtube-player-dialog__frame {
+    width: 100%;
+  }
+
+  .youtube-player-dialog__footer {
+    padding: 12px 14px calc(12px + env(safe-area-inset-bottom));
+    color: #fff;
+    background: #090909;
+  }
+
+  .youtube-player-dialog__footer p {
+    display: none;
+  }
+}
+
+@media (max-width: 390px) {
+  .home-carousel {
+    height: 218px;
+  }
+
+  .home-carousel__content {
+    padding: 15px 15px 28px;
+  }
+
+  .home-carousel__content h1,
+  .home-carousel__title--standard,
+  .home-carousel__title--long,
+  .home-carousel__title--extra-long {
+    font-size: clamp(1.08rem, 5.4vw, 1.35rem);
+  }
+
+  .home-carousel__content p {
+    font-size: .72rem;
+  }
+}
