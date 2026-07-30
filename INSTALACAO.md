@@ -1,15 +1,9 @@
-# Instalação — JNE App 1.5.2
+# Instalação — JNE App 1.5.3
 
-1. Copie `src` e `public` para a raiz do projeto.
-2. Execute:
+1. Copie os arquivos deste pacote para a raiz do projeto.
+2. Execute `node scripts/cleanup-legacy-youtube-memberships.mjs`.
+3. Atualize a versão com `npm version 1.5.3 --no-git-tag-version`.
+4. Apague `.next` e execute `npm run build`.
+5. Confira `/api/health` e o relatório de rotas do build.
 
-```powershell
-npm version 1.5.2 --no-git-tag-version
-Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue
-npm run build
-```
-
-3. Publique e atualize o PWA.
-4. Teste um vídeo da home e um vídeo da página `/videos`.
-
-Não há migração do Supabase nem nova variável de ambiente.
+A limpeza não remove o player de vídeos, o cron de notificações de vídeos nem as migrações históricas do Supabase.
