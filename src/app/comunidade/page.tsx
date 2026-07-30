@@ -40,13 +40,15 @@ export default async function CommunityPage({ searchParams }: Props) {
       {postRestricted ? (
         <div className="member-warning"><ShieldCheck size={20} /><div><strong>Publicações temporariamente limitadas</strong><p>{restriction?.reason || "Sua conta pode acompanhar as conversas, mas não publicar neste momento."}</p></div></div>
       ) : (
-        <CommunityPostForm userId={userId} categories={categories} compact avatarUrl={profile?.avatar_url} />
+        <CommunityPostForm
+          userId={userId}
+          categories={categories}
+          compact
+          avatarUrl={profile?.avatar_url}
+          activeCategory={categoria}
+        />
       )}
 
-      <nav className="community-category-tabs" aria-label="Categorias da comunidade">
-        <Link href="/comunidade" className={!categoria ? "is-active" : ""}>Para você</Link>
-        {categories.map((category) => <Link key={category.id} href={`/comunidade?categoria=${category.slug}`} className={categoria === category.slug ? "is-active" : ""}>{category.name}</Link>)}
-      </nav>
 
       <section className="community-feed">
         {posts.length ? posts.map((post) => <CommunityPostCard key={post.id} post={post} currentUserId={userId} isAdmin={profile?.role === "admin"} />) : (

@@ -1,10 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   BarChart3,
+  Check,
   FileImage,
+  ListFilter,
   LoaderCircle,
   MoreHorizontal,
   Plus,
@@ -34,13 +37,17 @@ export function CommunityPostForm({
   categories,
   compact = false,
   avatarUrl,
+  activeCategory,
 }: {
   userId: string;
   categories: CommunityCategory[];
   compact?: boolean;
   avatarUrl?: string | null;
+  activeCategory?: string;
 }) {
   const router = useRouter();
+  const insertMenuRef = useRef<HTMLDetailsElement>(null);
+  const filterMenuRef = useRef<HTMLDetailsElement>(null);
   const [pending, setPending] = useState(false);
   const [pollEnabled, setPollEnabled] = useState(false);
   const [pollOptions, setPollOptions] = useState(["", ""]);
@@ -227,32 +234,6 @@ export function CommunityPostForm({
 
       <div className="community-composer__toolbar">
         <div className="community-composer__tools" aria-label="Ferramentas da publicação">
-          <label
-            className="community-icon-tool community-image-button"
-            data-tooltip="Adicionar imagem"
-            aria-label="Adicionar imagem"
-          >
-            <FileImage size={20} />
-            <input
-              id={`community-image-${userId}`}
-              name="imageFile"
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              onChange={(event) => setFileName(event.target.files?.[0]?.name ?? "")}
-            />
-          </label>
-
-          <button
-            className={`community-icon-tool ${pollEnabled ? "is-active" : ""}`}
-            type="button"
-            aria-label={pollEnabled ? "Remover enquete" : "Adicionar enquete"}
-            aria-pressed={pollEnabled}
-            data-tooltip={pollEnabled ? "Remover enquete" : "Adicionar enquete"}
-            onClick={() => setPollEnabled((current) => !current)}
-          >
-            <BarChart3 size={20} />
-          </button>
-
           <details className="community-composer__advanced">
             <summary
               className="community-icon-tool"
@@ -272,6 +253,94 @@ export function CommunityPostForm({
                   ))}
                 </select>
               </label>
+            </div>
+          </details>
+
+          <details ref={filterMenuRef} className="community-composer__filter-menu">
+            <summary
+              className="community-icon-tool"
+              aria-label="Filtrar publicações"
+              data-tooltip="Filtrar publicações"
+            >
+              <ListFilter size={20} />
+            </summary>
+            <div className="community-composer__filter-panel" role="menu" aria-label="Categorias do feed">
+              <Link
+                href="/comunidade"
+                className={`community-composer__filter-option ${!activeCategory ? "is-active" : ""}`}
+                role="menuitem"
+                aria-current={!activeCategory ? "page" : undefined}
+                onClick={() => {
+                  if (filterMenuRef.current) filterMenuRef.current.open = false;
+                }}
+              >
+                <span>Para você</span>
+                {!activeCategory ? <Check size={17} /> : null}
+              </Link>
+              {categories.map((category) => {
+                const selected = activeCategory === category.slug;
+                return (
+                  <Link
+                    href={`/comunidade?categoria=${category.slug}`}
+                    className={`community-composer__filter-option ${selected ? "is-active" : ""}`}
+                    role="menuitem"
+                    aria-current={selected ? "page" : undefined}
+                    key={category.id}
+                    onClick={() => {
+                      if (filterMenuRef.current) filterMenuRef.current.open = false;
+                    }}
+                  >
+                    <span>{category.name}</span>
+                    {selected ? <Check size={17} /> : null}
+                  </Link>
+                );
+              })}
+            </div>
+          </details>
+
+          <details ref={insertMenuRef} className="community-composer__insert-menu">
+            <summary
+              className="community-icon-tool"
+              aria-label="Adicionar conteúdo"
+              data-tooltip="Adicionar conteúdo"
+            >
+              <Plus size={21} />
+            </summary>
+            <div className="community-composer__insert-panel" role="menu">
+              <label className="community-composer__insert-option" role="menuitem">
+                <FileImage size={19} />
+                <span>
+                  <strong>Imagem</strong>
+                  <small>JPG, PNG ou WebP</small>
+                </span>
+                <input
+                  id={`community-image-${userId}`}
+                  name="imageFile"
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={(event) => {
+                    setFileName(event.target.files?.[0]?.name ?? "");
+                    if (insertMenuRef.current) insertMenuRef.current.open = false;
+                  }}
+                />
+              </label>
+
+              <button
+                className={`community-composer__insert-option ${pollEnabled ? "is-active" : ""}`}
+                type="button"
+                role="menuitem"
+                aria-pressed={pollEnabled}
+                onClick={() => {
+                  setPollEnabled((current) => !current);
+                  if (insertMenuRef.current) insertMenuRef.current.open = false;
+                }}
+              >
+                <BarChart3 size={19} />
+                <span>
+                  <strong>{pollEnabled ? "Remover enquete" : "Enquete"}</strong>
+                  <small>{pollEnabled ? "A enquete será removida" : "Adicione opções para votação"}</small>
+                </span>
+              </button>
             </div>
           </details>
         </div>
