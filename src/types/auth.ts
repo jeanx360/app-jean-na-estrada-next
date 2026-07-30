@@ -1,4 +1,5 @@
 export type MemberRole = "member" | "vip" | "admin";
+export type PreferredHome = "standard" | "driver";
 
 export type MemberProfile = {
   id: string;
@@ -10,6 +11,8 @@ export type MemberProfile = {
   is_blocked: boolean;
   blocked_at: string | null;
   blocked_reason: string | null;
+  is_professional_driver: boolean;
+  preferred_home: PreferredHome;
   created_at: string;
   updated_at: string;
 };

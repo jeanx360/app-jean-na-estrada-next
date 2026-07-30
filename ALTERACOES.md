@@ -1,11 +1,14 @@
-# JNE App 1.4.6
+# JNE App 1.5.0
 
-## Filtros da comunidade em menu
-
-- Remove a faixa horizontal de categorias abaixo do compositor.
-- Adiciona um botão de filtro ao lado dos três pontos.
-- O menu lista “Para você” e todas as categorias ativas.
-- A categoria atual recebe marcação visual.
-- O menu fecha ao selecionar uma categoria.
-- No celular, abre acima da navegação inferior e permite rolagem vertical.
-- Atualiza o cache PWA para 1.4.6.
+- Novo menu Motorista Profissional.
+- Calculadora gratuita de viagem particular.
+- Cobrança por quilômetro, hora, espera e custos diretos.
+- Ida, volta e ida e volta com multiplicação automática do trecho.
+- Pedágios, estacionamento, outros custos, desconto, valor mínimo e reserva de manutenção.
+- Compartilhamento nativo e WhatsApp.
+- Histórico privado de orçamentos para usuários autenticados.
+- Valores padrão por motorista.
+- Perfil com opção “Sou motorista profissional”.
+- Home personalizada: motorista pode abrir o app direto no painel operacional.
+- Home normal ganhou dois atalhos estratégicos antes do acesso rápido.
+- Termos e Política de Privacidade atualizados.

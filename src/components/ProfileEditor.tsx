@@ -2,9 +2,9 @@
 
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Camera, LoaderCircle, Save, Trash2, UserRound } from "lucide-react";
+import { Camera, Car, Home, LoaderCircle, Save, Trash2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import type { MemberProfile } from "@/types/auth";
+import type { MemberProfile, PreferredHome } from "@/types/auth";
 
 const MAX_AVATAR_SIZE = 2 * 1024 * 1024;
 const ALLOWED_TYPES = new Map([
@@ -21,6 +21,8 @@ export function ProfileEditor({ profile, email }: { profile: MemberProfile; emai
   const [avatarUrl, setAvatarUrl] = useState(profile.avatar_url);
   const [avatarPath, setAvatarPath] = useState(profile.avatar_path);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [professionalDriver, setProfessionalDriver] = useState(profile.is_professional_driver);
+  const [preferredHome, setPreferredHome] = useState<PreferredHome>(profile.preferred_home ?? "standard");
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
@@ -59,13 +61,20 @@ export function ProfileEditor({ profile, email }: { profile: MemberProfile; emai
         nextAvatarPath = uploadedPath;
       }
 
-      const { error } = await supabase.rpc("update_own_profile", {
+      const { error: profileError } = await supabase.rpc("update_own_profile", {
         new_full_name: normalizedName,
         new_bio: bio.trim() || null,
         new_avatar_url: nextAvatarUrl,
         new_avatar_path: nextAvatarPath,
       });
-      if (error) throw error;
+      if (profileError) throw profileError;
+
+      const safePreferredHome: PreferredHome = professionalDriver ? preferredHome : "standard";
+      const { error: driverError } = await supabase.rpc("update_driver_profile_preferences", {
+        new_is_professional_driver: professionalDriver,
+        new_preferred_home: safePreferredHome,
+      });
+      if (driverError) throw driverError;
 
       if (uploadedPath && avatarPath && avatarPath !== uploadedPath) {
         await supabase.storage.from("avatars").remove([avatarPath]);
@@ -73,9 +82,10 @@ export function ProfileEditor({ profile, email }: { profile: MemberProfile; emai
 
       setAvatarUrl(nextAvatarUrl);
       setAvatarPath(nextAvatarPath);
+      setPreferredHome(safePreferredHome);
       setSelectedFile(null);
       if (fileInput.current) fileInput.current.value = "";
-      setMessage({ type: "success", text: "Perfil atualizado." });
+      setMessage({ type: "success", text: "Perfil e preferências atualizados." });
       router.refresh();
     } catch (error) {
       if (uploadedPath) await supabase.storage.from("avatars").remove([uploadedPath]);
@@ -140,6 +150,44 @@ export function ProfileEditor({ profile, email }: { profile: MemberProfile; emai
         <label><span>Nome</span><input value={fullName} maxLength={80} onChange={(event) => setFullName(event.target.value)} /></label>
         <label><span>E-mail</span><input value={email ?? ""} disabled /></label>
         <label><span>Sobre você</span><textarea value={bio} maxLength={280} rows={5} onChange={(event) => setBio(event.target.value)} placeholder="Conte brevemente sua relação com carros e tecnologia." /><small>{bio.length}/280</small></label>
+
+        <div className="driver-profile-preferences">
+          <div className="driver-profile-preferences__heading">
+            <Car size={21} />
+            <div>
+              <strong>Motorista profissional</strong>
+              <p>Ative para usar orçamento de viagens, histórico e um painel mais rápido ao abrir o app.</p>
+            </div>
+          </div>
+
+          <label className="driver-toggle-row">
+            <span>Sou motorista profissional</span>
+            <input
+              type="checkbox"
+              checked={professionalDriver}
+              onChange={(event) => {
+                const checked = event.target.checked;
+                setProfessionalDriver(checked);
+                setPreferredHome(checked ? "driver" : "standard");
+              }}
+            />
+          </label>
+
+          {professionalDriver ? (
+            <div className="driver-home-choice">
+              <span><Home size={17} /> Qual tela abrir primeiro?</span>
+              <label>
+                <input type="radio" name="preferred-home" checked={preferredHome === "driver"} onChange={() => setPreferredHome("driver")} />
+                Painel do motorista
+              </label>
+              <label>
+                <input type="radio" name="preferred-home" checked={preferredHome === "standard"} onChange={() => setPreferredHome("standard")} />
+                Conteúdo Jean na Estrada
+              </label>
+            </div>
+          ) : null}
+        </div>
+
         {message ? <p className={`auth-message auth-message--${message.type}`}>{message.text}</p> : null}
         <button className="button button--primary" type="button" onClick={saveProfile} disabled={saving}>
           {saving ? <LoaderCircle className="auth-spinner" size={18} /> : <Save size={18} />}

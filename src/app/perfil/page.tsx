@@ -26,7 +26,7 @@ export default async function ProfilePage() {
         icon={<UserRound size={24} />}
         eyebrow="CONTA JNE"
         title="Meu perfil"
-        description="Atualize seu nome, apresentação, foto e consulte as informações de segurança da conta."
+        description="Atualize sua conta, foto e escolha se deseja usar o JNE App como motorista profissional."
       />
 
       {profile.is_blocked ? (

@@ -1,9 +1,11 @@
 import Link from "next/link";
-import { ArrowRight, Route } from "lucide-react";
+import { ArrowRight, BatteryCharging, Calculator, Route } from "lucide-react";
+import { redirect } from "next/navigation";
 import { HomeCarousel } from "@/components/HomeCarousel";
 import { LiveVideoGrid } from "@/components/LiveVideoGrid";
 import { videos } from "@/data/content";
 import { trustItems } from "@/data/home";
+import { getAuthContext } from "@/lib/auth";
 import { getHomeCarouselSlides } from "@/lib/home-carousel";
 import {
   getHomeQuickAccessIcon,
@@ -12,7 +14,16 @@ import {
 
 export const dynamic = "force-dynamic";
 
-export default async function Home() {
+type Props = { searchParams: Promise<{ modo?: string }> };
+
+export default async function Home({ searchParams }: Props) {
+  const { modo } = await searchParams;
+  const { profile } = await getAuthContext();
+
+  if (profile?.is_professional_driver && profile.preferred_home === "driver" && modo !== "conteudo") {
+    redirect("/motorista");
+  }
+
   const [carouselSlides, quickAccessItems] = await Promise.all([
     getHomeCarouselSlides(),
     getHomeQuickAccessItems(),
@@ -21,6 +32,21 @@ export default async function Home() {
   return (
     <div className="page-stack">
       <HomeCarousel slides={carouselSlides} />
+
+      <section className="home-utility-section">
+        <div className="home-utility-grid">
+          <Link href="/calculadora" className="home-utility-card home-utility-card--ev">
+            <div className="home-utility-card__icon"><BatteryCharging size={27} /></div>
+            <div><span>PARA QUEM PENSA EM ELÉTRICO</span><h2>Vale a pena ter um elétrico?</h2><p>Compare energia, combustível e manutenção com base no seu uso.</p></div>
+            <strong>Calcular economia <ArrowRight size={18} /></strong>
+          </Link>
+          <Link href="/motorista/calculadora" className="home-utility-card home-utility-card--driver">
+            <div className="home-utility-card__icon"><Calculator size={27} /></div>
+            <div><span>PARA MOTORISTAS</span><h2>Quanto cobrar por uma viagem?</h2><p>Monte uma referência profissional com quilômetros, horas e despesas.</p></div>
+            <strong>Montar orçamento <ArrowRight size={18} /></strong>
+          </Link>
+        </div>
+      </section>
 
       <section className="section-block">
         <div className="section-heading">
