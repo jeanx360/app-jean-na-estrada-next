@@ -1,24 +1,64 @@
 "use client";
 
 import Link from "next/link";
-import { Bell } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { Bell, BellRing, ChevronRight, Inbox, LoaderCircle, X } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 const GUEST_READ_KEY = "jne-notification-read-ids";
+const GUEST_DISMISSED_KEY = "jne-notification-dismissed-ids";
 
-function guestReadIds() {
+type NotificationCategory = "general" | "videos" | "tutorials" | "apps" | "benefits";
+
+type FloatingNotification = {
+  id: string;
+  title: string;
+  message: string;
+  category: NotificationCategory;
+  action_url: string | null;
+  published_at: string;
+};
+
+const categoryLabels: Record<NotificationCategory, string> = {
+  general: "Geral",
+  videos: "Vídeo",
+  tutorials: "Tutorial",
+  apps: "Aplicativo",
+  benefits: "Benefício",
+};
+
+function storedIds(key: string) {
   try {
-    const value = JSON.parse(localStorage.getItem(GUEST_READ_KEY) || "[]");
-    return Array.isArray(value) ? new Set(value.filter((item): item is string => typeof item === "string")) : new Set<string>();
+    const value = JSON.parse(localStorage.getItem(key) || "[]");
+    return Array.isArray(value)
+      ? value.filter((item): item is string => typeof item === "string")
+      : [];
   } catch {
-    return new Set<string>();
+    return [];
   }
 }
 
-export function NotificationBell() {
-  const [count, setCount] = useState(0);
+function formatPublishedAt(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return new Intl.DateTimeFormat("pt-BR", {
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
+}
 
-  const refresh = useCallback(async () => {
+export function NotificationBell() {
+  const pathname = usePathname();
+  const rootRef = useRef<HTMLDivElement>(null);
+  const [open, setOpen] = useState(false);
+  const [count, setCount] = useState(0);
+  const [items, setItems] = useState<FloatingNotification[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const refreshCount = useCallback(async () => {
     try {
       const response = await fetch("/api/notificacoes/unread", { cache: "no-store" });
       if (!response.ok) return;
@@ -33,17 +73,70 @@ export function NotificationBell() {
         return;
       }
 
-      const read = guestReadIds();
-      setCount((data.ids ?? []).filter((id) => !read.has(id)).length);
+      const read = new Set(storedIds(GUEST_READ_KEY));
+      const dismissed = new Set(storedIds(GUEST_DISMISSED_KEY));
+      setCount((data.ids ?? []).filter((id) => !read.has(id) && !dismissed.has(id)).length);
     } catch {
       setCount(0);
     }
   }, []);
 
+  const markAllRead = useCallback(async () => {
+    setCount(0);
+
+    try {
+      const unreadResponse = await fetch("/api/notificacoes/unread", { cache: "no-store" });
+      if (!unreadResponse.ok) return;
+      const unreadData = (await unreadResponse.json()) as {
+        authenticated?: boolean;
+        ids?: string[];
+      };
+
+      if (unreadData.authenticated) {
+        await fetch("/api/notificacoes/read", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ all: true }),
+        });
+      } else {
+        const nextIds = Array.from(new Set([...storedIds(GUEST_READ_KEY), ...(unreadData.ids ?? [])]));
+        localStorage.setItem(GUEST_READ_KEY, JSON.stringify(nextIds.slice(-300)));
+      }
+    } finally {
+      window.dispatchEvent(new Event("jne-notifications-updated"));
+    }
+  }, []);
+
+  const loadItems = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch("/api/notificacoes/recentes?limit=6", { cache: "no-store" });
+      const data = (await response.json()) as { ok?: boolean; items?: FloatingNotification[]; error?: string };
+      if (!response.ok || !data.ok) throw new Error(data.error || "Não foi possível carregar as notificações.");
+
+      const dismissed = new Set(storedIds(GUEST_DISMISSED_KEY));
+      setItems((data.items ?? []).filter((item) => !dismissed.has(item.id)));
+    } catch (loadError) {
+      setError(loadError instanceof Error ? loadError.message : "Não foi possível carregar as notificações.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  function toggleMenu() {
+    const nextOpen = !open;
+    setOpen(nextOpen);
+    if (nextOpen) {
+      void loadItems();
+      void markAllRead();
+    }
+  }
+
   useEffect(() => {
-    void refresh();
-    const interval = window.setInterval(() => void refresh(), 60000);
-    const handleUpdate = () => void refresh();
+    void refreshCount();
+    const interval = window.setInterval(() => void refreshCount(), 60000);
+    const handleUpdate = () => void refreshCount();
     window.addEventListener("jne-notifications-updated", handleUpdate);
     window.addEventListener("storage", handleUpdate);
 
@@ -52,12 +145,106 @@ export function NotificationBell() {
       window.removeEventListener("jne-notifications-updated", handleUpdate);
       window.removeEventListener("storage", handleUpdate);
     };
-  }, [refresh]);
+  }, [refreshCount]);
+
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!open) return;
+
+    function handlePointerDown(event: MouseEvent) {
+      if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") setOpen(false);
+    }
+
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [open]);
 
   return (
-    <Link className="icon-button notification-button" href="/notificacoes" aria-label="Abrir notificações">
-      <Bell size={20} />
-      {count > 0 ? <span className="notification-count">{count > 99 ? "99+" : count}</span> : null}
-    </Link>
+    <div className="notification-floating" ref={rootRef}>
+      <button
+        className={`icon-button notification-button ${open ? "is-open" : ""}`}
+        type="button"
+        aria-label="Abrir notificações"
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        onClick={toggleMenu}
+      >
+        <Bell size={20} />
+        {count > 0 ? <span className="notification-count">{count > 99 ? "99+" : count}</span> : null}
+      </button>
+
+      {open ? (
+        <section className="notification-floating__panel" role="dialog" aria-label="Notificações recentes">
+          <header className="notification-floating__header">
+            <div>
+              <span className="eyebrow">CENTRAL JNE</span>
+              <strong><BellRing size={18} /> Notificações</strong>
+              <small>Ao abrir, os avisos são marcados como lidos.</small>
+            </div>
+            <button className="icon-button notification-floating__close" type="button" onClick={() => setOpen(false)} aria-label="Fechar notificações">
+              <X size={18} />
+            </button>
+          </header>
+
+          <div className="notification-floating__content">
+            {loading ? (
+              <div className="notification-floating__state"><LoaderCircle className="auth-spinner" size={24} /><span>Carregando avisos...</span></div>
+            ) : error ? (
+              <div className="notification-floating__state"><Inbox size={26} /><span>{error}</span><button className="text-link" type="button" onClick={() => void loadItems()}>Tentar novamente</button></div>
+            ) : items.length ? (
+              <div className="notification-floating__list">
+                {items.map((item) => {
+                  const content = (
+                    <>
+                      <div className="notification-floating__meta">
+                        <span className={`notification-category notification-category--${item.category}`}>{categoryLabels[item.category]}</span>
+                        <time dateTime={item.published_at}>{formatPublishedAt(item.published_at)}</time>
+                      </div>
+                      <strong>{item.title}</strong>
+                      <p>{item.message}</p>
+                      {item.action_url ? <span className="notification-floating__open">Abrir <ChevronRight size={16} /></span> : null}
+                    </>
+                  );
+
+                  return item.action_url ? (
+                    <Link
+                      key={item.id}
+                      href={item.action_url}
+                      className="notification-floating__item"
+                      target={item.action_url.startsWith("http") ? "_blank" : undefined}
+                      rel={item.action_url.startsWith("http") ? "noreferrer" : undefined}
+                      onClick={() => setOpen(false)}
+                    >
+                      {content}
+                    </Link>
+                  ) : (
+                    <article key={item.id} className="notification-floating__item">{content}</article>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="notification-floating__state"><Inbox size={28} /><strong>Tudo em dia</strong><span>Nenhuma notificação disponível agora.</span></div>
+            )}
+          </div>
+
+          <footer className="notification-floating__footer">
+            <Link className="button button--secondary" href="/notificacoes" onClick={() => setOpen(false)}>
+              Ver histórico completo <ChevronRight size={17} />
+            </Link>
+          </footer>
+        </section>
+      ) : null}
+    </div>
   );
 }

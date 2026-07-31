@@ -10,23 +10,19 @@ export default function TermsPage() {
   return (
     <div className="page-stack legal-page">
       <PageHeader icon={<ScrollText size={24} />} eyebrow="DOCUMENTO OFICIAL" title="Termos de Uso" description="Regras para conta, assinatura, comunidade, ferramentas profissionais, área VIP, arquivos e serviços do JNE App." />
-      <LegalDocument
-        version={LEGAL_VERSIONS.terms}
-        updatedAt="30 de julho de 2026"
-        sections={[
-          { title: "1. Sobre o JNE App", content: <p>O JNE App reúne conteúdos do projeto Jean na Estrada, incluindo vídeos, notícias, tutoriais, aplicativos, parceiros, benefícios, comunidade, ferramentas para motoristas, área de membros e materiais exclusivos.</p> },
-          { title: "2. Cadastro e segurança da conta", content: <p>Você deve informar dados verdadeiros, proteger sua senha e não compartilhar a conta. Contas com fraude, abuso, distribuição indevida de arquivos ou tentativa de contornar controles de acesso poderão ser bloqueadas ou excluídas.</p> },
-          { title: "3. Acesso VIP", content: <p>O acesso VIP pode ser concedido por assinatura direta, verificação manual de membro do YouTube, convite, parceria ou cortesia administrativa. Cada acesso pode possuir validade definida ou permanecer sem prazo, conforme a modalidade registrada no painel.</p> },
-          { title: "4. Assinatura e pagamento", content: <p>O valor, a periodicidade e as formas disponíveis são exibidos antes do pagamento. Pagamentos podem ocorrer por link de provedor externo ou Pix manual. Durante a fase inicial, a confirmação e a liberação são realizadas pela administração após conferência da referência ou comprovante enviado.</p> },
-          { title: "5. Ferramentas para motoristas", content: <><p>A calculadora de viagem particular fornece apenas uma estimativa com base nos valores informados pelo próprio usuário. O JNE App não define tarifas obrigatórias, não intermedeia corridas, não agenda passageiros e não participa do contrato de transporte.</p><p>O motorista é responsável pelo preço final, autorizações, seguros, tributos, regras locais, segurança, condições do veículo e cumprimento das normas aplicáveis à atividade profissional.</p></> },
-          { title: "6. Orçamentos e informações financeiras", content: <p>Os registros salvos servem como controle pessoal. Resultados, margens, reservas e valores líquidos são estimativas e não substituem orientação contábil, fiscal, jurídica ou financeira.</p> },
-          { title: "7. Conteúdo e uso permitido", content: <p>O acesso é pessoal e não autoriza copiar, revender, publicar ou redistribuir arquivos, códigos, links privados, tutoriais ou materiais exclusivos sem autorização.</p> },
-          { title: "8. Comunidade e conteúdo dos membros", content: <><p>Na Comunidade VIP, o usuário pode publicar textos, imagens, comentários, respostas, curtidas e enquetes. Ao publicar, declara possuir autorização para o conteúdo e concede ao JNE App permissão não exclusiva para armazená-lo e exibi-lo dentro da plataforma enquanto a publicação estiver ativa.</p><p>Não são permitidos golpes, spam, assédio, discriminação, pirataria, exposição de dados pessoais, conteúdo ilegal ou instruções que coloquem pessoas e veículos em risco.</p></> },
-          { title: "9. Aplicativos, links e parceiros", content: <p>Aplicativos, instruções e serviços externos podem possuir riscos, limitações e políticas próprias. Compras ou pagamentos em ambientes externos são processados pelos respectivos fornecedores.</p> },
-          { title: "10. Disponibilidade e alterações", content: <p>Funcionalidades, valores, benefícios e estes termos podem ser alterados por razões técnicas, comerciais, legais ou operacionais. Mudanças relevantes exigirão novo aceite quando aplicável.</p> },
-          { title: "11. Encerramento e contato", content: <p>O usuário pode excluir a própria conta pelo perfil. A administração também pode excluir contas mediante solicitação ou necessidade operacional, preservando registros cuja retenção seja exigida. Contato: contato.jeannaestrada@gmail.com.</p> },
-        ]}
-      />
+      <LegalDocument version={LEGAL_VERSIONS.terms} updatedAt="30 de julho de 2026" sections={[
+        { title: "1. Sobre o JNE App", content: <p>O JNE App reúne conteúdos do projeto Jean na Estrada, comunidade, ferramentas para motoristas, área de membros e materiais exclusivos.</p> },
+        { title: "2. Cadastro e segurança", content: <p>Você deve informar dados verdadeiros, proteger sua senha e não compartilhar a conta. Fraude, abuso ou tentativa de contornar controles pode resultar em bloqueio ou exclusão.</p> },
+        { title: "3. Acesso VIP e assinatura", content: <p>O acesso VIP pode ser concedido por assinatura direta, verificação manual de membro do YouTube, convite, parceria ou cortesia. Valores e formas de pagamento são exibidos antes da contratação.</p> },
+        { title: "4. Ferramentas para motoristas", content: <><p>A calculadora fornece estimativas baseadas nos valores informados pelo usuário. O JNE App não define tarifas obrigatórias, não intermedeia corridas e não participa do contrato de transporte.</p><p>O motorista é responsável pelo preço final, autorizações, seguros, tributos, regras locais, segurança e condições do veículo.</p></> },
+        { title: "5. Controle financeiro", content: <p>Receitas, despesas, resultados por hora, resultados por quilômetro e valores pendentes são controles pessoais e estimativas. Eles não substituem documentos fiscais, extratos bancários ou orientação contábil, jurídica e financeira.</p> },
+        { title: "6. Responsabilidade pelos registros", content: <p>O usuário é responsável pela exatidão dos dados registrados, inclusive valores recebidos, despesas, clientes, rotas, datas, formas de pagamento e situação da viagem.</p> },
+        { title: "7. Conteúdo e uso permitido", content: <p>O acesso é pessoal e não autoriza copiar, revender, publicar ou redistribuir materiais exclusivos sem autorização.</p> },
+        { title: "8. Comunidade", content: <p>Não são permitidos golpes, spam, assédio, discriminação, pirataria, exposição indevida de dados pessoais ou conteúdo ilegal.</p> },
+        { title: "9. Aplicativos, links e parceiros", content: <p>Aplicativos, instruções e serviços externos podem possuir riscos, limitações e políticas próprias.</p> },
+        { title: "10. Disponibilidade e alterações", content: <p>Funcionalidades, valores, benefícios e estes termos podem ser alterados por razões técnicas, comerciais, legais ou operacionais.</p> },
+        { title: "11. Encerramento e contato", content: <p>O usuário pode excluir a própria conta pelo perfil. Contato: contato.jeannaestrada@gmail.com.</p> },
+      ]} />
     </div>
   );
 }

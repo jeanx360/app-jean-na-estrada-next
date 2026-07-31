@@ -1,25 +1,22 @@
-# JNE App 1.5.3 — limpeza técnica
+# JNE App 1.6.1
 
-## Removido
+## Resumo mensal do motorista
 
-- Rotas administrativas da sincronização automática de membros do YouTube.
-- Rotas de vínculo de Conta Google dos membros.
-- Cron antigo de sincronização de membros.
-- Bibliotecas e tipos exclusivos do OAuth de membros.
-- Documento antigo de configuração do Google OAuth.
+- O resumo mensal agora considera somente viagens com status **Concluída**.
+- Viagens planejadas continuam no histórico, mas não distorcem faturamento, despesas, horas, quilômetros ou resultado líquido do mês.
+- O mês é calculado no fuso `America/Sao_Paulo`, evitando diferença na virada do mês entre o navegador e a Vercel.
+- Criação de viagem, mudança de status, inclusão e exclusão de lançamentos agora invalidam o painel e a tela financeira do Next.js.
+- Ao concluir uma viagem, o sistema confirma que o resumo mensal foi atualizado.
 
-## Preservado
+## Notificações
 
-- Player interno de vídeos do YouTube.
-- Página de vídeos.
-- Notificação automática quando um vídeo novo é publicado.
-- Cadastro manual de membros do YouTube como VIP.
-- Origem `youtube` nos registros manuais do VIP.
-- Migrações históricas do Supabase, para manter o histórico do banco consistente.
+- O sino agora abre um menu flutuante compacto, sem tirar o usuário da tela atual.
+- Exibe as seis notificações recentes com categoria, data, título, resumo e ação.
+- Ao abrir o menu, todas as notificações disponíveis são marcadas como lidas automaticamente.
+- O contador do sino é limpo imediatamente e sincronizado para usuários autenticados ou visitantes.
+- Clique fora ou pressione `Esc` para fechar.
+- O histórico completo continua disponível pelo botão no rodapé do menu.
 
-## Outros ajustes
+## Banco de dados
 
-- `/api/health` atualizado para 1.5.3.
-- Service Worker atualizado para o cache 1.5.3.
-- `vercel.json` mantém somente o cron útil de notificações de vídeos.
-- `.env.example` não contém variáveis do OAuth abandonado.
+Esta versão não exige uma nova migração SQL.

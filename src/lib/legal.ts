@@ -1,8 +1,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 export const LEGAL_VERSIONS = {
-  terms: "1.3.0",
-  privacy: "1.4.0",
+  terms: "1.4.0",
+  privacy: "1.5.0",
   apk_disclaimer: "1.0.0",
 } as const;
 
@@ -21,7 +21,6 @@ export function safeInternalPath(value: string | null | undefined, fallback = "/
 export async function getLegalAcceptanceStatus(supabase: SupabaseClient, userId: string) {
   const { data, error } = await supabase.from("user_legal_acceptances").select("document_type, version").eq("user_id", userId);
   if (error) return { complete: false, missing: LEGAL_DOCUMENTS.map((document) => document.type), error };
-
   const accepted = new Map((data ?? []).map((item: { document_type: string; version: string }) => [item.document_type, item.version]));
   const missing = LEGAL_DOCUMENTS.filter((document) => accepted.get(document.type) !== document.version).map((document) => document.type);
   return { complete: missing.length === 0, missing, error: null };
