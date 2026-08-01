@@ -30,8 +30,8 @@ export function AdminInviteForm() {
           <input name="maxUses" type="number" min="1" max="10000" defaultValue="1" required />
         </label>
         <label>
-          <span>Validade opcional (até 23:59)</span>
-          <input name="expiresAt" type="date" />
+          <span>Validade opcional (dd/mm/aaaa, até 23:59)</span>
+          <input name="expiresAt" type="date" lang="pt-BR" />
         </label>
       </div>
 

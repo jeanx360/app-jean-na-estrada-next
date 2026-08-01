@@ -14,6 +14,7 @@ import { ConfirmSubmitButton } from "@/components/ConfirmSubmitButton";
 import { requireAdmin } from "@/lib/admin";
 import type { HomeCarouselRow } from "@/types/home-carousel";
 import type { HomeQuickAccessRow } from "@/types/home-quick-access";
+import { formatBrazilDateTime } from "@/lib/date-time";
 
 export const metadata: Metadata = { title: "Personalização da página inicial" };
 
@@ -159,9 +160,9 @@ export default async function AdminHomePage({ searchParams }: Props) {
                 <p>{slide.description || slide.public_contents?.summary || "Conteúdo resolvido automaticamente na página inicial."}</p>
                 {slide.starts_at || slide.ends_at ? (
                   <small>
-                    {slide.starts_at ? `Início: ${new Date(slide.starts_at).toLocaleString("pt-BR")}` : "Início imediato"}
+                    {slide.starts_at ? `Início: ${formatBrazilDateTime(slide.starts_at)}` : "Início imediato"}
                     {" · "}
-                    {slide.ends_at ? `Término: ${new Date(slide.ends_at).toLocaleString("pt-BR")}` : "Sem término"}
+                    {slide.ends_at ? `Término: ${formatBrazilDateTime(slide.ends_at)}` : "Sem término"}
                   </small>
                 ) : null}
               </div>

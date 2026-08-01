@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { ArrowRight, CheckCircle2, LoaderCircle, Save, XCircle } from "lucide-react";
+import { useState, type ChangeEvent } from "react";
+import { ArrowRight, CheckCircle2, LoaderCircle, Save } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { DRIVER_RESERVATION_STATUS_LABELS, type DriverReservation, type DriverReservationStatus } from "@/lib/driver-public";
@@ -19,10 +19,11 @@ function suggestedNext(status: DriverReservationStatus, hasQuote: boolean, hasTr
 export function DriverReservationActions({ reservation, hasQuote = false, hasTrip = false }: Props) {
   const router = useRouter();
   const [status, setStatus] = useState<DriverReservationStatus>(reservation.status);
-  const [selectedStatus, setSelectedStatus] = useState<DriverReservationStatus>(reservation.status);
+  const [selectedStatus, setSelectedStatus] = useState<DriverReservationStatus>(["cancelled", "declined"].includes(reservation.status) ? "negotiating" : reservation.status);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const next = suggestedNext(status, hasQuote, hasTrip);
+  const manualStatuses = (Object.keys(DRIVER_RESERVATION_STATUS_LABELS) as DriverReservationStatus[]).filter((item) => !["cancelled", "declined"].includes(item));
 
   async function updateStatus(nextStatus: DriverReservationStatus) {
     setSaving(true);
@@ -51,11 +52,10 @@ export function DriverReservationActions({ reservation, hasQuote = false, hasTri
       ) : status === "completed" ? <div className="driver-reservation-action-complete"><CheckCircle2 size={22} /><span>Atendimento concluído</span></div> : null}
 
       <div className="driver-reservation-manual-status">
-        <label><span>Outra situação</span><select value={selectedStatus} onChange={(event) => setSelectedStatus(event.target.value as DriverReservationStatus)}>{(Object.keys(DRIVER_RESERVATION_STATUS_LABELS) as DriverReservationStatus[]).map((item) => <option key={item} value={item}>{DRIVER_RESERVATION_STATUS_LABELS[item]}</option>)}</select></label>
+        <label><span>Outra situação</span><select value={selectedStatus} onChange={(event: ChangeEvent<HTMLSelectElement>) => setSelectedStatus(event.target.value as DriverReservationStatus)}>{manualStatuses.map((item) => <option key={item} value={item}>{DRIVER_RESERVATION_STATUS_LABELS[item]}</option>)}</select></label>
         <button className="button button--secondary" type="button" onClick={() => void updateStatus(selectedStatus)} disabled={saving || selectedStatus === status}><Save size={17} /> Salvar</button>
       </div>
 
-      {(status !== "declined" && status !== "cancelled" && status !== "completed") ? <div className="driver-reservation-cancel-actions"><button type="button" onClick={() => void updateStatus("declined")} disabled={saving}><XCircle size={16} /> Recusar</button><button type="button" onClick={() => void updateStatus("cancelled")} disabled={saving}><XCircle size={16} /> Cancelar</button></div> : null}
       {saving ? <p className="driver-form-message"><LoaderCircle className="auth-spinner" size={16} /> Atualizando...</p> : message ? <p className="driver-form-message">{message}</p> : null}
     </section>
   );

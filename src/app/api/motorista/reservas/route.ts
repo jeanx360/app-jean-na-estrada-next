@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendPushNotification } from "@/lib/push";
 import { normalizeWhatsAppPhone } from "@/lib/driver-public";
+import { formatBrazilDate, formatBrazilTime } from "@/lib/date-time";
 
 export const dynamic = "force-dynamic";
 
@@ -134,9 +135,9 @@ export async function POST(request: Request) {
     }
 
     const route = [origin, destination].filter(Boolean).join(" → ");
-    const dateLabel = new Date(`${travelDate}T12:00:00`).toLocaleDateString("pt-BR");
+    const dateLabel = formatBrazilDate(travelDate);
     const title = "🚨 Nova solicitação de corrida";
-    const message = `${passengerName}${selectedPackage ? ` pediu “${selectedPackage.title}”` : route ? ` pediu ${route}` : " enviou uma reserva"} para ${dateLabel}${travelTime ? ` às ${travelTime}` : ""}.`;
+    const message = `${passengerName}${selectedPackage ? ` pediu “${selectedPackage.title}”` : route ? ` pediu ${route}` : " enviou uma reserva"} para ${dateLabel}${travelTime ? ` às ${formatBrazilTime(travelTime)}` : ""}.`;
 
     const { data: notification } = await supabase
       .from("notifications")

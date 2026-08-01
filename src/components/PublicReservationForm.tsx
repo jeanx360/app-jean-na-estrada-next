@@ -121,8 +121,8 @@ export function PublicReservationForm({ driverSlug, packages, initialPackageId =
           <label><span>WhatsApp</span><input inputMode="tel" autoComplete="tel" maxLength={20} value={form.passengerPhone} onChange={(event) => update("passengerPhone", event.target.value)} placeholder="DDD + número" /><small>Para números do Brasil, adicionamos +55 automaticamente.</small></label>
           <label><span>Origem</span><input maxLength={180} value={form.origin} onChange={(event) => update("origin", event.target.value)} placeholder="Bairro, cidade ou endereço" /></label>
           <label><span>Destino</span><input maxLength={180} value={form.destination} onChange={(event) => update("destination", event.target.value)} placeholder="Bairro, cidade ou endereço" /></label>
-          <label><span>Data</span><input type="date" min={minimumDate} value={form.travelDate} onChange={(event) => update("travelDate", event.target.value)} /></label>
-          <label><span>Horário aproximado</span><input type="time" value={form.travelTime} onChange={(event) => update("travelTime", event.target.value)} /></label>
+          <label><span>Data (dd/mm/aaaa)</span><input type="date" lang="pt-BR" min={minimumDate} value={form.travelDate} onChange={(event) => update("travelDate", event.target.value)} /></label>
+          <label><span>Horário aproximado (24h)</span><input type="time" lang="pt-BR" step={60} value={form.travelTime} onChange={(event) => update("travelTime", event.target.value)} /><small>Use o formato 00:00 a 23:59.</small></label>
           <label><span>Passageiros</span><input type="number" min={1} max={20} value={form.passengers} onChange={(event) => update("passengers", event.target.value)} /></label>
           <label><span>Bagagens</span><input maxLength={180} value={form.luggage} onChange={(event) => update("luggage", event.target.value)} placeholder="Ex.: 2 malas médias" /></label>
         </div>

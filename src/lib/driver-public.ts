@@ -1,4 +1,5 @@
 import { formatCurrency, type DriverTripType } from "@/lib/driver";
+import { formatBrazilDate, formatBrazilTime } from "@/lib/date-time";
 
 export type DriverProfileTheme = "dark" | "blue" | "green";
 export type DriverPricingType = "fixed" | "starting_at" | "hourly" | "consult";
@@ -69,6 +70,8 @@ export type DriverReservation = {
   quote_id: string | null;
   request_fingerprint_hash: string | null;
   contact_consent: boolean;
+  cancellation_reason: string | null;
+  cancelled_at: string | null;
   created_at: string;
   updated_at: string;
   driver_service_packages?: Pick<DriverServicePackage, "id" | "title" | "pricing_type" | "price"> | null;
@@ -136,8 +139,8 @@ export function reservationWhatsAppUrl(reservation: Pick<DriverReservation, "pas
   const lines = [
     `Olá, ${reservation.passenger_name}! Aqui é o motorista do JNE App.`,
     route ? `Viagem solicitada: ${route}.` : "Recebi sua solicitação de corrida.",
-    reservation.travel_date ? `Data: ${new Date(`${reservation.travel_date}T12:00:00`).toLocaleDateString("pt-BR")}.` : null,
-    reservation.travel_time ? `Horário: ${reservation.travel_time.slice(0, 5)}.` : null,
+    reservation.travel_date ? `Data: ${formatBrazilDate(reservation.travel_date)}.` : null,
+    reservation.travel_time ? `Horário: ${formatBrazilTime(reservation.travel_time)}.` : null,
     "Podemos confirmar os detalhes?",
   ].filter(Boolean).join("\n");
   return `https://wa.me/${normalizeWhatsAppPhone(reservation.passenger_phone)}?text=${encodeURIComponent(lines)}`;

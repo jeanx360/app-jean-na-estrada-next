@@ -2,6 +2,7 @@
 
 import { Share2 } from "lucide-react";
 import { formatCurrency, TRIP_TYPE_LABELS, type DriverQuote } from "@/lib/driver";
+import { formatBrazilDate } from "@/lib/date-time";
 
 export function DriverQuoteShareButton({ quote }: { quote: DriverQuote }) {
   async function share() {
@@ -10,7 +11,7 @@ export function DriverQuoteShareButton({ quote }: { quote: DriverQuote }) {
       "Orçamento de viagem particular",
       route ? `Rota: ${route}` : null,
       `Serviço: ${TRIP_TYPE_LABELS[quote.trip_type]}`,
-      quote.travel_date ? `Data: ${new Date(`${quote.travel_date}T12:00:00`).toLocaleDateString("pt-BR")}` : null,
+      quote.travel_date ? `Data: ${formatBrazilDate(quote.travel_date)}` : null,
       `Valor total: ${formatCurrency(quote.rounded_total)}`,
       quote.notes ? `Observações: ${quote.notes}` : null,
     ].filter(Boolean).join("\n");

@@ -7,6 +7,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { RedeemInviteForm } from "@/components/RedeemInviteForm";
 import { getAuthContext } from "@/lib/auth";
 import { getLegalAcceptanceStatus } from "@/lib/legal";
+import { formatBrazilDate } from "@/lib/date-time";
 
 export const metadata: Metadata = {
   title: "Área de membros",
@@ -103,7 +104,7 @@ export default async function MembersPage() {
             <h2>Área VIP</h2>
             <p>{role === "vip" || role === "admin" ? "Seu perfil possui acesso aos conteúdos exclusivos." : "Assine o plano, use um convite ou aguarde a liberação administrativa."}</p>
             {entitlement ? (
-              <small className="member-vip-validity"><CalendarClock size={14} /> {sourceLabels[entitlement.source]} · {entitlement.expires_at ? `até ${new Intl.DateTimeFormat("pt-BR", { dateStyle: "medium" }).format(new Date(entitlement.expires_at))}` : "sem validade"}</small>
+              <small className="member-vip-validity"><CalendarClock size={14} /> {sourceLabels[entitlement.source]} · {entitlement.expires_at ? `até ${formatBrazilDate(entitlement.expires_at)}` : "sem validade"}</small>
             ) : null}
           </div>
           <Link className="button button--primary" href="/vip">{role === "member" ? "Conhecer e assinar" : "Abrir área VIP"}</Link>
@@ -137,7 +138,7 @@ export default async function MembersPage() {
         <div className="member-announcements__list">
           {announcements.map((item) => (
             <article key={item.id}>
-              <div><span>{item.audience === "vip" ? "VIP" : item.audience === "admin" ? "ADMIN" : "JNE APP"}</span><small>{new Intl.DateTimeFormat("pt-BR", { dateStyle: "medium" }).format(new Date(item.published_at))}</small></div>
+              <div><span>{item.audience === "vip" ? "VIP" : item.audience === "admin" ? "ADMIN" : "JNE APP"}</span><small>{formatBrazilDate(item.published_at)}</small></div>
               <h3>{item.title}</h3><p>{item.message}</p>
             </article>
           ))}

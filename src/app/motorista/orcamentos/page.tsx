@@ -3,9 +3,11 @@ import Link from "next/link";
 import { ArrowRight, FileDown, FileText, Plus, WalletCards } from "lucide-react";
 import { redirect } from "next/navigation";
 import { DriverQuoteShareButton } from "@/components/DriverQuoteShareButton";
+import { DriverRecordDeleteButton } from "@/components/DriverRecordDeleteButton";
 import { PageHeader } from "@/components/PageHeader";
 import { getAuthContext } from "@/lib/auth";
 import { formatCurrency, TRIP_TYPE_LABELS, type DriverQuote } from "@/lib/driver";
+import { formatBrazilDate } from "@/lib/date-time";
 
 export const metadata: Metadata = { title: "Meus orçamentos" };
 export const dynamic = "force-dynamic";
@@ -31,10 +33,10 @@ export default async function DriverQuotesPage() {
               <div className="driver-quote-row__main">
                 <Link className="driver-quote-title-link" href={`/motorista/orcamentos/${quote.id}`}>{[quote.origin, quote.destination].filter(Boolean).join(" → ") || quote.customer_name || "Viagem particular"}</Link>
                 <span>{TRIP_TYPE_LABELS[quote.trip_type]} · {quote.total_distance_km.toFixed(1).replace(".", ",")} km</span>
-                <small>{new Date(quote.created_at).toLocaleDateString("pt-BR")} {quote.travel_date ? `· viagem em ${new Date(`${quote.travel_date}T12:00:00`).toLocaleDateString("pt-BR")}` : ""}</small>
+                <small>{formatBrazilDate(quote.created_at)} {quote.travel_date ? `· viagem em ${formatBrazilDate(quote.travel_date)}` : ""}</small>
               </div>
               <div className="driver-quote-row__value"><strong>{formatCurrency(quote.rounded_total)}</strong><span>{quote.status}</span></div>
-              <div className="driver-quote-row__actions"><Link className="icon-button" href={`/motorista/orcamentos/${quote.id}`} aria-label="Abrir orçamento e gerar PDF" title="Abrir e gerar PDF"><FileDown size={18} /></Link><DriverQuoteShareButton quote={quote} />{converted.has(quote.id) ? <span className="driver-quote-converted">Registrada</span> : <Link className="button button--ghost driver-quote-finance-link" href={`/motorista/financeiro/nova?quote=${quote.id}`}><WalletCards size={16} />Registrar viagem</Link>}</div>
+              <div className="driver-quote-row__actions"><Link className="icon-button" href={`/motorista/orcamentos/${quote.id}`} aria-label="Abrir orçamento e gerar PDF" title="Abrir e gerar PDF"><FileDown size={18} /></Link><DriverQuoteShareButton quote={quote} />{converted.has(quote.id) ? <span className="driver-quote-converted">Registrada</span> : <Link className="button button--ghost driver-quote-finance-link" href={`/motorista/financeiro/nova?quote=${quote.id}`}><WalletCards size={16} />Registrar viagem</Link>}<DriverRecordDeleteButton kind="quote" recordId={quote.id} userId={userId} linkedTrip={converted.has(quote.id)} /></div>
             </article>
           ))}
         </section>

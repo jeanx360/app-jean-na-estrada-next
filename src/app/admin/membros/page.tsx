@@ -10,6 +10,7 @@ import {
 import { ConfirmSubmitButton } from "@/components/ConfirmSubmitButton";
 import { requireAdmin } from "@/lib/admin";
 import type { MemberRole } from "@/types/auth";
+import { formatBrazilDate } from "@/lib/date-time";
 
 export const metadata: Metadata = { title: "Gerenciar membros" };
 
@@ -99,7 +100,7 @@ export default async function AdminMembersPage() {
                 <div>
                   <h3>{member.full_name || "Nome não informado"}</h3>
                   <p>{member.email}</p>
-                  <small>Cadastro em {new Intl.DateTimeFormat("pt-BR", { dateStyle: "medium" }).format(new Date(member.created_at))}</small>
+                  <small>Cadastro em {formatBrazilDate(member.created_at)}</small>
                 </div>
               </div>
 
@@ -118,7 +119,7 @@ export default async function AdminMembersPage() {
                       <strong>{source.label || sourceLabels[source.source]}</strong>
                       <small>
                         {source.expires_at
-                          ? `Válido até ${new Intl.DateTimeFormat("pt-BR", { dateStyle: "long" }).format(new Date(source.expires_at))}`
+                          ? `Válido até ${formatBrazilDate(source.expires_at)}`
                           : "Sem validade definida"}
                       </small>
                     </div>
@@ -156,8 +157,8 @@ export default async function AdminMembersPage() {
                         <input name="label" placeholder="Ex.: Membro YouTube — julho/2026" maxLength={120} />
                       </label>
                       <label>
-                        <span>Validade</span>
-                        <input name="expiresAt" type="date" defaultValue={dateInputAfter(30)} />
+                        <span>Validade (dd/mm/aaaa)</span>
+                        <input name="expiresAt" type="date" lang="pt-BR" defaultValue={dateInputAfter(30)} />
                       </label>
                       <label className="admin-checkbox-row">
                         <input name="noExpiry" type="checkbox" />

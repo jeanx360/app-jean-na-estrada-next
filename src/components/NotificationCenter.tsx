@@ -53,7 +53,7 @@ export function NotificationCenter({ items, initialReadIds, initialDismissedIds,
   const [readIds, setReadIds] = useState<string[]>(initialReadIds);
   const [dismissedIds, setDismissedIds] = useState<string[]>(initialDismissedIds);
   const [category, setCategory] = useState<NotificationCategory | "all">("all");
-  const [onlyUnread, setOnlyUnread] = useState(false);
+  const [onlyUnread, setOnlyUnread] = useState(true);
   const readSet = useMemo(() => new Set(readIds), [readIds]);
   const dismissedSet = useMemo(() => new Set(dismissedIds), [dismissedIds]);
 
@@ -126,6 +126,8 @@ export function NotificationCenter({ items, initialReadIds, initialDismissedIds,
     } else {
       localStorage.setItem(GUEST_DISMISSED_KEY, JSON.stringify(nextDismissed.slice(-300)));
     }
+
+    window.dispatchEvent(new Event("jne-notifications-updated"));
   }
 
   const unreadCount = items.filter((item) => !readSet.has(item.id)).length;
@@ -137,7 +139,7 @@ export function NotificationCenter({ items, initialReadIds, initialDismissedIds,
           <Bell size={20} />
           <div>
             <strong>{unreadCount} não {unreadCount === 1 ? "lida" : "lidas"}</strong>
-            <span>{items.length} avisos disponíveis</span>
+            <span>{onlyUnread ? "As lidas saem da lista ativa" : `${items.length} avisos no histórico`}</span>
           </div>
         </div>
 

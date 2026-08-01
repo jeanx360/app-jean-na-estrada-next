@@ -4,10 +4,12 @@ import { ArrowLeft, Calculator, CalendarDays, FileText, Luggage, MapPin, Message
 import { notFound, redirect } from "next/navigation";
 import { DriverReservationActions } from "@/components/DriverReservationActions";
 import { DriverReservationProgress } from "@/components/DriverReservationProgress";
+import { DriverReservationManagementForms } from "@/components/DriverReservationManagementForms";
 import { PageHeader } from "@/components/PageHeader";
 import { getAuthContext } from "@/lib/auth";
 import { formatCurrency, type DriverQuote, type DriverTrip } from "@/lib/driver";
 import { DRIVER_RESERVATION_STATUS_LABELS, reservationWhatsAppUrl, type DriverReservation } from "@/lib/driver-public";
+import { formatBrazilDate, formatBrazilTime } from "@/lib/date-time";
 
 export const metadata: Metadata = { title: "Solicitação de corrida" };
 export const dynamic = "force-dynamic";
@@ -43,7 +45,7 @@ export default async function DriverReservationDetailPage({ params }: Props) {
           <section className="driver-reservation-detail">
             <div className="driver-reservation-detail__route"><MapPin size={22} /><div><span>Rota ou serviço</span><strong>{route}</strong></div></div>
             <dl>
-              <div><dt><CalendarDays size={17} /> Data e horário</dt><dd>{reservation.travel_date ? new Date(`${reservation.travel_date}T12:00:00`).toLocaleDateString("pt-BR") : "A combinar"}{reservation.travel_time ? ` às ${reservation.travel_time.slice(0, 5)}` : ""}</dd></div>
+              <div><dt><CalendarDays size={17} /> Data e horário</dt><dd>{reservation.travel_date ? formatBrazilDate(reservation.travel_date) : "A combinar"}{reservation.travel_time ? ` às ${formatBrazilTime(reservation.travel_time)}` : ""}</dd></div>
               <div><dt><Users size={17} /> Passageiros</dt><dd>{reservation.passengers}</dd></div>
               <div><dt><Phone size={17} /> WhatsApp</dt><dd>{reservation.passenger_phone}</dd></div>
               <div><dt><Luggage size={17} /> Bagagens</dt><dd>{reservation.luggage || "Não informado"}</dd></div>
@@ -70,7 +72,13 @@ export default async function DriverReservationDetailPage({ params }: Props) {
           ) : null}
         </div>
 
-        <DriverReservationActions reservation={reservation} hasQuote={Boolean(quote)} hasTrip={Boolean(trip)} />
+        <div className="driver-reservation-side-stack">
+          <DriverReservationActions reservation={reservation} hasQuote={Boolean(quote)} hasTrip={Boolean(trip)} />
+          <section className="driver-reservation-management-card">
+            <div><span className="eyebrow">AGENDA E HISTÓRICO</span><h2>Gerenciar compromisso</h2><p>Remarque, duplique ou encerre o atendimento informando o motivo.</p></div>
+            <DriverReservationManagementForms reservation={reservation} />
+          </section>
+        </div>
       </div>
     </div>
   );

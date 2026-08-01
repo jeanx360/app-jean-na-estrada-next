@@ -26,6 +26,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { SubscriptionRequestForm } from "@/components/SubscriptionRequestForm";
 import { getAuthContext } from "@/lib/auth";
 import { getLegalAcceptanceStatus } from "@/lib/legal";
+import { formatBrazilDate, formatBrazilDateTime } from "@/lib/date-time";
 
 export const metadata: Metadata = {
   title: "Área VIP",
@@ -98,9 +99,6 @@ function money(cents: number) {
   return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(cents / 100);
 }
 
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat("pt-BR", { dateStyle: "medium" }).format(new Date(value));
-}
 
 type Props = { searchParams: Promise<{ recurso?: string }> };
 
@@ -202,7 +200,7 @@ export default async function VipPage({ searchParams }: Props) {
               <p>{profile?.role === "admin"
                 ? "Todos os recursos VIP estão liberados automaticamente para esta conta."
                 : entitlement?.expires_at
-                  ? `Validade atual: ${formatDate(entitlement.expires_at)}.`
+                  ? `Validade atual: ${formatBrazilDate(entitlement.expires_at)}.`
                   : "Acesso sem data de expiração cadastrada."}</p>
               {entitlement?.label ? <small>{entitlement.label}</small> : null}
             </div>
@@ -230,7 +228,7 @@ export default async function VipPage({ searchParams }: Props) {
                   <p>{item.description || "Conteúdo exclusivo liberado para membros VIP."}</p>
                   {item.content_type === "text" && item.content?.body ? <div className="vip-content-card__body"><FileText size={17} /><p>{item.content.body}</p></div> : null}
                   <div className="vip-content-card__footer">
-                    <small>{formatDate(item.published_at)}</small>
+                    <small>{formatBrazilDate(item.published_at)}</small>
                     {item.content_type === "file" && item.file_path ? <a className="button button--primary" href={`/api/vip/download?id=${encodeURIComponent(item.id)}`} target="_blank" rel="noopener noreferrer"><Download size={17} /> Baixar arquivo</a> : null}
                     {item.content_type === "link" && item.external_url ? <a className="button button--primary" href={item.external_url} target="_blank" rel="noopener noreferrer"><ExternalLink size={17} /> Abrir conteúdo</a> : null}
                   </div>
@@ -284,7 +282,7 @@ export default async function VipPage({ searchParams }: Props) {
       )}
 
       {userId && requests.length ? (
-        <section className="subscription-history"><div><span>HISTÓRICO DA ASSINATURA</span><h2>Seus pedidos</h2></div>{requests.map((item) => <article key={item.id}><div><strong>{item.payment_method === "pix" ? "Pix" : "Link de assinatura"}</strong><small>{new Intl.DateTimeFormat("pt-BR", { dateStyle: "medium", timeStyle: "short" }).format(new Date(item.created_at))}</small></div><span className={`subscription-status subscription-status--${item.status}`}>{statusLabels[item.status]}</span><strong>{money(item.amount_cents)}</strong>{item.admin_notes ? <p>{item.admin_notes}</p> : null}</article>)}</section>
+        <section className="subscription-history"><div><span>HISTÓRICO DA ASSINATURA</span><h2>Seus pedidos</h2></div>{requests.map((item) => <article key={item.id}><div><strong>{item.payment_method === "pix" ? "Pix" : "Link de assinatura"}</strong><small>{formatBrazilDateTime(item.created_at)}</small></div><span className={`subscription-status subscription-status--${item.status}`}>{statusLabels[item.status]}</span><strong>{money(item.amount_cents)}</strong>{item.admin_notes ? <p>{item.admin_notes}</p> : null}</article>)}</section>
       ) : null}
     </div>
   );

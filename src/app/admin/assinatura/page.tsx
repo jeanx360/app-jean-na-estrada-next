@@ -7,6 +7,7 @@ import {
 import { ConfirmSubmitButton } from "@/components/ConfirmSubmitButton";
 import { requireAdmin } from "@/lib/admin";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { formatBrazilDateTime } from "@/lib/date-time";
 
 export const metadata: Metadata = { title: "Assinatura VIP" };
 
@@ -136,7 +137,7 @@ export default async function AdminSubscriptionPage() {
                     <h3>{member?.full_name || "Nome não informado"}</h3>
                     <p>{member?.email || item.user_id}</p>
                   </div>
-                  <div><strong>{money(item.amount_cents)}</strong><small>{new Intl.DateTimeFormat("pt-BR", { dateStyle: "medium", timeStyle: "short" }).format(new Date(item.created_at))}</small></div>
+                  <div><strong>{money(item.amount_cents)}</strong><small>{formatBrazilDateTime(item.created_at)}</small></div>
                 </div>
 
                 <div className="admin-subscription-request__details">
@@ -149,7 +150,7 @@ export default async function AdminSubscriptionPage() {
                 {isPending ? (
                   <form className="admin-subscription-review-form" action={reviewSubscriptionRequestAction}>
                     <input type="hidden" name="requestId" value={item.id} />
-                    <label><span>Validade do VIP</span><input name="expiresAt" type="date" defaultValue={dateInputAfter(plan?.billing_days ?? 30)} /></label>
+                    <label><span>Validade do VIP (dd/mm/aaaa)</span><input name="expiresAt" type="date" lang="pt-BR" defaultValue={dateInputAfter(plan?.billing_days ?? 30)} /></label>
                     <label className="admin-checkbox-row"><input name="noExpiry" type="checkbox" /><span>Sem validade</span></label>
                     <label><span>Nota administrativa</span><input name="notes" placeholder="Opcional" maxLength={300} /></label>
                     <div className="admin-review-buttons">

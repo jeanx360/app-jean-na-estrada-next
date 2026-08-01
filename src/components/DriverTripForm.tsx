@@ -156,7 +156,7 @@ export function DriverTripForm({ userId, quote, reservationId }: Props) {
         <span className="eyebrow">VIAGEM</span>
         <div className="driver-field-grid">
           <label><span>Cliente (opcional)</span><input value={form.customerName} onChange={(e) => update("customerName", e.target.value)} placeholder="Nome do passageiro" /></label>
-          <label><span>Data</span><input type="date" value={form.travelDate} onChange={(e) => update("travelDate", e.target.value)} /></label>
+          <label><span>Data (dd/mm/aaaa)</span><input type="date" lang="pt-BR" value={form.travelDate} onChange={(e) => update("travelDate", e.target.value)} /></label>
           <label><span>Origem</span><input value={form.origin} onChange={(e) => update("origin", e.target.value)} placeholder="Porto Alegre" /></label>
           <label><span>Destino</span><input value={form.destination} onChange={(e) => update("destination", e.target.value)} placeholder="Gramado" /></label>
           <label><span>Distância total (km)</span><input inputMode="decimal" value={form.distanceKm} onChange={(e) => update("distanceKm", e.target.value)} placeholder="0" /></label>

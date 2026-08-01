@@ -9,7 +9,7 @@ import { formatDriverPackagePrice, normalizeWhatsAppPhone, type DriverPublicProf
 
 export const dynamic = "force-dynamic";
 
-type Props = { params: Promise<{ slug: string }>; searchParams: Promise<{ src?: string; servico?: string }> };
+type Props = { params: Promise<{ slug: string }>; searchParams: Promise<{ src?: string; servico?: string; preview?: string }> };
 
 async function loadProfile(slug: string) {
   const supabase = await createClient();
@@ -38,12 +38,13 @@ export default async function PublicDriverPage({ params, searchParams }: Props) 
   const { profile, packages } = result;
   const source = query.src === "qr" ? "qr" : query.src === "shared_link" ? "shared_link" : "profile";
   const selectedPackageId = packages.some((item) => item.id === query.servico) ? query.servico : "";
+  const trackPublicAccess = query.preview !== "admin";
   const whatsappText = `Olá, ${profile.display_name}! Encontrei seu cartão profissional no JNE App e gostaria de conversar sobre uma corrida.`;
   const whatsappUrl = `https://wa.me/${normalizeWhatsAppPhone(profile.whatsapp_phone)}?text=${encodeURIComponent(whatsappText)}`;
 
   return (
     <main className={`public-driver-page public-driver-page--${profile.theme}`}>
-      <DriverProfileEventTracker driverSlug={profile.slug} source={source} />
+      {trackPublicAccess ? <DriverProfileEventTracker driverSlug={profile.slug} source={source} /> : null}
       <header className="public-driver-hero">
         <div className="public-driver-hero__brand"><span>JNE</span><small>Cartão profissional digital</small></div>
         <div className="public-driver-hero__content">

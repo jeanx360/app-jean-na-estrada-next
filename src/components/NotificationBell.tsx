@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Bell, BellRing, ChevronRight, Inbox, LoaderCircle, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { formatBrazilDateTime } from "@/lib/date-time";
 
 const GUEST_READ_KEY = "jne-notification-read-ids";
 const GUEST_DISMISSED_KEY = "jne-notification-dismissed-ids";
@@ -40,14 +41,7 @@ function storedIds(key: string) {
 }
 
 function formatPublishedAt(value: string) {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "";
-  return new Intl.DateTimeFormat("pt-BR", {
-    day: "2-digit",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(date);
+  return formatBrazilDateTime(value, { fallback: "" });
 }
 
 export function NotificationBell() {
@@ -112,26 +106,47 @@ export function NotificationBell() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch("/api/notificacoes/recentes?limit=6", { cache: "no-store" });
-      const data = (await response.json()) as { ok?: boolean; items?: FloatingNotification[]; error?: string };
+      const response = await fetch("/api/notificacoes/recentes?limit=10", { cache: "no-store" });
+      const data = (await response.json()) as {
+        ok?: boolean;
+        authenticated?: boolean;
+        items?: FloatingNotification[];
+        error?: string;
+      };
       if (!response.ok || !data.ok) throw new Error(data.error || "Não foi possível carregar as notificações.");
 
+      const read = new Set(storedIds(GUEST_READ_KEY));
       const dismissed = new Set(storedIds(GUEST_DISMISSED_KEY));
-      setItems((data.items ?? []).filter((item) => !dismissed.has(item.id)));
+      const visibleItems = data.authenticated
+        ? (data.items ?? [])
+        : (data.items ?? []).filter((item) => !read.has(item.id) && !dismissed.has(item.id));
+      setItems(visibleItems);
+      return true;
     } catch (loadError) {
       setError(loadError instanceof Error ? loadError.message : "Não foi possível carregar as notificações.");
+      return false;
     } finally {
       setLoading(false);
     }
   }, []);
 
+  const closeMenu = useCallback(() => {
+    setOpen(false);
+    setItems([]);
+    setError(null);
+  }, []);
+
   function toggleMenu() {
-    const nextOpen = !open;
-    setOpen(nextOpen);
-    if (nextOpen) {
-      void loadItems();
-      void markAllRead();
+    if (open) {
+      closeMenu();
+      return;
     }
+
+    setOpen(true);
+    void (async () => {
+      const loaded = await loadItems();
+      if (loaded) await markAllRead();
+    })();
   }
 
   useEffect(() => {
@@ -150,17 +165,19 @@ export function NotificationBell() {
 
   useEffect(() => {
     setOpen(false);
+    setItems([]);
+    setError(null);
   }, [pathname]);
 
   useEffect(() => {
     if (!open) return;
 
     function handlePointerDown(event: MouseEvent) {
-      if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
+      if (!rootRef.current?.contains(event.target as Node)) closeMenu();
     }
 
     function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") setOpen(false);
+      if (event.key === "Escape") closeMenu();
     }
 
     document.addEventListener("mousedown", handlePointerDown);
@@ -169,7 +186,7 @@ export function NotificationBell() {
       document.removeEventListener("mousedown", handlePointerDown);
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [open]);
+  }, [closeMenu, open]);
 
   return (
     <div className="notification-floating" ref={rootRef}>
@@ -191,9 +208,9 @@ export function NotificationBell() {
             <div>
               <span className="eyebrow">CENTRAL JNE</span>
               <strong><BellRing size={18} /> Notificações</strong>
-              <small>Ao abrir, os avisos são marcados como lidos.</small>
+              <small>Ao abrir, os avisos são marcados como lidos e não voltam a aparecer aqui.</small>
             </div>
-            <button className="icon-button notification-floating__close" type="button" onClick={() => setOpen(false)} aria-label="Fechar notificações">
+            <button className="icon-button notification-floating__close" type="button" onClick={closeMenu} aria-label="Fechar notificações">
               <X size={18} />
             </button>
           </header>
@@ -225,7 +242,7 @@ export function NotificationBell() {
                       className="notification-floating__item"
                       target={item.action_url.startsWith("http") ? "_blank" : undefined}
                       rel={item.action_url.startsWith("http") ? "noreferrer" : undefined}
-                      onClick={() => setOpen(false)}
+                      onClick={closeMenu}
                     >
                       {content}
                     </Link>
@@ -235,12 +252,12 @@ export function NotificationBell() {
                 })}
               </div>
             ) : (
-              <div className="notification-floating__state"><Inbox size={28} /><strong>Tudo em dia</strong><span>Nenhuma notificação disponível agora.</span></div>
+              <div className="notification-floating__state"><Inbox size={28} /><strong>Tudo em dia</strong><span>Nenhuma notificação nova.</span></div>
             )}
           </div>
 
           <footer className="notification-floating__footer">
-            <Link className="button button--secondary" href="/notificacoes" onClick={() => setOpen(false)}>
+            <Link className="button button--secondary" href="/notificacoes" onClick={closeMenu}>
               Ver histórico completo <ChevronRight size={17} />
             </Link>
           </footer>

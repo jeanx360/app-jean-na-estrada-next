@@ -16,6 +16,7 @@ import {
   type DriverFinancialEntry,
   type DriverTrip,
 } from "@/lib/driver";
+import { formatBrazilDate } from "@/lib/date-time";
 
 export const metadata: Metadata = { title: "Detalhes da viagem" };
 export const dynamic = "force-dynamic";
@@ -41,7 +42,7 @@ export default async function DriverTripDetailPage({ params }: Props) {
   return (
     <div className="page-stack driver-page">
       <Link className="text-link driver-back-link" href="/motorista/financeiro"><ArrowLeft size={17} />Voltar ao financeiro</Link>
-      <PageHeader icon={<WalletCards size={24} />} eyebrow="DETALHES DA VIAGEM" title={route} description={trip.travel_date ? `Data: ${new Date(`${trip.travel_date}T12:00:00`).toLocaleDateString("pt-BR")}` : "Data não informada"} />
+      <PageHeader icon={<WalletCards size={24} />} eyebrow="DETALHES DA VIAGEM" title={route} description={trip.travel_date ? `Data: ${formatBrazilDate(trip.travel_date)}` : "Data não informada"} />
       <div className="driver-page-actions no-print"><Link className="button button--secondary" href={`/motorista/financeiro/${trip.id}/recibo`}><FileDown size={18} /> Gerar recibo / PDF</Link>{trip.reservation_id ? <Link className="button button--ghost" href={`/motorista/reservas/${trip.reservation_id}`}>Abrir reserva</Link> : null}</div>
 
       <section className="driver-trip-summary-grid">
@@ -71,7 +72,7 @@ export default async function DriverTripDetailPage({ params }: Props) {
             <div><span className="eyebrow">HISTÓRICO</span><h2>Movimentações</h2></div>
             {entries.length ? <div className="driver-entry-list">{entries.map((entry) => (
               <article key={entry.id} className={`driver-entry-row driver-entry-row--${entry.entry_type}`}>
-                <div><strong>{DRIVER_FINANCIAL_CATEGORY_LABELS[entry.category]}</strong><span>{new Date(entry.occurred_at).toLocaleDateString("pt-BR")}{entry.payment_method ? ` · ${DRIVER_PAYMENT_METHOD_LABELS[entry.payment_method]}` : ""}</span>{entry.description ? <small>{entry.description}</small> : null}</div>
+                <div><strong>{DRIVER_FINANCIAL_CATEGORY_LABELS[entry.category]}</strong><span>{formatBrazilDate(entry.occurred_at)}{entry.payment_method ? ` · ${DRIVER_PAYMENT_METHOD_LABELS[entry.payment_method]}` : ""}</span>{entry.description ? <small>{entry.description}</small> : null}</div>
                 <b>{entry.entry_type === "income" ? "+" : "−"}{formatCurrency(entry.amount)}</b>
                 <DriverFinancialEntryDeleteButton entryId={entry.id} tripId={trip.id} />
               </article>

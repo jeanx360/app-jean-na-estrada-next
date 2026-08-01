@@ -10,6 +10,7 @@ import { BrandLogo } from "@/components/BrandLogo";
 import { GlobalSearch } from "@/components/GlobalSearch";
 import { NotificationBell } from "@/components/NotificationBell";
 import { ReservationAlertWatcher } from "@/components/ReservationAlertWatcher";
+import { SitePageViewTracker } from "@/components/SitePageViewTracker";
 import { ThemePicker } from "@/components/ThemePicker";
 import { navigationGroups, primaryNavigation } from "@/data/navigation";
 
@@ -33,12 +34,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     return primaryNavigation.filter((item) => mobileHrefs.includes(item.href));
   }, []);
 
+  if (pathname.startsWith("/admin")) {
+    return <div className="admin-mode-root">{children}</div>;
+  }
+
   if (pathname.startsWith("/m/")) {
-    return <div className="public-driver-shell">{children}</div>;
+    return <><SitePageViewTracker /><div className="public-driver-shell">{children}</div></>;
   }
 
   return (
     <div className="app-shell">
+      <SitePageViewTracker />
       <header className="topbar">
         <button className="icon-button topbar__menu-button" type="button" aria-label="Abrir menu" onClick={() => setMenuOpen(true)}><Menu size={22} /></button>
         <Link href="/" className="topbar__brand-link"><BrandLogo /></Link>
@@ -65,7 +71,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           ))}
         </nav>
         <SidebarAccountAction />
-        <p className="sidebar__version" suppressHydrationWarning>Versão 1.7.2</p>
+        <p className="sidebar__version" suppressHydrationWarning>Versão 1.7.4</p>
       </aside>
 
       <ReservationAlertWatcher />

@@ -11,6 +11,7 @@ import {
   type DriverSettings,
   type DriverTripType,
 } from "@/lib/driver";
+import { formatBrazilDate } from "@/lib/date-time";
 
 type InputState = {
   customerName: string;
@@ -146,7 +147,7 @@ export function DriverQuoteCalculator({ userId, canSave, initialSettings, initia
       "Orçamento de viagem particular",
       route ? `Rota: ${route}` : null,
       `Serviço: ${TRIP_TYPE_LABELS[inputs.tripType]}`,
-      inputs.travelDate ? `Data: ${new Date(`${inputs.travelDate}T12:00:00`).toLocaleDateString("pt-BR")}` : null,
+      inputs.travelDate ? `Data: ${formatBrazilDate(inputs.travelDate)}` : null,
       `Distância cobrada: ${result.totalDistance.toFixed(1).replace(".", ",")} km`,
       `Valor total: ${formatCurrency(result.roundedTotal)}`,
       result.directCosts > 0 ? "Pedágios e despesas informadas incluídos." : null,
@@ -238,7 +239,7 @@ export function DriverQuoteCalculator({ userId, canSave, initialSettings, initia
           <span className="eyebrow">SERVIÇO</span>
           <div className="driver-field-grid driver-field-grid--wide">
             <label><span>Cliente (opcional)</span><input value={inputs.customerName} onChange={(e) => set("customerName", e.target.value)} placeholder="Nome do passageiro" /></label>
-            <label><span>Data (opcional)</span><input type="date" value={inputs.travelDate} onChange={(e) => set("travelDate", e.target.value)} /></label>
+            <label><span>Data (opcional — dd/mm/aaaa)</span><input type="date" lang="pt-BR" value={inputs.travelDate} onChange={(e) => set("travelDate", e.target.value)} /></label>
             <label><span>Origem</span><input value={inputs.origin} onChange={(e) => set("origin", e.target.value)} placeholder="Porto Alegre" /></label>
             <label><span>Destino</span><input value={inputs.destination} onChange={(e) => set("destination", e.target.value)} placeholder="Gramado" /></label>
           </div>

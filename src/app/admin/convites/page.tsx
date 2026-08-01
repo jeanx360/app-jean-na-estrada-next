@@ -4,6 +4,7 @@ import { revokeInviteAction } from "@/app/admin/actions";
 import { AdminInviteForm } from "@/components/AdminInviteForm";
 import { ConfirmSubmitButton } from "@/components/ConfirmSubmitButton";
 import { requireAdmin } from "@/lib/admin";
+import { formatBrazilDateTime } from "@/lib/date-time";
 
 export const metadata: Metadata = { title: "Convites VIP" };
 
@@ -52,7 +53,7 @@ export default async function AdminInvitesPage() {
                   <span className={`admin-status ${active ? "" : "admin-status--danger"}`}>{active ? "Ativo" : "Encerrado"}</span>
                   <h3>{invite.label}</h3>
                   <p>Código final •••{invite.code_hint}</p>
-                  <small>{invite.use_count} de {invite.max_uses} usos · {invite.expires_at ? `expira ${new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short" }).format(new Date(invite.expires_at))}` : "sem vencimento"}</small>
+                  <small>{invite.use_count} de {invite.max_uses} usos · {invite.expires_at ? `expira ${formatBrazilDateTime(invite.expires_at)}` : "sem vencimento"}</small>
                 </div>
                 {invite.is_active ? (
                   <form action={revokeInviteAction}>

@@ -266,7 +266,7 @@ export default async function AdminCommunityPage() {
           </label>
           <label className="admin-community-check"><input type="checkbox" name="canPost" defaultChecked /><span>Pode publicar</span></label>
           <label className="admin-community-check"><input type="checkbox" name="canComment" defaultChecked /><span>Pode comentar</span></label>
-          <label><span>Até</span><input type="date" name="restrictedUntil" /></label>
+          <label><span>Até (dd/mm/aaaa)</span><input type="date" lang="pt-BR" name="restrictedUntil" /></label>
           <label className="admin-community-restriction-form__reason"><span>Motivo</span><input name="reason" maxLength={500} placeholder="Motivo visível ao membro" /></label>
           <button className="button button--primary" type="submit"><ShieldCheck size={17} /> Salvar permissão</button>
         </form>

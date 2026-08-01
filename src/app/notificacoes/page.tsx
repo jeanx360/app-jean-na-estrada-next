@@ -4,6 +4,7 @@ import { NotificationCenter } from "@/components/NotificationCenter";
 import { PageHeader } from "@/components/PageHeader";
 import { getAuthContext } from "@/lib/auth";
 import type { NotificationRow } from "@/types/notification";
+import { formatBrazilDateTime } from "@/lib/date-time";
 
 export const metadata: Metadata = {
   title: "Notificações",
@@ -26,11 +27,7 @@ export default async function NotificationsPage() {
 
   const items = ((data ?? []) as NotificationRow[]).map((item) => ({
     ...item,
-    publishedLabel: new Intl.DateTimeFormat("pt-BR", {
-      dateStyle: "medium",
-      timeStyle: "short",
-      timeZone: "America/Sao_Paulo",
-    }).format(new Date(item.published_at)),
+    publishedLabel: formatBrazilDateTime(item.published_at),
   }));
 
   let readIds: string[] = [];

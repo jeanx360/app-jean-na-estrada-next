@@ -7,7 +7,7 @@ export async function GET(request: Request) {
   const { userId, supabase } = await getAuthContext();
   const url = new URL(request.url);
   const requestedLimit = Number(url.searchParams.get("limit") ?? 6);
-  const limit = Math.min(10, Math.max(1, Number.isFinite(requestedLimit) ? Math.trunc(requestedLimit) : 6));
+  const limit = Math.min(20, Math.max(1, Number.isFinite(requestedLimit) ? Math.trunc(requestedLimit) : 6));
 
   const { data, error } = await supabase
     .from("notifications")
@@ -15,7 +15,7 @@ export async function GET(request: Request) {
     .eq("is_published", true)
     .lte("published_at", new Date().toISOString())
     .order("published_at", { ascending: false })
-    .limit(limit + 10);
+    .limit(limit + 30);
 
   if (error) {
     return NextResponse.json({ ok: false, error: error.message }, { status: 400 });
@@ -32,7 +32,7 @@ export async function GET(request: Request) {
   const ids = rows.map((item) => item.id as string);
   const { data: states, error: statesError } = await supabase
     .from("notification_reads")
-    .select("notification_id, dismissed_at")
+    .select("notification_id, read_at, dismissed_at")
     .eq("user_id", userId)
     .in("notification_id", ids);
 
@@ -40,9 +40,9 @@ export async function GET(request: Request) {
     return NextResponse.json({ ok: false, error: statesError.message }, { status: 400 });
   }
 
-  const dismissedIds = new Set(
+  const hiddenIds = new Set(
     (states ?? [])
-      .filter((item) => Boolean(item.dismissed_at))
+      .filter((item) => Boolean(item.read_at) || Boolean(item.dismissed_at))
       .map((item) => item.notification_id as string),
   );
 
@@ -50,7 +50,7 @@ export async function GET(request: Request) {
     {
       ok: true,
       authenticated: true,
-      items: rows.filter((item) => !dismissedIds.has(item.id as string)).slice(0, limit),
+      items: rows.filter((item) => !hiddenIds.has(item.id as string)).slice(0, limit),
     },
     { headers: { "Cache-Control": "no-store, max-age=0" } },
   );

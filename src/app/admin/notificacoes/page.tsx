@@ -8,18 +8,19 @@ import {
 import { AdminNotificationForm } from "@/components/AdminNotificationForm";
 import { ConfirmSubmitButton } from "@/components/ConfirmSubmitButton";
 import { requireAdmin } from "@/lib/admin";
-import type { NotificationRow } from "@/types/notification";
+import type { NotificationAudience, NotificationCategory, NotificationRow } from "@/types/notification";
+import { formatBrazilDateTime } from "@/lib/date-time";
 
 export const metadata: Metadata = { title: "Notificações" };
 
-const audienceLabels = {
+const audienceLabels: Record<NotificationAudience, string> = {
   all: "Todos",
   member: "Membros",
   vip: "VIP",
   admin: "Administradores",
 };
 
-const categoryLabels = {
+const categoryLabels: Record<NotificationCategory, string> = {
   general: "Geral",
   videos: "Vídeos",
   tutorials: "Tutoriais",
@@ -69,11 +70,7 @@ export default async function AdminNotificationsPage() {
                 <h3>{item.title}</h3>
                 <p>{item.message}</p>
                 <small>
-                  {new Intl.DateTimeFormat("pt-BR", {
-                    dateStyle: "medium",
-                    timeStyle: "short",
-                    timeZone: "America/Sao_Paulo",
-                  }).format(new Date(item.published_at))}
+                  {formatBrazilDateTime(item.published_at)}
                 </small>
                 <div className="admin-push-result">
                   {item.push_sent_at ? (

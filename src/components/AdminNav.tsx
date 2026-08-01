@@ -2,6 +2,7 @@ import Link from "next/link";
 import {
   BellRing,
   BookOpenText,
+  CarFront,
   CreditCard,
   Crown,
   FileText,
@@ -17,6 +18,7 @@ import {
 const items = [
   { href: "/admin", label: "Visão geral", icon: LayoutDashboard },
   { href: "/admin/membros", label: "Membros e VIP", icon: UsersRound },
+  { href: "/admin/motoristas", label: "Motoristas e viagens", icon: CarFront },
   { href: "/admin/assinatura", label: "Assinatura e pagamentos", icon: CreditCard },
   { href: "/admin/comunidade", label: "Comunidade VIP", icon: MessageCircle },
   { href: "/admin/convites", label: "Convites VIP", icon: KeyRound },

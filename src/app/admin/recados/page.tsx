@@ -7,6 +7,7 @@ import {
 import { AdminAnnouncementForm } from "@/components/AdminAnnouncementForm";
 import { ConfirmSubmitButton } from "@/components/ConfirmSubmitButton";
 import { requireAdmin } from "@/lib/admin";
+import { formatBrazilDateTime } from "@/lib/date-time";
 
 export const metadata: Metadata = { title: "Recados" };
 
@@ -62,7 +63,7 @@ export default async function AdminAnnouncementsPage() {
                 </div>
                 <h3>{item.title}</h3>
                 <p>{item.message}</p>
-                <small>{new Intl.DateTimeFormat("pt-BR", { dateStyle: "medium", timeStyle: "short" }).format(new Date(item.published_at))}</small>
+                <small>{formatBrazilDateTime(item.published_at)}</small>
               </div>
               <div className="admin-inline-actions">
                 <form action={toggleAnnouncementAction}>

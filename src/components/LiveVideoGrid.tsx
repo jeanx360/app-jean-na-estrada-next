@@ -6,6 +6,7 @@ import { VideoCard } from "@/components/VideoCard";
 import type { VideoItem } from "@/data/content";
 import { publicPath } from "@/lib/public-path";
 import type { LiveContentFeed } from "@/types/live-content";
+import { formatBrazilDateTime } from "@/lib/date-time";
 
 type LiveVideoGridProps = {
   fallback: VideoItem[];
@@ -14,15 +15,7 @@ type LiveVideoGridProps = {
 };
 
 function formatUpdate(value: string) {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "Atualização pendente";
-
-  return new Intl.DateTimeFormat("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(date);
+  return formatBrazilDateTime(value, { fallback: "Atualização pendente" });
 }
 
 export function LiveVideoGrid({ fallback, limit, showStatus = false }: LiveVideoGridProps) {

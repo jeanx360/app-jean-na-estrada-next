@@ -3,6 +3,7 @@ import { getAuthContext } from "@/lib/auth";
 import { getLegalAcceptanceStatus } from "@/lib/legal";
 import type { MemberProfile } from "@/types/auth";
 import type { createClient } from "@/lib/supabase/server";
+import { formatBrazilDateTime } from "@/lib/date-time";
 
 export function hasCommunityAccess(profile: MemberProfile | null) {
   return Boolean(
@@ -44,8 +45,5 @@ export async function createCommunityImageUrl(
 }
 
 export function formatCommunityDate(value: string) {
-  return new Intl.DateTimeFormat("pt-BR", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date(value));
+  return formatBrazilDateTime(value);
 }

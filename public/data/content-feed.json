@@ -1,6 +1,14 @@
 {
-  "generatedAt": "2026-08-01T04:50:40.992Z",
+  "generatedAt": "2026-08-01T19:00:04.311Z",
   "videos": [
+    {
+      "title": "Acendeu a luz do air-bag de seu dolphin? dale porrada! 🤣🤣🤣",
+      "description": "Novo conteúdo publicado no canal Jean na Estrada.",
+      "videoId": "z5cnhMP0yhQ",
+      "href": "https://www.youtube.com/shorts/z5cnhMP0yhQ",
+      "publishedAt": "2026-08-01T16:27:57.000Z",
+      "tag": "NOVO VÍDEO"
+    },
     {
       "title": "Esqueça o carro 0 km! Eu faria ISSO com R$ 150 mil",
       "description": "Novo conteúdo publicado no canal Jean na Estrada.",
@@ -88,17 +96,33 @@
       "href": "https://www.youtube.com/shorts/OeFS-xqNJiM",
       "publishedAt": "2026-07-04T13:16:52.000Z",
       "tag": "NOVO VÍDEO"
-    },
-    {
-      "title": "Novo BYD Sealion 7 chegou ao Brasil! Vale a pena este elétrico?",
-      "description": "Novo conteúdo publicado no canal Jean na Estrada.",
-      "videoId": "8VUeb1l87f4",
-      "href": "https://www.youtube.com/watch?v=8VUeb1l87f4",
-      "publishedAt": "2026-07-04T00:47:00.000Z",
-      "tag": "NOVO VÍDEO"
     }
   ],
   "news": [
+    {
+      "title": "Carros elétricos superam modelos a combustão em satisfação dos donos",
+      "description": "Estudo da J.D. Power mostra que veículos elétricos superam modelos a combustão em satisfação",
+      "href": "https://insideevs.uol.com.br/news/802860/carros-eletricos-satisfacao-donos-pesquisa-jd-power/",
+      "publishedAt": "2026-08-01T13:45:00.000Z",
+      "source": "InsideEVs Brasil",
+      "image": "https://cdn.motor1.com/images/mgl/2NQ73E/s3/chevrolet-blazer-ev-br.jpg"
+    },
+    {
+      "title": "Licenciamento SP 2026: agosto é o último mês para placas com final 3 e 4",
+      "description": "Motoristas de São Paulo com veículo final 3 e 4 têm até 31 de agosto para regularizar o documento e evitar multa gravíssima",
+      "href": "https://motor1.uol.com.br/news/803411/licenciamento-sp-3e4-valor-multa/",
+      "publishedAt": "2026-08-01T13:00:00.000Z",
+      "source": "Motor1.com",
+      "image": "https://cdn.motor1.com/images/mgl/y29G7b/s3/avaliacao-chevrolet-tracker-premier-2026---farois.jpg"
+    },
+    {
+      "title": "Mercado global de elétricos cresce 35%, mas China perde ritmo",
+      "description": "Mercado global cresceu 35% no segundo trimestre, impulsionado pela Europa e por emergentes como o Brasil",
+      "href": "https://insideevs.uol.com.br/news/803396/mercado-eletricos-salto-semestre-2026/",
+      "publishedAt": "2026-08-01T12:30:00.000Z",
+      "source": "InsideEVs Brasil",
+      "image": "https://cdn.motor1.com/images/mgl/3WY17L/s3/teste-de-autonomia-de-eletricos---de-100-a-5-brasil.jpg"
+    },
     {
       "title": "Mesmo em alta, Ford vai diminuir produção da Ranger na Argentina",
       "description": "Picape segue entre líderes no Brasil e Argentina, mas marca reduzirá ritmo de Pacheco para adequar a produção à demanda regional",
@@ -260,36 +284,12 @@
       "image": "https://cdn.motor1.com/images/mgl/BXZzmv/s3/flagra-nova-toyota-hilux-reestilizada.jpg"
     },
     {
-      "title": "BMW coloca iX3 e Série 5 no novo filme do Homem-Aranha",
-      "description": "Inédito BMW iX3 e Série 5 estão em \"Homem-Aranha: Um Novo Dia\", que estreia nesta sexta nos cinemas",
-      "href": "https://motor1.uol.com.br/news/803132/bmw-ix3-filme-homem-aranha/",
-      "publishedAt": "2026-07-29T20:00:00.000Z",
-      "source": "Motor1.com",
-      "image": "https://cdn.motor1.com/images/mgl/xq3x0G/s3/novos-carros-da-bmw-estao-no-novo-filme-homem-aranha-um-novo-dia.jpg"
-    },
-    {
       "title": "Mercedes-Benz revela GLA elétrico com até 657 km de autonomia; veja fotos",
       "description": "SUV estreia na plataforma MMA com arquitetura de 800 V, recarga de 320 kW e três versões",
       "href": "https://insideevs.uol.com.br/news/803128/novo-mercedes-benz-gla-eletrico/",
       "publishedAt": "2026-07-29T18:01:00.000Z",
       "source": "InsideEVs Brasil",
       "image": "https://cdn.motor1.com/images/mgl/koKPE4/s3/mercedes-gla-elektrisch-2026.jpg"
-    },
-    {
-      "title": "GWM revela Ora 5 Sport por inteiro; veja as primeiras fotos oficiais",
-      "description": "SUV elétrico ganha versão com visual exclusivo na China enquanto faz estreia bem sucedida no Brasil",
-      "href": "https://insideevs.uol.com.br/news/803111/gwm-ora-5-eletrico-fotos-oficiais/",
-      "publishedAt": "2026-07-29T14:51:20.000Z",
-      "source": "InsideEVs Brasil",
-      "image": "https://cdn.motor1.com/images/mgl/1Zw8rM/s3/gwm-ora-5-sport-china.jpg"
-    },
-    {
-      "title": "BYD King reestilizado estreia no México e prepara chegada ao Brasil",
-      "description": "Novo visual estreia no México e antecipa atualização do sedã híbrido produzido pela BYD em Camaçari",
-      "href": "https://insideevs.uol.com.br/news/803015/byd-king-reestilizado-mexico-brasil/",
-      "publishedAt": "2026-07-29T11:01:00.000Z",
-      "source": "InsideEVs Brasil",
-      "image": "https://cdn.motor1.com/images/mgl/ojJkXE/s3/byd-king-2027.jpg"
     }
   ],
   "sources": [

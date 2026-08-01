@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { logoutAction } from "@/app/auth/actions";
 import { createClient } from "@/lib/supabase/client";
 import type { MemberRole } from "@/types/auth";
+import { formatBrazilDate } from "@/lib/date-time";
 
 type AccountState = {
   email: string;
@@ -114,7 +115,7 @@ export function AccountChip() {
   const initials = (account.name || account.email).slice(0, 2).toUpperCase();
   const statusLabel = account.isBlocked ? "Conta bloqueada" : roleLabels[account.role];
   const formattedExpiry = account.vipExpiresAt
-    ? new Intl.DateTimeFormat("pt-BR", { dateStyle: "medium" }).format(new Date(account.vipExpiresAt))
+    ? formatBrazilDate(account.vipExpiresAt)
     : null;
 
   return (

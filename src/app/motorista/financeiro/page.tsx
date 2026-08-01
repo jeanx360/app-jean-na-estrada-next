@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowRight, Clock3, Gauge, Plus, ReceiptText, TrendingDown, TrendingUp, WalletCards } from "lucide-react";
 import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/PageHeader";
+import { DriverRecordDeleteButton } from "@/components/DriverRecordDeleteButton";
 import { getAuthContext } from "@/lib/auth";
 import {
   DRIVER_PAYMENT_STATUS_LABELS,
@@ -13,6 +14,7 @@ import {
   monthKeyInTimeZone,
   type DriverTrip,
 } from "@/lib/driver";
+import { formatBrazilDate } from "@/lib/date-time";
 
 export const metadata: Metadata = { title: "Controle financeiro do motorista" };
 export const dynamic = "force-dynamic";
@@ -60,11 +62,14 @@ export default async function DriverFinancePage() {
         {trips.length ? (
           <div className="driver-finance-trip-list">
             {trips.slice(0, 12).map((trip) => (
-              <Link href={`/motorista/financeiro/${trip.id}`} key={trip.id} className="driver-finance-trip-row">
-                <div><strong>{[trip.origin, trip.destination].filter(Boolean).join(" → ") || trip.customer_name || "Viagem particular"}</strong><span>{trip.travel_date ? new Date(`${trip.travel_date}T12:00:00`).toLocaleDateString("pt-BR") : new Date(trip.created_at).toLocaleDateString("pt-BR")} · {DRIVER_TRIP_STATUS_LABELS[trip.status]}</span></div>
-                <div><strong>{formatCurrency(trip.net_result)}</strong><span className={`driver-payment-badge driver-payment-badge--${trip.payment_status}`}>{DRIVER_PAYMENT_STATUS_LABELS[trip.payment_status]}</span></div>
-                <ArrowRight size={18} />
-              </Link>
+              <article key={trip.id} className="driver-finance-trip-row">
+                <Link href={`/motorista/financeiro/${trip.id}`} className="driver-finance-trip-row__link">
+                  <div><strong>{[trip.origin, trip.destination].filter(Boolean).join(" → ") || trip.customer_name || "Viagem particular"}</strong><span>{trip.travel_date ? formatBrazilDate(trip.travel_date) : formatBrazilDate(trip.created_at)} · {DRIVER_TRIP_STATUS_LABELS[trip.status]}</span></div>
+                  <div><strong>{formatCurrency(trip.net_result)}</strong><span className={`driver-payment-badge driver-payment-badge--${trip.payment_status}`}>{DRIVER_PAYMENT_STATUS_LABELS[trip.payment_status]}</span></div>
+                  <ArrowRight size={18} />
+                </Link>
+                <DriverRecordDeleteButton kind="trip" recordId={trip.id} userId={userId} reservationId={trip.reservation_id} quoteId={trip.quote_id} />
+              </article>
             ))}
           </div>
         ) : <section className="empty-state"><WalletCards size={32} /><h2>Nenhuma viagem registrada</h2><p>Comece registrando uma viagem realizada ou transforme um orçamento em controle financeiro.</p><Link className="text-link" href="/motorista/financeiro/nova">Registrar agora <ArrowRight size={17} /></Link></section>}

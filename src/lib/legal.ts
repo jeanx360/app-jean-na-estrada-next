@@ -2,7 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 export const LEGAL_VERSIONS = {
   terms: "1.4.0",
-  privacy: "1.5.0",
+  privacy: "1.6.0",
   apk_disclaimer: "1.0.0",
 } as const;
 

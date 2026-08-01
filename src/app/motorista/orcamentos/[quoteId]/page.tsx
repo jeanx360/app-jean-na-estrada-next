@@ -6,6 +6,7 @@ import { DriverDocumentActions } from "@/components/DriverDocumentActions";
 import { getAuthContext } from "@/lib/auth";
 import { formatCurrency, TRIP_TYPE_LABELS, type DriverQuote } from "@/lib/driver";
 import type { DriverPublicProfile, DriverReservation } from "@/lib/driver-public";
+import { formatBrazilDate } from "@/lib/date-time";
 
 export const metadata: Metadata = { title: "Orçamento de viagem" };
 export const dynamic = "force-dynamic";
@@ -30,8 +31,8 @@ export default async function DriverQuoteDocumentPage({ params }: Props) {
   const reservation = reservationData as DriverReservation | null;
   const driverName = publicProfile?.display_name || profile?.full_name || "Motorista profissional";
   const route = [quote.origin, quote.destination].filter(Boolean).join(" → ") || "Viagem particular";
-  const createdDate = new Intl.DateTimeFormat("pt-BR", { dateStyle: "long", timeZone: "America/Sao_Paulo" }).format(new Date(quote.created_at));
-  const travelDate = quote.travel_date ? new Date(`${quote.travel_date}T12:00:00`).toLocaleDateString("pt-BR") : "A combinar";
+  const createdDate = formatBrazilDate(quote.created_at);
+  const travelDate = quote.travel_date ? formatBrazilDate(quote.travel_date) : "A combinar";
   const shareText = [
     `Orçamento de viagem — ${driverName}`,
     `Cliente: ${quote.customer_name || "Não informado"}`,

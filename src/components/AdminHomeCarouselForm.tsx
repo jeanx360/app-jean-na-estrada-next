@@ -59,8 +59,8 @@ export function AdminHomeCarouselForm({ initialData, contents }: Props) {
       </div>
       <label><span>Imagem personalizada</span><input name="imageUrl" value={imageUrl} onChange={(event) => setImageUrl(event.target.value)} placeholder="Envie pelo uploader ou cole uma URL" /></label>
       <div className="admin-form__grid admin-form__grid--wide">
-        <label><span>Início opcional</span><input name="startsAt" type="datetime-local" defaultValue={localDate(initialData?.starts_at ?? null)} /></label>
-        <label><span>Término opcional</span><input name="endsAt" type="datetime-local" defaultValue={localDate(initialData?.ends_at ?? null)} /></label>
+        <label><span>Início opcional (dd/mm/aaaa, 24h)</span><input name="startsAt" type="datetime-local" lang="pt-BR" step={60} defaultValue={localDate(initialData?.starts_at ?? null)} /></label>
+        <label><span>Término opcional (dd/mm/aaaa, 24h)</span><input name="endsAt" type="datetime-local" lang="pt-BR" step={60} defaultValue={localDate(initialData?.ends_at ?? null)} /></label>
       </div>
       <label className="admin-checkbox"><input name="isPublished" type="checkbox" defaultChecked={initialData?.is_published ?? true} /><span>Exibir no carrossel</span></label>
       {state.error ? <p className="auth-message auth-message--error">{state.error}</p> : null}

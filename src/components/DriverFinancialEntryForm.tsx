@@ -73,7 +73,7 @@ export function DriverFinancialEntryForm({ tripId, userId }: { tripId: string; u
       <div className="driver-field-grid">
         <label><span>Categoria</span><select value={category} onChange={(e) => setCategory(e.target.value as DriverFinancialCategory)}>{categories.map((item) => <option key={item} value={item}>{DRIVER_FINANCIAL_CATEGORY_LABELS[item]}</option>)}</select></label>
         <label><span>Valor</span><input inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0" /></label>
-        <label><span>Data</span><input type="date" value={date} onChange={(e) => setDate(e.target.value)} /></label>
+        <label><span>Data (dd/mm/aaaa)</span><input type="date" lang="pt-BR" value={date} onChange={(e) => setDate(e.target.value)} /></label>
         {entryType === "income" ? <label><span>Forma de pagamento</span><select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value as DriverPaymentMethod)}>{(Object.keys(DRIVER_PAYMENT_METHOD_LABELS) as DriverPaymentMethod[]).map((method) => <option key={method} value={method}>{DRIVER_PAYMENT_METHOD_LABELS[method]}</option>)}</select></label> : null}
       </div>
       <label className="driver-notes-field"><span>Descrição (opcional)</span><input value={description} maxLength={300} onChange={(e) => setDescription(e.target.value)} placeholder="Ex.: pedágio da ida, saldo final, recarga..." /></label>

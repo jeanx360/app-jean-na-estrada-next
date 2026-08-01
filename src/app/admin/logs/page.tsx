@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ScrollText } from "lucide-react";
 import { requireAdmin } from "@/lib/admin";
+import { formatBrazilDateTime } from "@/lib/date-time";
 
 export const metadata: Metadata = { title: "Logs administrativos" };
 
@@ -26,7 +27,7 @@ export default async function AdminLogsPage() {
       <div className="audit-log-list">
         {(logs ?? []).map((log: { id: string; actor_user_id: string | null; action: string; entity_type: string; entity_id: string | null; created_at: string }) => (
           <article key={log.id}>
-            <div><span>{actionLabels[log.action] ?? log.action}</span><small>{new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "medium", timeZone: "America/Sao_Paulo" }).format(new Date(log.created_at))}</small></div>
+            <div><span>{actionLabels[log.action] ?? log.action}</span><small>{formatBrazilDateTime(log.created_at, { includeSeconds: true })}</small></div>
             <h3>{log.entity_type}</h3>
             <p>Responsável: {log.actor_user_id ? memberMap.get(log.actor_user_id) ?? log.actor_user_id : "Sistema"}</p>
             {log.entity_id ? <small>Registro: {log.entity_id}</small> : null}

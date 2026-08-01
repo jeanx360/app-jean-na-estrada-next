@@ -57,6 +57,7 @@ export async function setMemberBlockedAction(formData: FormData) {
 
   if (error) throw new Error(error.message);
   revalidatePath("/admin/membros");
+  revalidatePath("/admin/motoristas");
 }
 
 export async function createInviteAction(
@@ -433,12 +434,13 @@ export async function deleteMemberAccountAction(formData: FormData) {
   if (proofFiles?.length) {
     await admin.storage
       .from("vip-payment-proofs")
-      .remove(proofFiles.map((file) => `${targetUserId}/${file.name}`));
+      .remove(proofFiles.map((file: { name: string }) => `${targetUserId}/${file.name}`));
   }
 
   const { error } = await admin.auth.admin.deleteUser(targetUserId);
   if (error) throw new Error(error.message);
 
   revalidatePath("/admin/membros");
+  revalidatePath("/admin/motoristas");
   revalidatePath("/admin/assinatura");
 }

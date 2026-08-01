@@ -4,16 +4,10 @@ import { CalendarDays, ExternalLink, Newspaper, RefreshCw, SearchX } from "lucid
 import { useEffect, useMemo, useState } from "react";
 import { publicPath } from "@/lib/public-path";
 import type { LiveContentFeed, SyncedNewsItem } from "@/types/live-content";
+import { formatBrazilDate } from "@/lib/date-time";
 
 function formatDate(value: string) {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "Data não informada";
-
-  return new Intl.DateTimeFormat("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  }).format(date);
+  return formatBrazilDate(value);
 }
 
 async function fetchFeed(url: string) {
