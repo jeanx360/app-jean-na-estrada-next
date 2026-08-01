@@ -1,0 +1,12 @@
+JNE App 1.7.1 — Cartão profissional e reservas
+
+1. Extraia este ZIP na raiz do projeto e substitua os arquivos.
+2. Execute no Supabase SQL Editor apenas:
+   supabase/migrations/1.7.1_driver_public_profile_reservations.sql
+3. No terminal:
+   npm install
+   Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue
+   npm run build
+   npm start
+
+Não execute supabase/schema.sql no banco existente.

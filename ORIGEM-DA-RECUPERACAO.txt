@@ -1,0 +1,10 @@
+ATENÇÃO
+
+Em 31/07/2026, o endereço público informado do GitHub
+https://github.com/jeanx360/app-jean-na-estrada-next
+aparecia sem commits e sem arquivos.
+
+Por isso, este pacote não é um clone comprovado desse repositório vazio.
+Ele foi reconstruído a partir da última base estável disponível no histórico
+do projeto, consolidada como JNE App 1.6.1.1, com vídeos abrindo diretamente
+no YouTube e arquivos raiz do Next.js restaurados.

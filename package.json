@@ -1,0 +1,38 @@
+{
+  "name": "jne-app-jean-na-estrada",
+  "version": "1.7.2",
+  "private": true,
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "sync-content": "node scripts/sync-content.mjs",
+    "clean": "node scripts/clean-project.mjs",
+    "cleanup:legacy-youtube": "node scripts/cleanup-legacy-youtube-memberships.mjs",
+    "prebuild": "node scripts/sync-content.mjs"
+  },
+  "dependencies": {
+    "@supabase/ssr": "0.12.3",
+    "@supabase/supabase-js": "2.110.8",
+    "lucide-react": "1.27.0",
+    "next": "16.2.12",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "web-push": "3.6.7",
+    "qrcode": "1.5.4"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.0.0",
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@types/web-push": "3.6.4",
+    "tailwindcss": "^4.0.0",
+    "typescript": "6.0.3",
+    "@types/qrcode": "1.5.5"
+  }
+}

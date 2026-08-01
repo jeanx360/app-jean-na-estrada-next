@@ -1,0 +1,13 @@
+JNE App 1.7.0
+
+1. Pare o servidor com Ctrl + C.
+2. Extraia este ZIP na raiz do projeto e aceite substituir os arquivos.
+3. Execute:
+   Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue
+   npm install
+   npm run build
+4. Confirme com: Test-Path .next\BUILD_ID
+5. Execute: npm start
+6. Teste /api/health e confirme a versão 1.7.0.
+
+Nenhuma migração SQL é necessária.

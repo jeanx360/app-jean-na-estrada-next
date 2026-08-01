@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" role="img" aria-labelledby="title desc">
+  <title id="title">Banner de parceiro</title>
+  <desc id="desc">Imagem provisória para parceiro sem banner cadastrado.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#07101d"/>
+      <stop offset="1" stop-color="#102f55"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="400" rx="28" fill="url(#bg)"/>
+  <path d="M0 330 C260 260 420 390 690 285 C910 200 1040 250 1200 185 V400 H0Z" fill="#2979ff" opacity=".18"/>
+  <circle cx="1040" cy="80" r="170" fill="#00bcd4" opacity=".1"/>
+  <text x="72" y="184" fill="#fff" font-family="Arial, sans-serif" font-size="54" font-weight="700">PARCEIRO JNE APP</text>
+  <text x="75" y="242" fill="#b8c5d8" font-family="Arial, sans-serif" font-size="28">Banner em preparação</text>
+</svg>
