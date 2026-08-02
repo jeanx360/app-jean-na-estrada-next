@@ -27,6 +27,7 @@ function initialSlug(name: string) {
 
 export function DriverPublicProfileForm({ userId, defaultName, defaultPhotoUrl, initialProfile }: Props) {
   const router = useRouter();
+  const isFirstProfileCreation = initialProfile === null;
   const [step, setStep] = useState(0);
   const [displayName, setDisplayName] = useState(initialProfile?.display_name ?? defaultName);
   const [headline, setHeadline] = useState(initialProfile?.headline ?? "Motorista particular com atendimento profissional");
@@ -47,6 +48,7 @@ export function DriverPublicProfileForm({ userId, defaultName, defaultPhotoUrl, 
   const [savedSlug, setSavedSlug] = useState(initialProfile?.slug ?? "");
   const [savedPublished, setSavedPublished] = useState(initialProfile?.is_published ?? false);
   const [saving, setSaving] = useState(false);
+  const [redirecting, setRedirecting] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   const normalizedPhone = useMemo(() => normalizeWhatsAppPhone(whatsappPhone), [whatsappPhone]);
@@ -123,6 +125,17 @@ export function DriverPublicProfileForm({ userId, defaultName, defaultPhotoUrl, 
     } else {
       setSavedSlug(normalizedSlug);
       setSavedPublished(published);
+
+      if (isFirstProfileCreation) {
+        setSaving(false);
+        setRedirecting(true);
+        setMessage({ type: "success", text: "Cartão do motorista salvo. Abrindo seu QR Code..." });
+        window.setTimeout(() => {
+          router.replace("/motorista/cartao");
+        }, 1200);
+        return;
+      }
+
       setMessage({ type: "success", text: published ? "Cartão publicado com sucesso." : "Cartão salvo como rascunho." });
       router.refresh();
     }
@@ -172,7 +185,7 @@ export function DriverPublicProfileForm({ userId, defaultName, defaultPhotoUrl, 
         {step === 2 ? (
           <div className="driver-builder-step">
             <div className="driver-builder-step__heading"><span className="eyebrow">PASSO 3 DE 3</span><h2>Revise e publique</h2><p>Você pode salvar como rascunho e publicar quando estiver pronto.</p></div>
-            <label className="driver-slug-field"><span>Endereço do seu cartão</span><div><span>jneapp.app/m/</span><input maxLength={48} value={slug} onChange={(event) => setSlug(normalizeDriverSlug(event.target.value))} /></div><small>O QR Code continuará o mesmo enquanto esse endereço não mudar.</small></label>
+            <label className="driver-slug-field"><span>Endereço do seu cartão</span><div><span>jneapp.app/m/</span><input maxLength={48} value={slug} onChange={(event) => setSlug(normalizeDriverSlug(event.target.value))} /></div><small>O QR Code continuará o mesmoenquanto esse endereço não mudar.</small></label>
             <div className="driver-theme-picker"><span>Visual do cartão</span><div>{(["dark", "blue", "green"] as DriverProfileTheme[]).map((option) => <button key={option} type="button" className={`${option === theme ? "is-selected" : ""} theme-${option}`} onClick={() => setTheme(option)}><span />{option === "dark" ? "Escuro" : option === "blue" ? "Azul" : "Verde"}</button>)}</div></div>
             <div className="driver-publish-options">
               <label><div><strong>Receber solicitações</strong><small>Mostra o formulário de reserva no cartão.</small></div><input type="checkbox" checked={acceptsReservations} onChange={(event) => setAcceptsReservations(event.target.checked)} /></label>
@@ -185,7 +198,7 @@ export function DriverPublicProfileForm({ userId, defaultName, defaultPhotoUrl, 
         {message ? <p className={`auth-message auth-message--${message.type}`}>{message.text}</p> : null}
         <div className="driver-builder-actions">
           {step > 0 ? <button className="button button--secondary" type="button" onClick={() => { setMessage(null); setStep((current) => current - 1); }}><ArrowLeft size={18} /> Voltar</button> : <span />}
-          {step < steps.length - 1 ? <button className="button button--primary" type="button" onClick={nextStep}>Continuar <ArrowRight size={18} /></button> : <button className="button button--primary" type="button" onClick={saveProfile} disabled={saving}>{saving ? <LoaderCircle className="auth-spinner" size={18} /> : <Save size={18} />}{saving ? "Salvando..." : "Salvar cartão"}</button>}
+          {step < steps.length - 1 ? <button className="button button--primary" type="button" onClick={nextStep}>Continuar <ArrowRight size={18} /></button> : <button className="button button--primary" type="button" onClick={saveProfile} disabled={saving || redirecting}>{saving || redirecting ? <LoaderCircle className="auth-spinner" size={18} /> : <Save size={18} />}{redirecting ? "Abrindo QR..." : saving ? "Salvando..." : "Salvar cartão"}</button>}
         </div>
       </section>
 
