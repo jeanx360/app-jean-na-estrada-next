@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { getAuthContext } from "@/lib/auth";
+import { assertDriverFeature } from "@/lib/account-plan";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { ACTIVE_SCHEDULE_STATUSES } from "@/lib/driver-schedule";
 
@@ -27,11 +27,7 @@ function timeToMinutes(value: string | null | undefined) {
 }
 
 async function requireDriver() {
-  const context = await getAuthContext();
-  if (!context.userId || !context.profile?.is_professional_driver || context.profile.is_blocked) {
-    throw new Error("Acesso de motorista necessario.");
-  }
-  return context;
+  return assertDriverFeature("schedule");
 }
 
 export async function createDriverScheduleBlockAction(formData: FormData) {

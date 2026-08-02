@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import { CalendarClock, Crown, KeyRound, LogOut, Megaphone, ShieldAlert, ShieldCheck, UserRound, Wrench } from "lucide-react";
+import { CalendarClock, Crown, KeyRound, Layers3, LogOut, Megaphone, ShieldAlert, ShieldCheck, UserRound, Wrench } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { logoutAction } from "@/app/auth/actions";
 import { PageHeader } from "@/components/PageHeader";
 import { RedeemInviteForm } from "@/components/RedeemInviteForm";
 import { getAuthContext } from "@/lib/auth";
+import { ACCOUNT_STATUS_LABELS, getAccountPlan } from "@/lib/account-plan";
 import { getLegalAcceptanceStatus } from "@/lib/legal";
 import { formatBrazilDate } from "@/lib/date-time";
 
@@ -83,6 +84,7 @@ export default async function MembersPage() {
 
   const announcements = (announcementsData ?? []) as Announcement[];
   const entitlement = entitlementData as VipEntitlement | null;
+  const accountPlan = await getAccountPlan(supabase, userId as string, role);
 
   return (
     <div className="page-stack">
@@ -96,6 +98,17 @@ export default async function MembersPage() {
         <article className="member-profile-card">
           <div className="member-avatar">{displayName.slice(0, 2).toUpperCase()}</div>
           <div><span className={`role-badge role-badge--${role}`}>{roleLabels[role]}</span><h2>{displayName}</h2><p>{email}</p></div>
+        </article>
+
+        <article className={`member-action-card member-plan-card member-plan-card--${accountPlan.code}`}>
+          <Layers3 size={24} />
+          <div>
+            <h2>Plano {accountPlan.name}</h2>
+            <p>{accountPlan.status in ACCOUNT_STATUS_LABELS ? ACCOUNT_STATUS_LABELS[accountPlan.status as keyof typeof ACCOUNT_STATUS_LABELS] : "Ativo"} · {accountPlan.features.length} recursos liberados.</p>
+            {accountPlan.trialEndsAt ? <small className="member-vip-validity"><CalendarClock size={14} /> Teste até {formatBrazilDate(accountPlan.trialEndsAt)}</small> : null}
+            {!accountPlan.trialEndsAt && accountPlan.expiresAt ? <small className="member-vip-validity"><CalendarClock size={14} /> Válido até {formatBrazilDate(accountPlan.expiresAt)}</small> : null}
+          </div>
+          <Link className="button button--primary" href="/planos">Comparar planos</Link>
         </article>
 
         <article className="member-action-card">

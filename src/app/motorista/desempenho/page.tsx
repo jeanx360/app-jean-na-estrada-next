@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/PageHeader";
-import { getAuthContext } from "@/lib/auth";
+import { requireDriverFeature } from "@/lib/account-plan";
 import { formatCurrency } from "@/lib/driver";
 import {
   DRIVER_SOURCE_LABELS,
@@ -70,12 +70,7 @@ function DemandList({ items, dimension }: { items: DriverDemandPeriod[]; dimensi
 }
 
 export default async function DriverPerformancePage() {
-  const { supabase, userId, profile } = await getAuthContext();
-  if (!userId) redirect("/entrar?next=/motorista/desempenho");
-  if (!profile?.is_professional_driver || profile.is_blocked) redirect("/perfil");
-
-  const hasVip = profile.role === "vip" || profile.role === "admin";
-  if (!hasVip) redirect("/vip?next=/motorista/desempenho");
+  const { supabase } = await requireDriverFeature("performance", "/motorista/desempenho");
 
   const [summaryResult, sourceResult, campaignResult, serviceResult, demandResult] = await Promise.all([
     supabase.rpc("driver_performance_summary", { days_count: 30 }),

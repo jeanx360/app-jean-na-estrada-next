@@ -6,7 +6,7 @@ import { DriverFinancialEntryDeleteButton } from "@/components/DriverFinancialEn
 import { DriverFinancialEntryForm } from "@/components/DriverFinancialEntryForm";
 import { DriverTripActions } from "@/components/DriverTripActions";
 import { PageHeader } from "@/components/PageHeader";
-import { getAuthContext } from "@/lib/auth";
+import { requireDriverFeature } from "@/lib/account-plan";
 import {
   DRIVER_FINANCIAL_CATEGORY_LABELS,
   DRIVER_PAYMENT_METHOD_LABELS,
@@ -25,8 +25,7 @@ type Props = { params: Promise<{ tripId: string }> };
 
 export default async function DriverTripDetailPage({ params }: Props) {
   const { tripId } = await params;
-  const { supabase, userId } = await getAuthContext();
-  if (!userId) redirect(`/entrar?next=/motorista/financeiro/${tripId}`);
+  const { supabase, userId } = await requireDriverFeature("finance", `/motorista/financeiro/${tripId}`);
 
   const [{ data: tripData }, { data: entriesData }] = await Promise.all([
     supabase.from("driver_trips").select("*").eq("id", tripId).eq("user_id", userId).maybeSingle(),

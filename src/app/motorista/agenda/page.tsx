@@ -18,7 +18,7 @@ import { deleteDriverScheduleBlockAction } from "@/app/motorista/agenda/actions"
 import { ConfirmSubmitButton } from "@/components/ConfirmSubmitButton";
 import { DriverScheduleBlockForm } from "@/components/DriverScheduleBlockForm";
 import { PageHeader } from "@/components/PageHeader";
-import { getAuthContext } from "@/lib/auth";
+import { requireDriverFeature } from "@/lib/account-plan";
 import { formatBrazilTime } from "@/lib/date-time";
 import { DRIVER_RESERVATION_STATUS_LABELS, type DriverReservation } from "@/lib/driver-public";
 import {
@@ -57,9 +57,7 @@ function scheduleTime(item: DriverReservation) {
 
 export default async function DriverAgendaPage({ searchParams }: Props) {
   const query = await searchParams;
-  const { supabase, userId, profile } = await getAuthContext();
-  if (!userId) redirect("/entrar?next=/motorista/agenda");
-  if (!profile?.is_professional_driver || profile.is_blocked) redirect("/perfil");
+  const { supabase, userId } = await requireDriverFeature("schedule", "/motorista/agenda");
 
   const today = dateKeyInTimeZone();
   const currentMonth = monthKeyInTimeZone();

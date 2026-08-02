@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { getAuthContext } from "@/lib/auth";
+import { assertDriverFeature } from "@/lib/account-plan";
 import { asNumber, type DriverQuote, type DriverQuoteStatus, type DriverTripType } from "@/lib/driver";
 import { normalizeWhatsAppPhone } from "@/lib/driver-public";
 import type { DriverQuoteLineItem, DriverQuoteLineItemKind } from "@/lib/driver-quote";
@@ -37,11 +37,7 @@ function boundedNumber(value: number, minimum: number, maximum: number) {
 }
 
 async function requireProfessionalDriver() {
-  const context = await getAuthContext();
-  if (!context.userId || !context.profile?.is_professional_driver || context.profile.is_blocked) {
-    throw new Error("Acesso de motorista profissional necessário.");
-  }
-  return context;
+  return assertDriverFeature("quotes");
 }
 
 async function requireOwnedQuote(quoteId: string) {

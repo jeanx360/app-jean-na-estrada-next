@@ -4,7 +4,7 @@ import { ArrowLeft, PencilLine } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
 import { DriverProfessionalQuoteForm } from "@/components/DriverProfessionalQuoteForm";
 import { PageHeader } from "@/components/PageHeader";
-import { getAuthContext } from "@/lib/auth";
+import { requireDriverFeature } from "@/lib/account-plan";
 import { DEFAULT_DRIVER_SETTINGS, type DriverQuote, type DriverSettings } from "@/lib/driver";
 import { driverCustomerName, type DriverCustomer } from "@/lib/driver-crm";
 import { normalizeQuoteLineItems } from "@/lib/driver-quote";
@@ -16,9 +16,7 @@ type Props = { params: Promise<{ quoteId: string }> };
 
 export default async function EditDriverQuotePage({ params }: Props) {
   const { quoteId } = await params;
-  const { supabase, userId, profile } = await getAuthContext();
-  if (!userId) redirect(`/entrar?next=/motorista/orcamentos/${quoteId}/editar`);
-  if (!profile?.is_professional_driver || profile.is_blocked) redirect("/perfil");
+  const { supabase, userId } = await requireDriverFeature("quotes", `/motorista/orcamentos/${quoteId}/editar`);
 
   const [{ data: quoteData }, { data: settingsData }, { data: customerData }] = await Promise.all([
     supabase.from("driver_quotes").select("*").eq("id", quoteId).eq("user_id", userId).maybeSingle(),

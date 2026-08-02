@@ -14068,3 +14068,413 @@ button {
     min-height: 190px;
   }
 }
+
+/* JNE App 1.17.0 — Planos e assinaturas */
+.account-plans-page {
+  width: min(1180px, 100%);
+  margin: 0 auto;
+}
+
+.account-plan-required-notice,
+.account-current-plan,
+.account-feature-locked-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: center;
+  padding: 22px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, rgb(var(--accent-rgb) / .14), var(--card));
+}
+
+.account-plan-required-notice > svg,
+.account-feature-locked-card > svg,
+.account-current-plan__icon {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  color: var(--accent-secondary);
+  background: rgb(var(--accent-rgb) / .16);
+}
+
+.account-plan-required-notice span,
+.account-current-plan span,
+.account-feature-locked-card span,
+.account-plan-card header span {
+  color: var(--accent-secondary);
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .12em;
+}
+
+.account-plan-required-notice h2,
+.account-current-plan h2,
+.account-feature-locked-card h2 {
+  margin: 3px 0 5px;
+  font-size: clamp(1.2rem, 3vw, 1.7rem);
+}
+
+.account-plan-required-notice p,
+.account-current-plan p,
+.account-feature-locked-card p {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.account-current-plan small {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  margin-top: 8px;
+  color: var(--text-soft);
+}
+
+.account-plan-grid,
+.admin-app-plan-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.account-plan-card,
+.admin-app-plan-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--card);
+}
+
+.account-plan-card--professional,
+.admin-app-plan-card--professional {
+  border-color: rgb(var(--accent-rgb) / .5);
+}
+
+.account-plan-card--premium,
+.admin-app-plan-card--premium {
+  border-color: rgb(139 92 246 / .55);
+  background: linear-gradient(150deg, rgb(139 92 246 / .13), var(--card) 50%);
+}
+
+.account-plan-card.is-current {
+  box-shadow: 0 0 0 2px rgb(var(--accent-rgb) / .18);
+}
+
+.account-plan-card header,
+.admin-app-plan-card header {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+}
+
+.account-plan-card__icon,
+.admin-app-plan-card header > div {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  color: var(--accent-secondary);
+  background: rgb(var(--accent-rgb) / .14);
+}
+
+.account-plan-card header h2,
+.admin-app-plan-card header span {
+  margin: 2px 0 0;
+}
+
+.account-plan-card header b,
+.admin-app-plan-card header b,
+.account-plan-badge {
+  padding: 6px 9px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--text-soft);
+  font-size: .72rem;
+  white-space: nowrap;
+}
+
+.account-plan-card > p {
+  min-height: 68px;
+  margin: 0;
+  color: var(--text-muted);
+  line-height: 1.55;
+}
+
+.account-plan-card ul {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.account-plan-card li {
+  display: flex;
+  gap: 9px;
+  align-items: flex-start;
+  color: var(--text-soft);
+  font-size: .9rem;
+}
+
+.account-plan-card li svg {
+  flex: 0 0 auto;
+  color: var(--green);
+}
+
+.account-plan-card > .button {
+  justify-content: center;
+  margin-top: auto;
+}
+
+.account-plan-trial {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  color: var(--accent-secondary);
+}
+
+.account-feature-matrix {
+  display: grid;
+  gap: 18px;
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--card);
+}
+
+.account-feature-group {
+  display: grid;
+  gap: 10px;
+}
+
+.account-feature-group h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.account-feature-group > div {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.account-feature-group article {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface-strong);
+}
+
+.account-feature-group article span {
+  color: var(--text-soft);
+}
+
+.account-feature-group article strong {
+  color: var(--accent-secondary);
+  font-size: .8rem;
+}
+
+.member-plan-card--professional,
+.member-plan-card--premium {
+  border-color: var(--line-strong);
+}
+
+.admin-account-plan-list {
+  display: grid;
+  gap: 12px;
+}
+
+.admin-account-plan-member {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--card);
+}
+
+.admin-account-plan-member > summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  padding: 16px 18px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.admin-account-plan-member > summary::-webkit-details-marker {
+  display: none;
+}
+
+.admin-account-plan-member__identity,
+.admin-account-plan-member__status {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  min-width: 0;
+}
+
+.admin-account-plan-member__identity > span {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+  background: rgb(var(--accent-rgb) / .15);
+  color: var(--accent-secondary);
+  font-weight: 800;
+}
+
+.admin-account-plan-member__identity div {
+  display: grid;
+  min-width: 0;
+}
+
+.admin-account-plan-member__identity small {
+  overflow: hidden;
+  color: var(--text-muted);
+  text-overflow: ellipsis;
+}
+
+.admin-account-plan-member__status > b {
+  color: var(--green);
+  font-size: .72rem;
+  text-transform: uppercase;
+}
+
+.account-plan-badge--professional {
+  border-color: rgb(var(--accent-rgb) / .45);
+  color: var(--accent-secondary);
+}
+
+.account-plan-badge--premium {
+  border-color: rgb(139 92 246 / .5);
+  color: #c4b5fd;
+}
+
+.admin-account-assignment-form {
+  padding: 18px;
+  border-top: 1px solid var(--line);
+}
+
+@media (max-width: 920px) {
+  .account-plan-grid,
+  .admin-app-plan-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .account-plan-card > p {
+    min-height: 0;
+  }
+}
+
+@media (max-width: 680px) {
+  .account-plan-required-notice,
+  .account-current-plan,
+  .account-feature-locked-card {
+    grid-template-columns: 1fr;
+    align-items: start;
+    padding: 18px;
+  }
+
+  .account-plan-required-notice .button,
+  .account-current-plan .button,
+  .account-feature-locked-card .button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .account-plan-card,
+  .admin-app-plan-card {
+    padding: 18px;
+  }
+
+  .account-plan-card header,
+  .admin-app-plan-card header {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .account-plan-card header b,
+  .admin-app-plan-card header b {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+
+  .account-feature-group > div {
+    grid-template-columns: 1fr;
+  }
+
+  .account-feature-group article {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .admin-account-plan-member > summary,
+  .admin-account-plan-member__status {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .admin-account-plan-member__status {
+    padding-left: 54px;
+  }
+}
+
+.admin-subscription-history-list {
+  display: grid;
+  gap: 10px;
+}
+
+.admin-subscription-history-list article {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 12px;
+  align-items: center;
+  padding: 13px 15px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface-strong);
+}
+
+.admin-subscription-history-list article > div {
+  display: grid;
+  min-width: 0;
+}
+
+.admin-subscription-history-list article small,
+.admin-subscription-history-list article p {
+  color: var(--text-muted);
+}
+
+.admin-subscription-history-list article span {
+  color: var(--text-soft);
+}
+
+.admin-subscription-history-list article b {
+  color: var(--accent-secondary);
+  font-size: .72rem;
+  text-transform: uppercase;
+}
+
+.admin-subscription-history-list article p {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+@media (max-width: 680px) {
+  .admin-subscription-history-list article {
+    grid-template-columns: 1fr;
+  }
+}

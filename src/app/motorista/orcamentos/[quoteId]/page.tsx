@@ -4,7 +4,7 @@ import { ArrowLeft, CalendarDays, Car, CheckCircle2, Clock3, Eye, FileText, Link
 import { notFound, redirect } from "next/navigation";
 import { DriverDocumentActions } from "@/components/DriverDocumentActions";
 import { DriverQuoteWorkflowActions } from "@/components/DriverQuoteWorkflowActions";
-import { getAuthContext } from "@/lib/auth";
+import { requireDriverFeature } from "@/lib/account-plan";
 import { formatCurrency, TRIP_TYPE_LABELS, type DriverQuote } from "@/lib/driver";
 import { DRIVER_QUOTE_STATUS_LABELS, driverQuoteIsExpired, driverQuotePublicUrl, driverQuoteRoute, driverQuoteWhatsAppUrl, normalizeQuoteLineItems, type DriverQuoteEvent } from "@/lib/driver-quote";
 import type { DriverPublicProfile, DriverReservation } from "@/lib/driver-public";
@@ -31,8 +31,7 @@ const EVENT_LABELS: Record<string, string> = {
 
 export default async function DriverQuoteDocumentPage({ params }: Props) {
   const { quoteId } = await params;
-  const { supabase, userId, profile } = await getAuthContext();
-  if (!userId) redirect(`/entrar?next=/motorista/orcamentos/${quoteId}`);
+  const { supabase, userId, profile } = await requireDriverFeature("quotes", `/motorista/orcamentos/${quoteId}`);
 
   const [{ data: quoteData }, { data: publicProfileData }, { data: reservationData }, { data: tripData }, { data: eventData }] = await Promise.all([
     supabase.from("driver_quotes").select("*").eq("id", quoteId).eq("user_id", userId).maybeSingle(),

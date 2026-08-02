@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { DriverQuoteShareButton } from "@/components/DriverQuoteShareButton";
 import { DriverRecordDeleteButton } from "@/components/DriverRecordDeleteButton";
 import { PageHeader } from "@/components/PageHeader";
-import { getAuthContext } from "@/lib/auth";
+import { requireDriverFeature } from "@/lib/account-plan";
 import { formatCurrency, TRIP_TYPE_LABELS, type DriverQuote, type DriverQuoteStatus } from "@/lib/driver";
 import { DRIVER_QUOTE_STATUS_LABELS, driverQuoteIsExpired, driverQuoteRoute } from "@/lib/driver-quote";
 import { formatBrazilDate } from "@/lib/date-time";
@@ -17,8 +17,7 @@ type Props = { searchParams: Promise<{ q?: string; status?: string }> };
 
 export default async function DriverQuotesPage({ searchParams }: Props) {
   const filters = await searchParams;
-  const { supabase, userId } = await getAuthContext();
-  if (!userId) redirect("/entrar?next=/motorista/orcamentos");
+  const { supabase, userId } = await requireDriverFeature("quotes", "/motorista/orcamentos");
   const [{ data }, { data: tripLinks }] = await Promise.all([
     supabase.from("driver_quotes").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(300),
     supabase.from("driver_trips").select("quote_id").eq("user_id", userId).not("quote_id", "is", null),

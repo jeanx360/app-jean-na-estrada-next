@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/PageHeader";
-import { getAuthContext } from "@/lib/auth";
+import { requireDriverFeature } from "@/lib/account-plan";
 import { formatCurrency } from "@/lib/driver";
 import {
   DRIVER_CUSTOMER_TAG_LABELS,
@@ -48,9 +48,7 @@ function normalizeSearch(value: string) {
 
 export default async function DriverCustomersPage({ searchParams }: Props) {
   const filters = await searchParams;
-  const { supabase, userId, profile } = await getAuthContext();
-  if (!userId) redirect("/entrar?next=/motorista/clientes");
-  if (!profile?.is_professional_driver || profile.is_blocked) redirect("/perfil");
+  const { supabase, userId } = await requireDriverFeature("crm", "/motorista/clientes");
 
   const { data, error } = await supabase.rpc("driver_customer_overview");
   if (error) throw new Error(error.message);

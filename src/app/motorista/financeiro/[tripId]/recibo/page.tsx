@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ArrowLeft, CalendarDays, Car, CheckCircle2, MapPin, ReceiptText, UserRound } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
 import { DriverDocumentActions } from "@/components/DriverDocumentActions";
-import { getAuthContext } from "@/lib/auth";
+import { requireDriverFeature } from "@/lib/account-plan";
 import { DRIVER_PAYMENT_STATUS_LABELS, formatCurrency, type DriverTrip } from "@/lib/driver";
 import type { DriverPublicProfile, DriverReservation } from "@/lib/driver-public";
 import { formatBrazilDate } from "@/lib/date-time";
@@ -15,8 +15,7 @@ type Props = { params: Promise<{ tripId: string }> };
 
 export default async function DriverTripReceiptPage({ params }: Props) {
   const { tripId } = await params;
-  const { supabase, userId, profile } = await getAuthContext();
-  if (!userId) redirect(`/entrar?next=/motorista/financeiro/${tripId}/recibo`);
+  const { supabase, userId, profile } = await requireDriverFeature("finance", `/motorista/financeiro/${tripId}/recibo`);
 
   const [{ data: tripData }, { data: publicProfileData }] = await Promise.all([
     supabase.from("driver_trips").select("*").eq("id", tripId).eq("user_id", userId).maybeSingle(),

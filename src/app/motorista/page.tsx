@@ -26,6 +26,7 @@ import {
 import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/PageHeader";
 import { getAuthContext } from "@/lib/auth";
+import { accountHasFeature, getAccountPlan, planUpgradeUrl } from "@/lib/account-plan";
 import { DEFAULT_DRIVER_SETTINGS, driverTripMonthKey, formatCurrency, monthKeyInTimeZone, type DriverQuote, type DriverSettings, type DriverTrip } from "@/lib/driver";
 import { DRIVER_RESERVATION_STATUS_LABELS, type DriverPublicProfile, type DriverReservation } from "@/lib/driver-public";
 import { formatBrazilDate, formatBrazilTime } from "@/lib/date-time";
@@ -107,7 +108,12 @@ export default async function DriverDashboardPage() {
   const monthPotential = monthQuotes.reduce((total, quote) => total + Number(quote.rounded_total || 0), 0);
   const monthNet = monthTrips.reduce((total, trip) => total + Number(trip.net_result || 0), 0);
   const newReservations = reservations.filter((item) => item.status === "new").length;
-  const hasVip = profile.role === "vip" || profile.role === "admin";
+  const accountPlan = await getAccountPlan(supabase, userId as string, profile!.role);
+  const canUseCrm = accountHasFeature(accountPlan, "crm");
+  const canUseSchedule = accountHasFeature(accountPlan, "schedule");
+  const canUseQuotes = accountHasFeature(accountPlan, "quotes");
+  const canUseFinance = accountHasFeature(accountPlan, "finance");
+  const canUsePerformance = accountHasFeature(accountPlan, "performance");
 
   if (!profile.is_professional_driver) {
     return (
@@ -132,7 +138,7 @@ export default async function DriverDashboardPage() {
             <span className="driver-quick-action__icon"><Calculator size={22} /></span>
             <span>Calcular viagem</span>
           </Link>
-          <Link className={`driver-quick-action${newReservations ? " has-alert" : ""}`} href="/motorista/agenda">
+          <Link className={`driver-quick-action${newReservations ? " has-alert" : ""}`} href={canUseSchedule ? "/motorista/agenda" : planUpgradeUrl("schedule", "/motorista/agenda")}>
             <span className="driver-quick-action__icon">
               <CalendarDays size={22} />
               {newReservations ? <b className="driver-quick-action__badge">{newReservations > 99 ? "99+" : newReservations}</b> : null}
@@ -245,7 +251,7 @@ export default async function DriverDashboardPage() {
           <article className="driver-dashboard-card driver-dashboard-card--primary"><ContactRound size={26} /><div><h2>Meu cartão</h2><p>Foto, veículo, região, WhatsApp e informações profissionais.</p></div><Link className="button button--primary" href="/motorista/perfil-publico">Configurar</Link></article>
           <article className="driver-dashboard-card"><BriefcaseBusiness size={26} /><div><h2>Serviços e preços</h2><p>Pacotes fixos, por hora, “a partir de” ou sob consulta.</p></div><Link className="button button--secondary" href="/motorista/servicos">Gerenciar</Link></article>
           <article className="driver-dashboard-card"><QrCode size={26} /><div><h2>Links, QR e campanhas</h2><p>Crie divulgações rastreáveis para o veículo e suas redes sociais.</p></div><Link className="button button--secondary" href={publicProfile ? "/motorista/cartao" : "/motorista/perfil-publico"}>Abrir</Link></article>
-          <article className="driver-dashboard-card"><Inbox size={26} /><div><h2>Central de reservas</h2><p>Calendário, bloqueios, conflitos e confirmação.</p></div><Link className="button button--secondary" href="/motorista/agenda">Abrir agenda</Link></article>
+          <article className="driver-dashboard-card"><Inbox size={26} /><div><h2>Central de reservas</h2><p>Calendário, bloqueios, conflitos e confirmação.</p></div><Link className="button button--secondary" href={canUseSchedule ? "/motorista/agenda" : planUpgradeUrl("schedule", "/motorista/agenda")}>{canUseSchedule ? "Abrir agenda" : "Ver plano"}</Link></article>
         </div>
         {publicProfile?.is_published ? <div className="driver-profile-activity-strip"><span><strong>{profileViews ?? 0}</strong> visualizações nos últimos 30 dias</span><span><strong>{reservations.length}</strong> solicitações recentes</span><span><strong>{publicProfile.accepts_reservations ? "Ativo" : "Pausado"}</strong> recebimento de reservas</span></div> : null}
       </section>
@@ -257,19 +263,19 @@ export default async function DriverDashboardPage() {
           <h2>Transforme reservas em relacionamento</h2>
           <p>Contatos, recorrência, histórico, etiquetas e observações privadas organizados automaticamente.</p>
         </div>
-        <Link className="button button--primary" href="/motorista/clientes">Abrir clientes <ArrowRight size={17} /></Link>
+        <Link className="button button--primary" href={canUseCrm ? "/motorista/clientes" : planUpgradeUrl("crm", "/motorista/clientes")}>{canUseCrm ? "Abrir clientes" : "Desbloquear CRM"} <ArrowRight size={17} /></Link>
       </section>
 
       <section className="driver-dashboard-grid driver-dashboard-grid--four">
         <article className="driver-dashboard-card"><Calculator size={26} /><div><h2>Novo orçamento</h2><p>Distância, tempo, espera, pedágios e custos em uma conta só.</p></div><Link className="button button--secondary" href="/motorista/calculadora">Começar</Link></article>
-        <article className="driver-dashboard-card"><FileText size={26} /><div><h2>Histórico</h2><p>Consulte e compartilhe as últimas referências salvas.</p></div><Link className="button button--secondary" href="/motorista/orcamentos">Ver orçamentos</Link></article>
-        <article className="driver-dashboard-card"><WalletCards size={26} /><div><h2>Controle financeiro</h2><p>Receitas, despesas, valores pendentes e resultado líquido.</p></div><Link className="button button--secondary" href="/motorista/financeiro">Abrir financeiro</Link></article>
+        <article className="driver-dashboard-card"><FileText size={26} /><div><h2>Histórico</h2><p>Consulte e compartilhe as últimas referências salvas.</p></div><Link className="button button--secondary" href={canUseQuotes ? "/motorista/orcamentos" : planUpgradeUrl("quotes", "/motorista/orcamentos")}>{canUseQuotes ? "Ver orçamentos" : "Ver plano"}</Link></article>
+        <article className="driver-dashboard-card"><WalletCards size={26} /><div><h2>Controle financeiro</h2><p>Receitas, despesas, valores pendentes e resultado líquido.</p></div><Link className="button button--secondary" href={canUseFinance ? "/motorista/financeiro" : planUpgradeUrl("finance", "/motorista/financeiro")}>{canUseFinance ? "Abrir financeiro" : "Ver plano"}</Link></article>
         <article className="driver-dashboard-card"><Settings2 size={26} /><div><h2>Valores padrão</h2><p>Ajuste preço por hora, quilômetro, espera e reserva.</p></div><Link className="button button--secondary" href="/motorista/configuracoes">Configurar</Link></article>
       </section>
 
       <section className="driver-vip-preview-section">
-        <div className="section-heading section-heading--inline"><div><span className="eyebrow"><Crown size={14} /> INTELIGÊNCIA VIP</span><h2>Transforme dados em decisões</h2><p>O gratuito capta, registra e organiza. O VIP mostra conversão, clientes recorrentes, origem dos passageiros e rentabilidade.</p></div>{!hasVip ? <Link className="button button--secondary" href="/vip">Conhecer o VIP</Link> : <span className="status-pill status-pill--vip"><Crown size={13} /> Seu plano inclui</span>}</div>
-        <div className="driver-vip-preview-grid"><article className="is-available"><span><Crown size={13} /> VIP</span><BarChart3 size={24} /><h3>Conversão e receita</h3><p>Visualizações, contatos, reservas, viagens e resultado por origem.</p><small>Disponível agora</small><Link className="button button--secondary button--compact" href={hasVip ? "/motorista/desempenho" : "/vip"}>{hasVip ? "Abrir painel" : "Desbloquear"}</Link></article><article><span><Crown size={13} /> VIP</span><Target size={24} /><h3>Metas</h3><p>Objetivos de faturamento, lucro e clientes particulares.</p><small>Próxima etapa</small></article><article><span><Crown size={13} /> VIP</span><FileDown size={24} /><h3>PDF e CSV</h3><p>Orçamentos, recibos e relatórios personalizados.</p><small>Próxima etapa</small></article><article><span><Crown size={13} /> VIP</span><BellRing size={24} /><h3>Automações</h3><p>Lembretes de reserva e acompanhamento de clientes.</p><small>Próxima etapa</small></article></div>
+        <div className="section-heading section-heading--inline"><div><span className="eyebrow"><Crown size={14} /> PLANO PREMIUM</span><h2>Transforme dados em decisões</h2><p>Seu plano atual é {accountPlan.name}. O Premium libera inteligência, campanhas e relatórios avançados.</p></div>{!canUsePerformance ? <Link className="button button--secondary" href={planUpgradeUrl("performance", "/motorista/desempenho")}>Comparar planos</Link> : <span className="status-pill status-pill--vip"><Crown size={13} /> Seu plano inclui</span>}</div>
+        <div className="driver-vip-preview-grid"><article className="is-available"><span><Crown size={13} /> VIP</span><BarChart3 size={24} /><h3>Conversão e receita</h3><p>Visualizações, contatos, reservas, viagens e resultado por origem.</p><small>Disponível agora</small><Link className="button button--secondary button--compact" href={canUsePerformance ? "/motorista/desempenho" : planUpgradeUrl("performance", "/motorista/desempenho")}>{canUsePerformance ? "Abrir painel" : "Desbloquear"}</Link></article><article><span><Crown size={13} /> VIP</span><Target size={24} /><h3>Metas</h3><p>Objetivos de faturamento, lucro e clientes particulares.</p><small>Próxima etapa</small></article><article><span><Crown size={13} /> VIP</span><FileDown size={24} /><h3>PDF e CSV</h3><p>Orçamentos, recibos e relatórios personalizados.</p><small>Próxima etapa</small></article><article><span><Crown size={13} /> VIP</span><BellRing size={24} /><h3>Automações</h3><p>Lembretes de reserva e acompanhamento de clientes.</p><small>Próxima etapa</small></article></div>
       </section>
 
       <section className="driver-recent-section"><div className="section-heading section-heading--inline"><div><span className="eyebrow">RECENTES</span><h2>Últimos orçamentos</h2></div><Link className="text-link" href="/motorista/orcamentos">Ver todos <ArrowRight size={17} /></Link></div>{quotes.length ? <div className="driver-recent-list">{quotes.slice(0, 4).map((quote) => <article key={quote.id}><div><strong>{[quote.origin, quote.destination].filter(Boolean).join(" → ") || "Viagem particular"}</strong><span>{formatBrazilDate(quote.created_at)}</span></div><b>{formatCurrency(quote.rounded_total)}</b></article>)}</div> : <p className="driver-empty-copy">Seus orçamentos salvos aparecerão aqui.</p>}</section>

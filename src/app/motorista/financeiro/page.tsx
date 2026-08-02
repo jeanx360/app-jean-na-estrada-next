@@ -30,7 +30,7 @@ import {
   summarizeDriverFinance,
   type DriverFinanceSummary,
 } from "@/lib/driver-finance";
-import { getAuthContext } from "@/lib/auth";
+import { requireDriverFeature } from "@/lib/account-plan";
 import {
   DRIVER_PAYMENT_STATUS_LABELS,
   DRIVER_TRIP_STATUS_LABELS,
@@ -79,8 +79,7 @@ function metricCards(summary: DriverFinanceSummary, previous: DriverFinanceSumma
 export default async function DriverFinancePage({ searchParams }: Props) {
   const selection = await searchParams;
   const financeWindow = buildDriverFinanceWindow(selection.period, selection.month);
-  const { supabase, userId } = await getAuthContext();
-  if (!userId) redirect("/entrar?next=/motorista/financeiro");
+  const { supabase, userId } = await requireDriverFeature("finance", "/motorista/financeiro");
 
   const [tripsResult, entriesResult, settingsResult, goalResult] = await Promise.all([
     supabase.from("driver_trips").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(1200),

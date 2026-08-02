@@ -17,7 +17,7 @@ import {
 import { notFound, redirect } from "next/navigation";
 import { DriverCustomerEditor } from "@/components/DriverCustomerEditor";
 import { PageHeader } from "@/components/PageHeader";
-import { getAuthContext } from "@/lib/auth";
+import { requireDriverFeature } from "@/lib/account-plan";
 import { formatCurrency, type DriverTrip } from "@/lib/driver";
 import {
   DRIVER_CUSTOMER_TAG_LABELS,
@@ -48,9 +48,7 @@ function reservationRoute(reservation: DriverReservation) {
 
 export default async function DriverCustomerDetailPage({ params }: Props) {
   const { customerId } = await params;
-  const { supabase, userId, profile } = await getAuthContext();
-  if (!userId) redirect(`/entrar?next=/motorista/clientes/${customerId}`);
-  if (!profile?.is_professional_driver || profile.is_blocked) redirect("/perfil");
+  const { supabase, userId } = await requireDriverFeature("crm", `/motorista/clientes/${customerId}`);
 
   const [{ data: customerData }, { data: reservationData }] = await Promise.all([
     supabase

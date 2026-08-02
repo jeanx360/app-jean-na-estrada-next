@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAuthContext } from "@/lib/auth";
+import { accountHasFeature, getAccountPlan } from "@/lib/account-plan";
 import {
   buildDriverFinanceWindow,
   filterEntriesByWindow,
@@ -27,9 +28,14 @@ function money(value: number) {
 }
 
 export async function GET(request: Request) {
-  const { supabase, userId } = await getAuthContext();
+  const { supabase, userId, profile } = await getAuthContext();
   if (!userId) {
     return NextResponse.json({ ok: false, error: "Autenticacao necessaria." }, { status: 401 });
+  }
+
+  const accountPlan = await getAccountPlan(supabase, userId, profile?.role);
+  if (!accountHasFeature(accountPlan, "exports")) {
+    return NextResponse.json({ ok: false, error: "O plano Profissional e necessario para exportar dados." }, { status: 403 });
   }
 
   const url = new URL(request.url);

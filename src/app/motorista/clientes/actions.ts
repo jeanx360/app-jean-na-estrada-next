@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { getAuthContext } from "@/lib/auth";
+import { assertDriverFeature } from "@/lib/account-plan";
 import { DRIVER_CUSTOMER_TAGS, type DriverCustomerTag } from "@/lib/driver-crm";
 
 function readText(formData: FormData, key: string) {
@@ -10,10 +10,7 @@ function readText(formData: FormData, key: string) {
 }
 
 async function requireOwnedCustomer(customerId: string) {
-  const context = await getAuthContext();
-  if (!context.userId || !context.profile?.is_professional_driver || context.profile.is_blocked) {
-    throw new Error("Acesso de motorista necessário.");
-  }
+  const context = await assertDriverFeature("crm");
 
   const { data, error } = await context.supabase
     .from("driver_customers")

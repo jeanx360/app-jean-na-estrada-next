@@ -3,7 +3,7 @@ import { Plus } from "lucide-react";
 import { redirect } from "next/navigation";
 import { DriverTripForm } from "@/components/DriverTripForm";
 import { PageHeader } from "@/components/PageHeader";
-import { getAuthContext } from "@/lib/auth";
+import { requireDriverFeature } from "@/lib/account-plan";
 import type { DriverQuote } from "@/lib/driver";
 
 export const metadata: Metadata = { title: "Registrar viagem" };
@@ -13,8 +13,7 @@ type Props = { searchParams: Promise<{ quote?: string; reservation?: string }> }
 
 export default async function NewDriverTripPage({ searchParams }: Props) {
   const { quote: quoteParam, reservation: reservationParam } = await searchParams;
-  const { supabase, userId } = await getAuthContext();
-  if (!userId) redirect("/entrar?next=/motorista/financeiro/nova");
+  const { supabase, userId } = await requireDriverFeature("finance", "/motorista/financeiro/nova");
 
   let reservationId = reservationParam ?? null;
   let quoteId = quoteParam ?? null;

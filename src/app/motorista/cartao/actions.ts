@@ -2,7 +2,7 @@
 
 import { randomBytes } from "node:crypto";
 import { revalidatePath } from "next/cache";
-import { getAuthContext } from "@/lib/auth";
+import { assertDriverFeature } from "@/lib/account-plan";
 import {
   DRIVER_CAMPAIGN_SOURCE_OPTIONS,
   normalizeDriverCampaignCode,
@@ -15,11 +15,7 @@ function text(formData: FormData, key: string) {
 }
 
 async function requireDriver() {
-  const context = await getAuthContext();
-  if (!context.userId || !context.profile?.is_professional_driver || context.profile.is_blocked) {
-    throw new Error("Acesso de motorista necessário.");
-  }
-  return context;
+  return assertDriverFeature("marketing_campaigns");
 }
 
 function revalidateMarketingPages() {

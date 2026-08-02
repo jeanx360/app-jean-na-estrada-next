@@ -4,7 +4,7 @@ import { ArrowLeft, FilePlus2 } from "lucide-react";
 import { redirect } from "next/navigation";
 import { DriverProfessionalQuoteForm } from "@/components/DriverProfessionalQuoteForm";
 import { PageHeader } from "@/components/PageHeader";
-import { getAuthContext } from "@/lib/auth";
+import { requireDriverFeature } from "@/lib/account-plan";
 import { DEFAULT_DRIVER_SETTINGS, type DriverSettings } from "@/lib/driver";
 import { driverCustomerName, type DriverCustomer } from "@/lib/driver-crm";
 import type { DriverReservation } from "@/lib/driver-public";
@@ -16,9 +16,7 @@ type Props = { searchParams: Promise<{ customer?: string; reservation?: string }
 
 export default async function NewDriverQuotePage({ searchParams }: Props) {
   const query = await searchParams;
-  const { supabase, userId, profile } = await getAuthContext();
-  if (!userId) redirect("/entrar?next=/motorista/orcamentos/novo");
-  if (!profile?.is_professional_driver || profile.is_blocked) redirect("/perfil");
+  const { supabase, userId } = await requireDriverFeature("quotes", "/motorista/orcamentos/novo");
 
   const [{ data: settingsData }, { data: customerData }, { data: reservationData }] = await Promise.all([
     supabase.from("driver_settings").select("*").eq("user_id", userId).maybeSingle(),
