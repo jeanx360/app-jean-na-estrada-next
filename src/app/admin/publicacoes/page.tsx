@@ -40,7 +40,7 @@ export default async function AdminPublicationsPage() {
           <div><span>IMAGENS PÚBLICAS</span><h2><ImageUp size={22} /> Enviar imagem</h2></div>
         </div>
         <p className="admin-section__intro">
-          Use para banners de parceiros. Ao terminar o upload, a imagem será aplicada automaticamente ao formulário abaixo.
+          Use para banners de parceiros e capas grandes de aplicativos. Ao terminar o upload, a imagem será aplicada automaticamente ao formulário abaixo.
         </p>
         <AdminPublicAssetUploader />
       </section>

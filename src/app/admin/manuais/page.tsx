@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { BookOpenText, Eye, EyeOff, FileUp, ImageUp, Pencil, Trash2 } from "lucide-react";
+import { BookOpenText, CarFront, Eye, EyeOff, FileUp, ImageUp, Pencil, Trash2 } from "lucide-react";
 import { deleteVehicleDocumentAction, toggleVehicleDocumentAction } from "@/app/admin/manuais/actions";
 import { AdminPublicAssetUploader } from "@/components/AdminPublicAssetUploader";
 import { AdminVehicleDocumentUploader } from "@/components/AdminVehicleDocumentUploader";
@@ -11,7 +11,7 @@ import type { VehicleBrandRow, VehicleDocumentRow, VehicleModelRow } from "@/typ
 
 export const metadata: Metadata = { title: "Biblioteca de veículos e manuais" };
 
-type Props = { searchParams: Promise<{ edit?: string }> };
+type Props = { searchParams: Promise<{ edit?: string; editModel?: string }> };
 
 const documentLabels = {
   owner: "Manual do proprietário",
@@ -24,7 +24,7 @@ const documentLabels = {
 } as const;
 
 export default async function AdminManualsPage({ searchParams }: Props) {
-  const { edit } = await searchParams;
+  const { edit, editModel } = await searchParams;
   const { supabase } = await requireAdmin();
   const [brandsResult, modelsResult, documentsResult] = await Promise.all([
     supabase
@@ -47,6 +47,7 @@ export default async function AdminManualsPage({ searchParams }: Props) {
   const brands = (brandsResult.data ?? []) as VehicleBrandRow[];
   const models = (modelsResult.data ?? []) as VehicleModelRow[];
   const documents = (documentsResult.data ?? []) as VehicleDocumentRow[];
+  const initialModel = editModel ? models.find((item) => item.id === editModel) ?? null : null;
   const initialDocument = edit ? documents.find((item) => item.id === edit) ?? null : null;
   const hasMigrationError = brandsResult.error || modelsResult.error || documentsResult.error;
 
@@ -66,7 +67,7 @@ export default async function AdminManualsPage({ searchParams }: Props) {
         <div className="admin-section__heading">
           <div><span>IMAGENS DOS VEÍCULOS</span><h2><ImageUp size={22} /> Enviar imagem opcional</h2></div>
         </div>
-        <p className="admin-section__intro">A imagem enviada será aplicada ao próximo veículo cadastrado.</p>
+        <p className="admin-section__intro">A imagem enviada será aplicada ao veículo que estiver sendo criado ou editado.</p>
         <AdminPublicAssetUploader />
       </section>
 
@@ -80,7 +81,40 @@ export default async function AdminManualsPage({ searchParams }: Props) {
             A estrutura da biblioteca ainda não está disponível. Execute a migração 1.1.0 no Supabase e atualize esta página.
           </p>
         ) : null}
-        <AdminVehicleLibraryForms brands={brands} models={models} initialDocument={initialDocument} />
+        <AdminVehicleLibraryForms key={`${initialModel?.id ?? "new-model"}-${initialDocument?.id ?? "new-document"}`} brands={brands} models={models} initialModel={initialModel} initialDocument={initialDocument} />
+      </section>
+
+      <section className="admin-section">
+        <div className="admin-section__heading">
+          <div><span>VEÍCULOS CADASTRADOS</span><h2><CarFront size={22} /> Modelos da biblioteca</h2></div>
+          <strong>{models.length}</strong>
+        </div>
+        <p className="admin-section__intro">
+          Edite nome, marca, imagem, ordem e publicação sem alterar os manuais já vinculados ao veículo.
+        </p>
+        <div className="admin-list admin-list--grid">
+          {models.map((model) => {
+            const brand = brands.find((item) => item.id === model.brand_id);
+            return (
+              <article className="admin-list-card admin-list-card--stacked" key={model.id}>
+                {model.image_url ? <img className="admin-list-card__cover" src={model.image_url} alt={`Imagem de ${model.name}`} /> : null}
+                <div>
+                  <div className="admin-list-card__meta">
+                    <span className={`admin-status ${model.is_published ? "" : "admin-status--warning"}`}>{model.is_published ? "Publicado" : "Rascunho"}</span>
+                    <span>{brand?.name ?? "Marca não encontrada"}</span>
+                    <span>Ordem {model.sort_order}</span>
+                  </div>
+                  <h3>{model.name}</h3>
+                  <small>Identificador: /{model.slug}</small>
+                </div>
+                <div className="admin-inline-actions">
+                  <Link className="button button--secondary" href={`/admin/manuais?editModel=${model.id}#vehicle-model-form`}><Pencil size={16} /> Editar veículo</Link>
+                </div>
+              </article>
+            );
+          })}
+          {!models.length && !hasMigrationError ? <p className="admin-empty">Nenhum veículo cadastrado.</p> : null}
+        </div>
       </section>
 
       <section className="admin-section">

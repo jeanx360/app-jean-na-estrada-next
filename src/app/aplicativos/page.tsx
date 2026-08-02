@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { getApplications } from "@/lib/public-content";
+import { publicPath } from "@/lib/public-path";
 
 export const metadata: Metadata = {
   title: "Aplicativos",
@@ -78,50 +79,67 @@ export default async function AppsPage({ searchParams }: Props) {
           const isUpload = application.deliveryType === "upload";
           const isVip = application.accessLevel === "vip";
           const size = formatFileSize(application.fileSize);
+          const imageSrc = application.image
+            ? /^https?:\/\//i.test(application.image)
+              ? application.image
+              : publicPath(application.image)
+            : null;
+
           return (
-            <article className="app-card app-card--complete" key={application.id ?? application.name}>
-              <div className="app-card__topline">
-                {application.image ? (
-                  <span className="app-card__image"><img src={application.image} alt="" /></span>
-                ) : (
-                  <span className="app-card__icon"><PackageCheck size={24} /></span>
-                )}
-                <div className="app-card__badges">
-                  <span className="status-pill">{application.status}</span>
-                  {isVip ? <span className="status-pill status-pill--vip"><LockKeyhole size={12} /> VIP</span> : null}
+            <article
+              className={`app-card app-card--complete${imageSrc ? " app-card--with-banner" : ""}`}
+              key={application.id ?? application.name}
+            >
+              {imageSrc ? (
+                <div className="app-card__banner">
+                  <img
+                    src={imageSrc}
+                    alt={`Imagem do aplicativo ${application.name}`}
+                    loading="lazy"
+                  />
                 </div>
-              </div>
-
-              <div className="app-card__heading">
-                <div>
-                  <span>{isUpload ? "ARQUIVO NO JNE APP" : "APLICATIVO EXTERNO"}</span>
-                  <h2>{application.name}</h2>
-                </div>
-                {application.version ? <strong>v{application.version}</strong> : null}
-              </div>
-              <p>{application.description}</p>
-
-              <dl>
-                <div><dt>Compatibilidade informada</dt><dd>{application.compatibility}</dd></div>
-                <div><dt>Origem</dt><dd>{application.origin || "Origem não informada"}</dd></div>
-                <div>
-                  <dt>Forma de acesso</dt>
-                  <dd>{isUpload ? <><FileArchive size={14} /> Download pelo JNE App{size ? ` · ${size}` : ""}</> : <><Globe2 size={14} /> Site ou repositório externo</>}</dd>
-                </div>
-                {application.fileName ? <div><dt>Arquivo</dt><dd>{application.fileName}</dd></div> : null}
-              </dl>
-
-              {application.checksumSha256 ? (
-                <details className="app-checksum">
-                  <summary><Fingerprint size={15} /> Ver checksum SHA-256</summary>
-                  <code>{application.checksumSha256}</code>
-                </details>
               ) : null}
 
-              <a className="button button--primary app-card__action" href={application.href} target="_blank" rel="noreferrer">
-                {isUpload ? <CloudDownload size={17} /> : <ExternalLink size={17} />}
-                {application.buttonLabel || (isUpload ? "Baixar arquivo" : "Abrir aplicativo")}
-              </a>
+              <div className="app-card__body">
+                <div className="app-card__topline">
+                  <span className="app-card__icon"><PackageCheck size={24} /></span>
+                  <div className="app-card__badges">
+                    <span className="status-pill">{application.status}</span>
+                    {isVip ? <span className="status-pill status-pill--vip"><LockKeyhole size={12} /> VIP</span> : null}
+                  </div>
+                </div>
+
+                <div className="app-card__heading">
+                  <div>
+                    <span>{isUpload ? "ARQUIVO NO JNE APP" : "APLICATIVO EXTERNO"}</span>
+                    <h2>{application.name}</h2>
+                  </div>
+                  {application.version ? <strong>v{application.version}</strong> : null}
+                </div>
+                <p>{application.description}</p>
+
+                <dl>
+                  <div><dt>Compatibilidade informada</dt><dd>{application.compatibility}</dd></div>
+                  <div><dt>Origem</dt><dd>{application.origin || "Origem não informada"}</dd></div>
+                  <div>
+                    <dt>Forma de acesso</dt>
+                    <dd>{isUpload ? <><FileArchive size={14} /> Download pelo JNE App{size ? ` · ${size}` : ""}</> : <><Globe2 size={14} /> Site ou repositório externo</>}</dd>
+                  </div>
+                  {application.fileName ? <div><dt>Arquivo</dt><dd>{application.fileName}</dd></div> : null}
+                </dl>
+
+                {application.checksumSha256 ? (
+                  <details className="app-checksum">
+                    <summary><Fingerprint size={15} /> Ver checksum SHA-256</summary>
+                    <code>{application.checksumSha256}</code>
+                  </details>
+                ) : null}
+
+                <a className="button button--primary app-card__action" href={application.href} target="_blank" rel="noreferrer">
+                  {isUpload ? <CloudDownload size={17} /> : <ExternalLink size={17} />}
+                  {application.buttonLabel || (isUpload ? "Baixar arquivo" : "Abrir aplicativo")}
+                </a>
+              </div>
             </article>
           );
         })}

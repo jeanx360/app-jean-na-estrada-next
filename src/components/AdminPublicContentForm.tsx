@@ -117,7 +117,7 @@ export function AdminPublicContentForm({ initialData }: Props) {
 
       {type === "application" ? (
         <div className="admin-dynamic-fields">
-          <label><span>Ícone ou imagem</span><input name="imageUrl" value={imageUrl} onChange={(event) => setImageUrl(event.target.value)} placeholder="Envie na área de imagens ou cole https://..." /></label>
+          <label><span>Imagem de capa opcional</span><input name="imageUrl" value={imageUrl} onChange={(event) => setImageUrl(event.target.value)} placeholder="Envie na área de imagens ou cole https://..." /><small>Com imagem, o aplicativo recebe um banner grande. Sem imagem, mantém o ícone universal.</small></label>
           <div className="admin-form__grid admin-form__grid--wide">
             <label><span>Forma de acesso</span><select name="deliveryType" value={deliveryType} onChange={(event) => setDeliveryType(event.target.value as "upload" | "external")}><option value="external">Link externo</option><option value="upload">Arquivo hospedado</option></select></label>
             <label><span>Nível de acesso</span><select name="accessLevel" defaultValue={metaString(metadata, "accessLevel") || "public"}><option value="public">Público</option><option value="vip">Somente VIP</option></select></label>

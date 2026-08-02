@@ -93,11 +93,24 @@ export async function saveVehicleModelAction(
     sort_order: sortOrder,
     is_published: readBoolean(formData, "isPublished"),
   };
-  const query = modelId
-    ? supabase.from("vehicle_models").update(payload).eq("id", modelId)
-    : supabase.from("vehicle_models").insert(payload);
-  const { error } = await query;
-  if (error) return { error: `Não foi possível salvar o veículo: ${error.message}` };
+  if (modelId) {
+    const { data: previous } = await supabase
+      .from("vehicle_models")
+      .select("image_path")
+      .eq("id", modelId)
+      .maybeSingle();
+
+    const { error } = await supabase.from("vehicle_models").update(payload).eq("id", modelId);
+    if (error) return { error: `Não foi possível salvar o veículo: ${error.message}` };
+
+    if (previous?.image_path && previous.image_path !== payload.image_path) {
+      await supabase.storage.from("public-assets").remove([previous.image_path]);
+    }
+  } else {
+    const { error } = await supabase.from("vehicle_models").insert(payload);
+    if (error) return { error: `Não foi possível salvar o veículo: ${error.message}` };
+  }
+
   revalidateLibrary();
   return { success: modelId ? "Veículo atualizado." : "Veículo cadastrado." };
 }

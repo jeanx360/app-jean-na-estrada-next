@@ -20,6 +20,7 @@ const initialState: VehicleLibraryActionState = {};
 type Props = {
   brands: VehicleBrandRow[];
   models: VehicleModelRow[];
+  initialModel?: VehicleModelRow | null;
   initialDocument?: VehicleDocumentRow | null;
 };
 
@@ -28,7 +29,7 @@ function formatBytes(value: number | null) {
   return value >= 1024 * 1024 ? `${(value / 1024 / 1024).toFixed(1)} MB` : `${Math.round(value / 1024)} KB`;
 }
 
-export function AdminVehicleLibraryForms({ brands, models, initialDocument }: Props) {
+export function AdminVehicleLibraryForms({ brands, models, initialModel, initialDocument }: Props) {
   const [brandState, brandAction, brandPending] = useActionState(saveVehicleBrandAction, initialState);
   const [modelState, modelAction, modelPending] = useActionState(saveVehicleModelAction, initialState);
   const [documentState, documentAction, documentPending] = useActionState(saveVehicleDocumentAction, initialState);
@@ -36,8 +37,8 @@ export function AdminVehicleLibraryForms({ brands, models, initialDocument }: Pr
   const [filePath, setFilePath] = useState(initialDocument?.file_path ?? "");
   const [fileName, setFileName] = useState(initialDocument?.file_name ?? "");
   const [fileSize, setFileSize] = useState(initialDocument?.file_size ?? 0);
-  const [imageUrl, setImageUrl] = useState("");
-  const [imagePath, setImagePath] = useState("");
+  const [imageUrl, setImageUrl] = useState(initialModel?.image_url ?? "");
+  const [imagePath, setImagePath] = useState(initialModel?.image_path ?? "");
 
   useEffect(() => {
     function handleDocument(event: Event) {
@@ -87,24 +88,45 @@ export function AdminVehicleLibraryForms({ brands, models, initialDocument }: Pr
         </form>
       </section>
 
-      <section className="vehicle-admin-form-card">
-        <div className="vehicle-admin-form-card__heading"><CarFront size={21} /><div><span>ETAPA 2</span><h3>Cadastrar veículo</h3></div></div>
+      <section className="vehicle-admin-form-card" id="vehicle-model-form">
+        <div className="vehicle-admin-form-card__heading">
+          <CarFront size={21} />
+          <div><span>ETAPA 2</span><h3>{initialModel ? "Editar veículo" : "Cadastrar veículo"}</h3></div>
+        </div>
         <form className="admin-form" action={modelAction}>
+          <input type="hidden" name="modelId" value={initialModel?.id ?? ""} />
           <input type="hidden" name="imagePath" value={imagePath} />
-          <label><span>Marca</span><select name="brandId" required defaultValue=""><option value="">Selecione</option>{brands.map((brand) => <option value={brand.id} key={brand.id}>{brand.name}</option>)}</select></label>
+          <label>
+            <span>Marca</span>
+            <select name="brandId" required defaultValue={initialModel?.brand_id ?? ""}>
+              <option value="">Selecione</option>
+              {brands.map((brand) => <option value={brand.id} key={brand.id}>{brand.name}</option>)}
+            </select>
+          </label>
           <div className="admin-form__grid admin-form__grid--wide">
-            <label><span>Nome do veículo</span><input name="name" placeholder="Dolphin, EX2, Ora 03..." required /></label>
-            <label><span>Slug opcional</span><input name="slug" placeholder="Gerado automaticamente" /></label>
+            <label><span>Nome do veículo</span><input name="name" defaultValue={initialModel?.name ?? ""} placeholder="Dolphin, EX2, Ora 03..." required /></label>
+            <label><span>Slug opcional</span><input name="slug" defaultValue={initialModel?.slug ?? ""} placeholder="Gerado automaticamente" /></label>
           </div>
           <div className="admin-form__grid admin-form__grid--wide">
-            <label><span>Imagem do veículo</span><input name="imageUrl" value={imageUrl} onChange={(event) => setImageUrl(event.target.value)} placeholder="Uploader acima ou URL" /></label>
-            <label><span>Ordem</span><input name="sortOrder" type="number" min="0" defaultValue="100" /></label>
+            <label><span>Imagem do veículo</span><input name="imageUrl" value={imageUrl} onChange={(event) => { setImageUrl(event.target.value); if (event.target.value !== (initialModel?.image_url ?? "")) setImagePath(""); }} placeholder="Uploader acima ou URL" /></label>
+            <label><span>Ordem</span><input name="sortOrder" type="number" min="0" defaultValue={initialModel?.sort_order ?? 100} /></label>
           </div>
-          <label className="admin-checkbox"><input name="isPublished" type="checkbox" defaultChecked /><span>Veículo publicado</span></label>
+          {imageUrl ? (
+            <div className="vehicle-admin-image-preview">
+              <img src={imageUrl} alt={`Imagem atual de ${initialModel?.name ?? "veículo"}`} />
+              <span>A imagem atual será mantida até você enviar ou informar outra.</span>
+            </div>
+          ) : null}
+          <label className="admin-checkbox"><input name="isPublished" type="checkbox" defaultChecked={initialModel?.is_published ?? true} /><span>Veículo publicado</span></label>
           {modelState.error ? <p className="auth-message auth-message--error">{modelState.error}</p> : null}
           {modelState.success ? <p className="auth-message auth-message--success">{modelState.success}</p> : null}
           {!brands.length ? <p className="auth-message auth-message--warning">Cadastre uma marca antes do veículo.</p> : null}
-          <button className="button button--primary" disabled={modelPending || !brands.length} type="submit"><Save size={17} /> {modelPending ? "Salvando..." : "Salvar veículo"}</button>
+          <div className="admin-inline-actions">
+            <button className="button button--primary" disabled={modelPending || !brands.length} type="submit">
+              <Save size={17} /> {modelPending ? "Salvando..." : initialModel ? "Salvar alterações" : "Salvar veículo"}
+            </button>
+            {initialModel ? <a className="button button--secondary" href="/admin/manuais#vehicle-model-form">Cancelar edição</a> : null}
+          </div>
         </form>
       </section>
 

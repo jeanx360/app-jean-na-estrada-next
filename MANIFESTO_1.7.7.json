@@ -1,0 +1,76 @@
+{
+  "version": "1.7.7",
+  "migration_required": false,
+  "files": [
+    {
+      "path": "ALTERACOES_1.7.7.md",
+      "sha256": "20fd7bbc7ca265e06473e8260a4600a87b2dff90e588e5d08db7b5656a96ea1d",
+      "bytes": 1495
+    },
+    {
+      "path": "INSTALACAO_1.7.7.md",
+      "sha256": "056f6adc355f5244a1015a92ccc79c05b96bcf117458f2202a219645793784a6",
+      "bytes": 386
+    },
+    {
+      "path": "TESTES_1.7.7.md",
+      "sha256": "2826556bf5527d0476dd537968b46c0dec14fc880c683e905a608671d7bb77c1",
+      "bytes": 1234
+    },
+    {
+      "path": "package-lock.json",
+      "sha256": "f642445b0e94eac913f9009acc406b0f00cb3d204107d340863c0c14e1b9c554",
+      "bytes": 78871
+    },
+    {
+      "path": "package.json",
+      "sha256": "39523b62f8800fa81d5abea7a054d1469508f381f8890450e588ff76925101a4",
+      "bytes": 1012
+    },
+    {
+      "path": "public/sw.js",
+      "sha256": "8de22c17b23fccd470fa5a6e7e902d8371a1c7246f25d28a0b43340ff5744804",
+      "bytes": 5020
+    },
+    {
+      "path": "src/app/admin/manuais/actions.ts",
+      "sha256": "d6476a6641648959cfa45c2b1f753365096b06fcff198f6409494c0a68435a8d",
+      "bytes": 8647
+    },
+    {
+      "path": "src/app/admin/manuais/page.tsx",
+      "sha256": "fa51a7753ddb461a94eb41b072bfa4a478b0858798e70ec0fb513c397ca99c56",
+      "bytes": 8953
+    },
+    {
+      "path": "src/app/admin/publicacoes/page.tsx",
+      "sha256": "6c29f939836366f187e509d72478e3b042dcb142c65ef5151571ce7ee3a036ef",
+      "bytes": 5630
+    },
+    {
+      "path": "src/app/api/health/route.ts",
+      "sha256": "5093540555a06a4650f1497d69e1236b6c86ffcc596bd3e83d7bc33ad7542fa0",
+      "bytes": 956
+    },
+    {
+      "path": "src/app/aplicativos/page.tsx",
+      "sha256": "cc79b9c187df5161c9029137762e9ee40d41f3ebc44ae1b22868edc7387f5268",
+      "bytes": 6565
+    },
+    {
+      "path": "src/app/globals.css",
+      "sha256": "7d90dd922a568fde95c870d3b59d7e4c4f0f160ae8f74fd80aa53ac945f59b52",
+      "bytes": 300325
+    },
+    {
+      "path": "src/components/AdminPublicContentForm.tsx",
+      "sha256": "b0a78322bee7dd6dd588355243f3846c02942de7447b2d8ff895437cd77b9cc0",
+      "bytes": 12297
+    },
+    {
+      "path": "src/components/AdminVehicleLibraryForms.tsx",
+      "sha256": "f26b72353ad150378bdd224074a73502a48e300ad307fe30c345496cf230a1d4",
+      "bytes": 12254
+    }
+  ]
+}

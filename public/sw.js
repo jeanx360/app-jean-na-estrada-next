@@ -1,4 +1,4 @@
-const CACHE_VERSION = "jne-app-v1.7.6";
+const CACHE_VERSION = "jne-app-v1.7.7";
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const DATA_CACHE = `${CACHE_VERSION}-data`;
 
@@ -130,7 +130,6 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(staticCacheFirst(request));
   }
 });
-
 
 self.addEventListener("push", (event) => {
   let payload = {};

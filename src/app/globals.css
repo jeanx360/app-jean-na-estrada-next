@@ -11458,3 +11458,89 @@ button {
     justify-content: flex-start;
   }
 }
+
+/* =========================================================
+   JNE APP 1.7.7 — CARDS DE APPS E EDIÇÃO DE VEÍCULOS
+   ========================================================= */
+.apps-grid {
+  align-items: start;
+}
+
+.app-card {
+  min-height: 0;
+  overflow: hidden;
+  padding: 0;
+}
+
+.app-card--complete {
+  gap: 0;
+}
+
+.app-card--with-banner {
+  grid-column: 1 / -1;
+  box-shadow: 0 22px 60px var(--shadow-color);
+}
+
+.app-card__banner {
+  overflow: hidden;
+  border-bottom: 1px solid var(--line);
+  background: #050505;
+}
+
+.app-card__banner img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 2 / 1;
+  object-fit: cover;
+}
+
+.app-card__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 14px;
+  padding: 22px;
+}
+
+.app-card__body > p {
+  margin: 0;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.vehicle-admin-image-preview {
+  display: grid;
+  gap: 9px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface-strong);
+}
+
+.vehicle-admin-image-preview img {
+  display: block;
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.vehicle-admin-image-preview span {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+@media (max-width: 760px) {
+  .app-card {
+    padding: 0;
+  }
+
+  .app-card__body {
+    padding: 18px;
+  }
+
+  .app-card--with-banner {
+    grid-column: auto;
+  }
+}
