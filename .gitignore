@@ -44,3 +44,12 @@ next-env.d.ts
 .vercel
 .next
 node_modules
+# JNE local and generated files
+.next/
+.vercel/
+node_modules/
+.env.local
+build-log.txt
+JNE-App-Recuperacao/
+JNE-*-ATUAL.txt
+*.zip
