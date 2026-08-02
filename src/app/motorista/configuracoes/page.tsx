@@ -19,7 +19,7 @@ export default async function DriverSettingsPage() {
 
   return (
     <div className="page-stack driver-page">
-      <PageHeader icon={<Settings2 size={24} />} eyebrow="MOTORISTA PROFISSIONAL" title="Seus valores padrão" description="Configure uma vez e use esses parâmetros como ponto de partida em novos orçamentos." />
+      <PageHeader icon={<Settings2 size={24} />} eyebrow="MOTORISTA PROFISSIONAL" title="Valores e agenda" description="Configure valores, duração padrão das reservas e intervalo necessário entre corridas." />
       <DriverSettingsForm userId={userId} initialSettings={settings} />
     </div>
   );

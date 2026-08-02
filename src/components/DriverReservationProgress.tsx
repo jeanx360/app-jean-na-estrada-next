@@ -6,6 +6,7 @@ const stages: Array<{ status: DriverReservationStatus; label: string }> = [
   { status: "negotiating", label: "Negociação" },
   { status: "quoted", label: "Orçamento" },
   { status: "confirmed", label: "Confirmada" },
+  { status: "in_progress", label: "Em andamento" },
   { status: "completed", label: "Concluída" },
 ];
 
@@ -14,7 +15,8 @@ const stageIndex: Record<DriverReservationStatus, number> = {
   negotiating: 1,
   quoted: 2,
   confirmed: 3,
-  completed: 4,
+  in_progress: 4,
+  completed: 5,
   cancelled: -1,
   declined: -1,
 };

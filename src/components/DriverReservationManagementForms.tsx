@@ -32,6 +32,10 @@ export function DriverReservationManagementForms({ reservation, compact = false 
               <span>Novo horário (24h)</span>
               <input type="time" name="travelTime" lang="pt-BR" defaultValue={reservation.travel_time?.slice(0, 5) ?? ""} />
             </label>
+            <label>
+              <span>Duração prevista (min)</span>
+              <input type="number" name="durationMinutes" min={15} max={720} step={15} defaultValue={reservation.duration_minutes || 60} required />
+            </label>
             <button className="button button--primary button--compact" type="submit"><Save size={16} /> Salvar remarcação</button>
           </form>
         </details>

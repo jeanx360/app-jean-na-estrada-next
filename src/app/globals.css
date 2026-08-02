@@ -13187,3 +13187,126 @@ button {
     transition: none;
   }
 }
+
+/* JNE App 1.14.0 - agenda e reservas avancadas */
+.driver-reservation-badge--in_progress,
+.driver-calendar-dot--in_progress { background: rgba(168, 85, 247, .15); color: #d8b4fe; }
+.driver-reservation-card--in_progress { border-color: rgba(168, 85, 247, .35); }
+.driver-reservation-progress { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.driver-reservation-detail-nav { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.driver-reservation-detail-nav .text-link { display: inline-flex; align-items: center; gap: 6px; }
+.driver-schedule-view-nav { display: flex; flex-wrap: wrap; gap: 10px; }
+.driver-schedule-view-nav .button { min-height: 42px; }
+.driver-schedule-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.driver-schedule-summary article { display: grid; gap: 7px; padding: 17px; border: 1px solid var(--line); border-radius: 16px; background: var(--card); }
+.driver-schedule-summary span { color: var(--muted); font-size: .74rem; font-weight: 800; text-transform: uppercase; }
+.driver-schedule-summary strong { font-size: 1.65rem; }
+.driver-calendar-shell { overflow: hidden; border: 1px solid var(--line); border-radius: 20px; background: var(--card); }
+.driver-calendar-header { display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; gap: 12px; padding: 17px 18px; border-bottom: 1px solid var(--line); }
+.driver-calendar-header > a { display: grid; width: 42px; height: 42px; place-items: center; border: 1px solid var(--line); border-radius: 12px; color: var(--text); }
+.driver-calendar-header > div { text-align: center; }
+.driver-calendar-header span { color: var(--muted); font-size: .66rem; font-weight: 900; letter-spacing: .09em; }
+.driver-calendar-header h2 { margin: 3px 0 0; font-size: 1.25rem; text-transform: capitalize; }
+.driver-calendar-weekdays { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); border-bottom: 1px solid var(--line); background: var(--surface-soft); }
+.driver-calendar-weekdays span { padding: 10px 4px; color: var(--muted); font-size: .68rem; font-weight: 900; text-align: center; text-transform: uppercase; }
+.driver-calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.driver-calendar-day { position: relative; display: grid; min-height: 86px; align-content: space-between; gap: 8px; padding: 10px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); color: var(--text); transition: background .15s ease, box-shadow .15s ease; }
+.driver-calendar-day:nth-child(7n) { border-right: 0; }
+.driver-calendar-day:hover { background: rgb(var(--accent-rgb) / .07); }
+.driver-calendar-day.is-outside { opacity: .38; }
+.driver-calendar-day.is-selected { background: rgb(var(--accent-rgb) / .12); box-shadow: inset 0 0 0 2px rgb(var(--accent-rgb) / .45); }
+.driver-calendar-day.is-today .driver-calendar-day__number { display: grid; width: 27px; height: 27px; place-items: center; border-radius: 999px; background: var(--accent); color: white; }
+.driver-calendar-day__number { font-size: .82rem; font-weight: 900; }
+.driver-calendar-day__events { display: flex; flex-wrap: wrap; gap: 4px; }
+.driver-calendar-day > small { position: absolute; top: 9px; right: 9px; color: var(--muted); font-size: .64rem; font-weight: 900; }
+.driver-calendar-dot { width: 7px; height: 7px; border-radius: 999px; background: #94a3b8; }
+.driver-calendar-dot--new { background: #fb7185; }
+.driver-calendar-dot--negotiating { background: #fbbf24; }
+.driver-calendar-dot--quoted { background: #60a5fa; }
+.driver-calendar-dot--confirmed { background: #4ade80; }
+.driver-calendar-dot--in_progress { background: #c084fc; }
+.driver-calendar-dot--completed { background: #22c55e; }
+.driver-calendar-dot--cancelled,
+.driver-calendar-dot--declined { background: #64748b; }
+.driver-calendar-dot--block { width: 12px; border-radius: 3px; background: #f97316; }
+.driver-schedule-day { display: grid; gap: 17px; }
+.driver-schedule-day__heading { display: flex; align-items: end; justify-content: space-between; gap: 18px; }
+.driver-schedule-day__heading h2,
+.driver-schedule-day__heading p { margin: 0; }
+.driver-schedule-day__heading h2 { margin-top: 4px; text-transform: capitalize; }
+.driver-schedule-day__heading p { margin-top: 5px; color: var(--text-soft); }
+.driver-schedule-day__grid { display: grid; grid-template-columns: minmax(0, 1fr) 360px; align-items: start; gap: 18px; }
+.driver-schedule-timeline { display: grid; gap: 11px; }
+.driver-schedule-entry { display: grid; grid-template-columns: 115px minmax(0, 1fr) auto; align-items: center; gap: 15px; padding: 16px; border: 1px solid var(--line); border-radius: 16px; background: var(--card); color: var(--text); }
+.driver-schedule-entry:hover { border-color: rgb(var(--accent-rgb) / .38); }
+.driver-schedule-entry__time { display: grid; gap: 4px; color: var(--text-soft); }
+.driver-schedule-entry__time svg { color: var(--accent); }
+.driver-schedule-entry__time strong { font-size: .9rem; }
+.driver-schedule-entry__time small { color: var(--muted); font-size: .7rem; }
+.driver-schedule-entry__body { display: grid; gap: 5px; min-width: 0; }
+.driver-schedule-entry__body h3,
+.driver-schedule-entry__body p { margin: 0; }
+.driver-schedule-entry__body h3 { font-size: 1rem; }
+.driver-schedule-entry__body p,
+.driver-schedule-entry__body small { display: flex; align-items: center; gap: 5px; color: var(--text-soft); }
+.driver-schedule-entry__body .driver-reservation-badge { width: fit-content; }
+.driver-schedule-entry--block { border-color: rgba(249, 115, 22, .3); background: linear-gradient(135deg, rgba(154, 52, 18, .12), var(--card)); }
+.driver-schedule-entry--block .driver-schedule-entry__time svg,
+.driver-schedule-entry--block .driver-schedule-entry__body > span { color: #fdba74; }
+.driver-schedule-entry__delete { display: grid; width: 38px; height: 38px; place-items: center; border: 1px solid rgba(248, 113, 113, .28); border-radius: 10px; background: rgba(127, 29, 29, .12); color: #fca5a5; cursor: pointer; }
+.driver-schedule-day__aside { position: sticky; top: calc(var(--header-height) + 18px); display: grid; gap: 14px; }
+.driver-schedule-block-form,
+.driver-schedule-rules-card { display: grid; gap: 15px; padding: 20px; border: 1px solid var(--line); border-radius: 18px; background: var(--card); }
+.driver-schedule-block-form__heading { display: flex; align-items: flex-start; gap: 12px; }
+.driver-schedule-block-form__heading > svg { flex: 0 0 auto; color: #fb923c; }
+.driver-schedule-block-form h2,
+.driver-schedule-block-form p,
+.driver-schedule-rules-card h2,
+.driver-schedule-rules-card p { margin: 0; }
+.driver-schedule-block-form p,
+.driver-schedule-rules-card p { margin-top: 5px; color: var(--text-soft); line-height: 1.5; }
+.driver-schedule-block-form__grid { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; }
+.driver-schedule-block-form__grid label { display: grid; gap: 6px; }
+.driver-schedule-block-form__grid label > span { color: var(--muted); font-size: .72rem; font-weight: 800; }
+.driver-schedule-block-form__grid input,
+.driver-schedule-block-form__grid textarea { width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--input); color: var(--text); }
+.driver-schedule-block-form__toggle,
+.driver-schedule-block-form__notes { grid-column: 1 / -1; }
+.driver-schedule-block-form__toggle { display: flex !important; grid-template-columns: auto 1fr; align-items: center; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-soft); }
+.driver-schedule-block-form__toggle input { width: 18px; min-height: 18px; }
+.driver-schedule-block-form__footer { display: flex; align-items: center; gap: 7px; color: var(--muted); font-size: .72rem; }
+.driver-schedule-block-form__footer .button { margin-left: auto; }
+.driver-schedule-rules-card dl { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin: 0; }
+.driver-schedule-rules-card dl div { padding: 12px; border-radius: 12px; background: var(--surface-soft); }
+.driver-schedule-rules-card dt { color: var(--muted); font-size: .7rem; }
+.driver-schedule-rules-card dd { margin: 5px 0 0; font-weight: 900; }
+.driver-schedule-day-empty { display: grid; justify-items: center; gap: 7px; padding: 50px 20px; border: 1px dashed var(--line); border-radius: 18px; color: var(--muted); text-align: center; }
+.driver-schedule-day-empty strong { color: var(--text); }
+.driver-schedule-day-empty p { margin: 0; }
+
+@media (max-width: 900px) {
+  .driver-schedule-day__grid { grid-template-columns: 1fr; }
+  .driver-schedule-day__aside { position: static; }
+  .driver-schedule-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 640px) {
+  .driver-reservation-progress { grid-template-columns: repeat(6, minmax(54px, 1fr)); overflow-x: auto; }
+  .driver-reservation-progress li small { white-space: nowrap; }
+  .driver-reservation-detail-nav,
+  .driver-schedule-day__heading { align-items: stretch; flex-direction: column; }
+  .driver-schedule-view-nav { display: grid; grid-template-columns: 1fr; }
+  .driver-schedule-summary { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .driver-schedule-summary article { padding: 13px; }
+  .driver-calendar-day { min-height: 62px; padding: 7px; }
+  .driver-calendar-day__events { gap: 3px; }
+  .driver-calendar-day > small { display: none; }
+  .driver-calendar-weekdays span { font-size: .6rem; }
+  .driver-schedule-entry { grid-template-columns: 82px minmax(0, 1fr) auto; padding: 13px; gap: 10px; }
+  .driver-schedule-entry__body p { display: -webkit-box; overflow: hidden; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .driver-schedule-block-form__grid { grid-template-columns: 1fr; }
+  .driver-schedule-block-form__toggle,
+  .driver-schedule-block-form__notes { grid-column: 1; }
+  .driver-schedule-block-form__footer { align-items: stretch; flex-direction: column; }
+  .driver-schedule-block-form__footer .button { width: 100%; margin-left: 0; }
+}

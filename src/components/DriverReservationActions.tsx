@@ -12,7 +12,8 @@ function suggestedNext(status: DriverReservationStatus, hasQuote: boolean, hasTr
   if (status === "new") return { status: "negotiating", label: "Iniciar atendimento" };
   if (status === "negotiating" && hasQuote) return { status: "quoted", label: "Marcar orçamento enviado" };
   if (status === "quoted") return { status: "confirmed", label: "Confirmar corrida" };
-  if (status === "confirmed" && hasTrip) return { status: "completed", label: "Marcar como concluída" };
+  if (status === "confirmed") return { status: "in_progress", label: "Iniciar corrida" };
+  if (status === "in_progress" && hasTrip) return { status: "completed", label: "Marcar como concluída" };
   return null;
 }
 

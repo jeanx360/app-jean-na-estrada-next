@@ -47,6 +47,7 @@ async function requireOwnedReservation(reservationId: string) {
 function revalidateDriverReservationPaths(reservationId: string) {
   revalidatePath("/motorista");
   revalidatePath("/motorista/reservas");
+  revalidatePath("/motorista/agenda");
   revalidatePath(`/motorista/reservas/${reservationId}`);
   revalidatePath("/motorista/orcamentos");
   revalidatePath("/motorista/financeiro");
@@ -56,6 +57,7 @@ export async function rescheduleDriverReservationAction(formData: FormData) {
   const reservationId = readText(formData, "reservationId");
   const travelDate = readText(formData, "travelDate");
   const travelTime = readText(formData, "travelTime");
+  const durationMinutes = Math.max(15, Math.min(720, Number(readText(formData, "durationMinutes")) || 60));
 
   if (!reservationId) throw new Error("Reserva inválida.");
   if (!validDateInput(travelDate)) throw new Error("Informe uma data válida.");
@@ -66,11 +68,26 @@ export async function rescheduleDriverReservationAction(formData: FormData) {
     throw new Error("Uma reserva encerrada não pode ser remarcada.");
   }
 
+  const admin = createAdminClient();
+  if (travelTime) {
+    const { data: conflicts, error: conflictError } = await admin.rpc("driver_schedule_conflicts", {
+      p_driver_user_id: userId,
+      p_travel_date: travelDate,
+      p_travel_time: travelTime,
+      p_duration_minutes: durationMinutes,
+      p_exclude_reservation_id: reservationId,
+    });
+    if (conflictError) throw new Error(conflictError.message);
+    const conflict = Array.isArray(conflicts) ? conflicts[0] as { conflict_label?: string } | undefined : undefined;
+    if (conflict) throw new Error(`Este horario conflita com ${conflict.conflict_label || "outro compromisso"}. Escolha outro horario.`);
+  }
+
   const { error } = await supabase
     .from("driver_reservations")
     .update({
       travel_date: travelDate,
       travel_time: travelTime || null,
+      duration_minutes: durationMinutes,
       updated_at: new Date().toISOString(),
     })
     .eq("id", reservationId)
@@ -78,7 +95,6 @@ export async function rescheduleDriverReservationAction(formData: FormData) {
 
   if (error) throw new Error(error.message);
 
-  const admin = createAdminClient();
   if (reservation.quote_id) {
     const { error: quoteError } = await admin
       .from("driver_quotes")
@@ -169,13 +185,14 @@ export async function duplicateDriverReservationAction(formData: FormData) {
       passenger_phone: reservation.passenger_phone,
       origin: reservation.origin,
       destination: reservation.destination,
-      travel_date: reservation.travel_date,
-      travel_time: reservation.travel_time,
+      travel_date: null,
+      travel_time: null,
       trip_type: reservation.trip_type,
       passengers: reservation.passengers,
       luggage: reservation.luggage,
       notes: reservation.notes,
       status: "negotiating",
+      duration_minutes: reservation.duration_minutes || 60,
       source: reservation.source,
       quote_id: null,
       request_fingerprint_hash: null,
@@ -189,5 +206,6 @@ export async function duplicateDriverReservationAction(formData: FormData) {
   if (error) throw new Error(error.message);
   revalidatePath("/motorista");
   revalidatePath("/motorista/reservas");
+  revalidatePath("/motorista/agenda");
   redirect(`/motorista/reservas/${data.id}`);
 }

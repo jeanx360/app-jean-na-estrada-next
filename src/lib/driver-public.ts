@@ -9,6 +9,7 @@ export type DriverReservationStatus =
   | "negotiating"
   | "quoted"
   | "confirmed"
+  | "in_progress"
   | "completed"
   | "cancelled"
   | "declined";
@@ -67,6 +68,9 @@ export type DriverReservation = {
   luggage: string | null;
   notes: string | null;
   status: DriverReservationStatus;
+  duration_minutes: number;
+  started_at: string | null;
+  completed_at: string | null;
   source: DriverMarketingSource;
   campaign_id: string | null;
   customer_id: string | null;
@@ -99,10 +103,11 @@ export const DRIVER_PRICING_LABELS: Record<DriverPricingType, string> = {
 };
 
 export const DRIVER_RESERVATION_STATUS_LABELS: Record<DriverReservationStatus, string> = {
-  new: "Nova solicitação",
-  negotiating: "Em negociação",
+  new: "Solicitada",
+  negotiating: "Aguardando confirmação",
   quoted: "Orçamento enviado",
   confirmed: "Confirmada",
+  in_progress: "Em andamento",
   completed: "Concluída",
   cancelled: "Cancelada",
   declined: "Recusada",

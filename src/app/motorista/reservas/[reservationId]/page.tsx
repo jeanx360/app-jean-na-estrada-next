@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, Calculator, CalendarDays, ContactRound, FileText, Luggage, MapPin, MessageCircle, Phone, ReceiptText, Users, WalletCards } from "lucide-react";
+import { ArrowLeft, Calculator, CalendarDays, ContactRound, FileText, Luggage, MapPin, MessageCircle, Phone, ReceiptText, Timer, Users, WalletCards } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
 import { DriverReservationActions } from "@/components/DriverReservationActions";
 import { DriverReservationProgress } from "@/components/DriverReservationProgress";
@@ -10,6 +10,7 @@ import { getAuthContext } from "@/lib/auth";
 import { formatCurrency, type DriverQuote, type DriverTrip } from "@/lib/driver";
 import { DRIVER_RESERVATION_STATUS_LABELS, reservationWhatsAppUrl, type DriverReservation } from "@/lib/driver-public";
 import { formatBrazilDate, formatBrazilTime } from "@/lib/date-time";
+import { durationLabel } from "@/lib/driver-schedule";
 
 export const metadata: Metadata = { title: "Solicitação de corrida" };
 export const dynamic = "force-dynamic";
@@ -36,7 +37,7 @@ export default async function DriverReservationDetailPage({ params }: Props) {
 
   return (
     <div className="page-stack driver-page">
-      <Link className="text-link driver-back-link" href="/motorista/reservas"><ArrowLeft size={17} /> Voltar às reservas</Link>
+      <div className="driver-reservation-detail-nav"><Link className="text-link driver-back-link" href="/motorista/reservas"><ArrowLeft size={17} /> Voltar às reservas</Link><Link className="text-link" href={`/motorista/agenda?month=${(reservation.travel_date || new Date().toISOString().slice(0, 7)).slice(0, 7)}&day=${reservation.travel_date || new Date().toISOString().slice(0, 10)}`}><CalendarDays size={17} /> Ver na agenda</Link></div>
       <PageHeader icon={<CalendarDays size={24} />} eyebrow={DRIVER_RESERVATION_STATUS_LABELS[reservation.status].toUpperCase()} title={reservation.passenger_name} description={route} />
       <DriverReservationProgress status={reservation.status} />
 
@@ -47,6 +48,7 @@ export default async function DriverReservationDetailPage({ params }: Props) {
             <dl>
               <div><dt><CalendarDays size={17} /> Data e horário</dt><dd>{reservation.travel_date ? formatBrazilDate(reservation.travel_date) : "A combinar"}{reservation.travel_time ? ` às ${formatBrazilTime(reservation.travel_time)}` : ""}</dd></div>
               <div><dt><Users size={17} /> Passageiros</dt><dd>{reservation.passengers}</dd></div>
+              <div><dt><Timer size={17} /> Duração prevista</dt><dd>{durationLabel(reservation.duration_minutes || 60)}</dd></div>
               <div><dt><Phone size={17} /> WhatsApp</dt><dd>{reservation.passenger_phone}</dd></div>
               <div><dt><Luggage size={17} /> Bagagens</dt><dd>{reservation.luggage || "Não informado"}</dd></div>
             </dl>

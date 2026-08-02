@@ -27,6 +27,8 @@ export type DriverSettings = {
   waiting_hour_rate: number;
   maintenance_reserve_percent: number;
   rounding_step: number;
+  schedule_buffer_minutes: number;
+  default_reservation_duration_minutes: number;
   updated_at?: string;
 };
 
@@ -109,6 +111,8 @@ export const DEFAULT_DRIVER_SETTINGS: Omit<DriverSettings, "user_id"> = {
   waiting_hour_rate: 30,
   maintenance_reserve_percent: 10,
   rounding_step: 5,
+  schedule_buffer_minutes: 30,
+  default_reservation_duration_minutes: 60,
 };
 
 export const TRIP_TYPE_LABELS: Record<DriverTripType, string> = {

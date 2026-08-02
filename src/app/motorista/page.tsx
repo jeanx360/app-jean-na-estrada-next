@@ -83,8 +83,8 @@ export default async function DriverDashboardPage() {
     supabase.from("driver_trips").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(100),
     supabase.from("driver_public_profiles").select("*").eq("user_id", userId).maybeSingle(),
     supabase.from("driver_reservations").select("*").eq("driver_user_id", userId).order("created_at", { ascending: false }).limit(20),
-    supabase.from("driver_reservations").select("*, driver_service_packages(id,title,pricing_type,price)").eq("driver_user_id", userId).eq("status", "confirmed").not("travel_date", "is", null).gte("travel_date", saoPauloNow.date).order("travel_date", { ascending: true }).order("travel_time", { ascending: true }).limit(30),
-    supabase.from("driver_reservations").select("*, driver_service_packages(id,title,pricing_type,price)").eq("driver_user_id", userId).not("travel_date", "is", null).gte("travel_date", saoPauloNow.date).lte("travel_date", weekEndDate).in("status", ["new", "negotiating", "quoted", "confirmed"]).order("travel_date", { ascending: true }).order("travel_time", { ascending: true }).limit(50),
+    supabase.from("driver_reservations").select("*, driver_service_packages(id,title,pricing_type,price)").eq("driver_user_id", userId).in("status", ["confirmed", "in_progress"]).not("travel_date", "is", null).gte("travel_date", saoPauloNow.date).order("travel_date", { ascending: true }).order("travel_time", { ascending: true }).limit(30),
+    supabase.from("driver_reservations").select("*, driver_service_packages(id,title,pricing_type,price)").eq("driver_user_id", userId).not("travel_date", "is", null).gte("travel_date", saoPauloNow.date).lte("travel_date", weekEndDate).in("status", ["new", "negotiating", "quoted", "confirmed", "in_progress"]).order("travel_date", { ascending: true }).order("travel_time", { ascending: true }).limit(50),
     supabase.from("driver_profile_events").select("id", { count: "exact", head: true }).eq("driver_user_id", userId).eq("event_type", "profile_view").gte("created_at", new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()),
   ]);
 
@@ -132,12 +132,12 @@ export default async function DriverDashboardPage() {
             <span className="driver-quick-action__icon"><Calculator size={22} /></span>
             <span>Calcular viagem</span>
           </Link>
-          <Link className={`driver-quick-action${newReservations ? " has-alert" : ""}`} href="/motorista/reservas">
+          <Link className={`driver-quick-action${newReservations ? " has-alert" : ""}`} href="/motorista/agenda">
             <span className="driver-quick-action__icon">
               <CalendarDays size={22} />
               {newReservations ? <b className="driver-quick-action__badge">{newReservations > 99 ? "99+" : newReservations}</b> : null}
             </span>
-            <span>Agendamentos</span>
+            <span>Agenda</span>
           </Link>
           <Link className="driver-quick-action" href="/?modo=conteudo">
             <span className="driver-quick-action__icon"><Home size={22} /></span>
@@ -245,7 +245,7 @@ export default async function DriverDashboardPage() {
           <article className="driver-dashboard-card driver-dashboard-card--primary"><ContactRound size={26} /><div><h2>Meu cartão</h2><p>Foto, veículo, região, WhatsApp e informações profissionais.</p></div><Link className="button button--primary" href="/motorista/perfil-publico">Configurar</Link></article>
           <article className="driver-dashboard-card"><BriefcaseBusiness size={26} /><div><h2>Serviços e preços</h2><p>Pacotes fixos, por hora, “a partir de” ou sob consulta.</p></div><Link className="button button--secondary" href="/motorista/servicos">Gerenciar</Link></article>
           <article className="driver-dashboard-card"><QrCode size={26} /><div><h2>Links, QR e campanhas</h2><p>Crie divulgações rastreáveis para o veículo e suas redes sociais.</p></div><Link className="button button--secondary" href={publicProfile ? "/motorista/cartao" : "/motorista/perfil-publico"}>Abrir</Link></article>
-          <article className="driver-dashboard-card"><Inbox size={26} /><div><h2>Central de reservas</h2><p>Solicitações, negociação, orçamento e confirmação.</p></div><Link className="button button--secondary" href="/motorista/reservas">Ver reservas</Link></article>
+          <article className="driver-dashboard-card"><Inbox size={26} /><div><h2>Central de reservas</h2><p>Calendário, bloqueios, conflitos e confirmação.</p></div><Link className="button button--secondary" href="/motorista/agenda">Abrir agenda</Link></article>
         </div>
         {publicProfile?.is_published ? <div className="driver-profile-activity-strip"><span><strong>{profileViews ?? 0}</strong> visualizações nos últimos 30 dias</span><span><strong>{reservations.length}</strong> solicitações recentes</span><span><strong>{publicProfile.accepts_reservations ? "Ativo" : "Pausado"}</strong> recebimento de reservas</span></div> : null}
       </section>

@@ -127,6 +127,30 @@ export async function POST(request: Request) {
       selectedPackage = data;
     }
 
+    const { data: driverSettings } = await supabase
+      .from("driver_settings")
+      .select("default_reservation_duration_minutes")
+      .eq("user_id", profile.user_id)
+      .maybeSingle();
+    const durationMinutes = Math.max(15, Math.min(720, Number(driverSettings?.default_reservation_duration_minutes || 60)));
+
+    if (travelTime) {
+      const { data: conflicts, error: conflictError } = await supabase.rpc("driver_schedule_conflicts", {
+        p_driver_user_id: profile.user_id,
+        p_travel_date: travelDate,
+        p_travel_time: travelTime,
+        p_duration_minutes: durationMinutes,
+        p_exclude_reservation_id: null,
+      });
+      if (conflictError) {
+        console.warn("Falha ao validar agenda:", conflictError);
+        return NextResponse.json({ ok: false, error: "Nao foi possivel validar este horario agora." }, { status: 503 });
+      }
+      if (Array.isArray(conflicts) && conflicts.length) {
+        return NextResponse.json({ ok: false, error: "Esse horario nao esta disponivel. Escolha outro horario ou envie sem horario definido." }, { status: 409 });
+      }
+    }
+
     const requestHash = fingerprint(request, profile.user_id);
     const since = new Date(Date.now() - 10 * 60 * 1000).toISOString();
     const { count } = await supabase
@@ -154,6 +178,7 @@ export async function POST(request: Request) {
         passengers,
         luggage: luggage || null,
         notes: notes || null,
+        duration_minutes: durationMinutes,
         source: reservationSource,
         request_fingerprint_hash: requestHash,
         contact_consent: true,
@@ -162,6 +187,9 @@ export async function POST(request: Request) {
       .single();
 
     if (insertError || !reservation) {
+      if (insertError?.message?.includes("AGENDA_CONFLICT")) {
+        return NextResponse.json({ ok: false, error: "Esse horario acabou de ficar indisponivel. Escolha outro horario." }, { status: 409 });
+      }
       return NextResponse.json({ ok: false, error: "Não foi possível registrar a solicitação." }, { status: 500 });
     }
 

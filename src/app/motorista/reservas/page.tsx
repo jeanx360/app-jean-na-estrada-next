@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, CalendarDays, Filter, Inbox, MapPin, MessageCircle, RotateCcw, Search, Users } from "lucide-react";
+import { ArrowLeft, ArrowRight, CalendarDays, Filter, Inbox, LayoutList, MapPin, MessageCircle, RotateCcw, Search, Users } from "lucide-react";
 import { redirect } from "next/navigation";
 import { DriverReservationManagementForms } from "@/components/DriverReservationManagementForms";
 import { PageHeader } from "@/components/PageHeader";
@@ -81,6 +81,7 @@ export default async function DriverReservationsPage({ searchParams }: Props) {
     const searchable = [
       item.passenger_name,
       item.passenger_phone,
+      item.travel_date,
       item.origin,
       item.destination,
       item.driver_service_packages?.title,
@@ -91,7 +92,7 @@ export default async function DriverReservationsPage({ searchParams }: Props) {
   });
 
   const newCount = reservations.filter((item) => item.status === "new").length;
-  const activeCount = reservations.filter((item) => ["new", "negotiating", "quoted", "confirmed"].includes(item.status)).length;
+  const activeCount = reservations.filter((item) => ["new", "negotiating", "quoted", "confirmed", "in_progress"].includes(item.status)).length;
   const completedCount = reservations.filter((item) => item.status === "completed").length;
   const hasFilters = Boolean(query || status !== "all" || period !== "all");
 
@@ -99,6 +100,11 @@ export default async function DriverReservationsPage({ searchParams }: Props) {
     <div className="page-stack driver-page">
       <Link className="text-link driver-back-link" href="/motorista"><ArrowLeft size={17} /> Voltar ao painel</Link>
       <PageHeader icon={<Inbox size={24} />} eyebrow="MOTORISTA PROFISSIONAL" title="Central de agendamentos" description="Pesquise, filtre, remarque, duplique ou cancele solicitações sem perder o histórico do atendimento." />
+
+      <nav className="driver-schedule-view-nav" aria-label="Visualizacao de agendamentos">
+        <Link className="button button--secondary" href="/motorista/agenda"><CalendarDays size={17} /> Abrir calendario</Link>
+        <span className="button button--primary"><LayoutList size={17} /> Lista de reservas</span>
+      </nav>
 
       <section className="driver-reservation-summary">
         <article><span>Novas</span><strong>{newCount}</strong></article>
