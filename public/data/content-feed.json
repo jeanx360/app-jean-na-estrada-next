@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-01T19:00:04.311Z",
+  "generatedAt": "2026-08-02T00:37:30.283Z",
   "videos": [
     {
       "title": "Acendeu a luz do air-bag de seu dolphin? dale porrada! 🤣🤣🤣",
@@ -99,6 +99,14 @@
     }
   ],
   "news": [
+    {
+      "title": "Oferta: Chevrolet tem Onix por preço de Mobi e condições especiais para Tracker e Montana",
+      "description": "Ação comercial traz Onix por R$ 86.790, carência de 120 dias no SUV e taxa zero de juros para a picape",
+      "href": "https://motor1.uol.com.br/news/803426/oferta-chevrolet-financiamento-linha-julho/",
+      "publishedAt": "2026-08-01T22:19:06.000Z",
+      "source": "Motor1.com",
+      "image": "https://cdn.motor1.com/images/mgl/MkV2o4/s3/tracker-2026-primeira-imagem-oficial.jpg"
+    },
     {
       "title": "Carros elétricos superam modelos a combustão em satisfação dos donos",
       "description": "Estudo da J.D. Power mostra que veículos elétricos superam modelos a combustão em satisfação",
@@ -274,14 +282,6 @@
       "publishedAt": "2026-07-30T11:01:00.000Z",
       "source": "InsideEVs Brasil",
       "image": "https://cdn.motor1.com/images/mgl/XBzgAb/s3/leapmotor-b03---a05-hatch-eletrico-barato.jpg"
-    },
-    {
-      "title": "Nova Toyota Hilux é lançada na Índia; no Brasil, picape segue em testes com sistema híbrido-leve",
-      "description": "Nova geração atualiza visual e tecnologias, mas mantém conjunto mecânico intocado",
-      "href": "https://motor1.uol.com.br/news/803130/apresentacao-nova-toyota-hilux-india/",
-      "publishedAt": "2026-07-30T11:00:00.000Z",
-      "source": "Motor1.com",
-      "image": "https://cdn.motor1.com/images/mgl/BXZzmv/s3/flagra-nova-toyota-hilux-reestilizada.jpg"
     },
     {
       "title": "Mercedes-Benz revela GLA elétrico com até 657 km de autonomia; veja fotos",
