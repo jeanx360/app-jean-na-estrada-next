@@ -1,5 +1,13 @@
 export type DriverTripType = "outbound" | "return" | "round_trip";
-export type DriverQuoteStatus = "draft" | "sent" | "accepted" | "completed" | "cancelled";
+export type DriverQuoteStatus =
+  | "draft"
+  | "sent"
+  | "viewed"
+  | "accepted"
+  | "declined"
+  | "expired"
+  | "completed"
+  | "cancelled";
 export type DriverTripStatus = "planned" | "completed" | "cancelled";
 export type DriverPaymentStatus = "unpaid" | "partial" | "paid";
 export type DriverEntryType = "income" | "expense";
@@ -64,6 +72,25 @@ export type DriverQuote = {
   rounded_total: number;
   status: DriverQuoteStatus;
   notes: string | null;
+  customer_phone: string | null;
+  customer_id: string | null;
+  reservation_id: string | null;
+  public_token: string;
+  valid_until: string;
+  travel_time: string | null;
+  conditions: string | null;
+  line_items: Array<{ kind: string; label: string; amount: number }>;
+  view_count: number;
+  sent_at: string | null;
+  viewed_at: string | null;
+  responded_at: string | null;
+  accepted_at: string | null;
+  declined_at: string | null;
+  cancelled_at: string | null;
+  response_message: string | null;
+  version: number;
+  source: string | null;
+  campaign_id: string | null;
   created_at: string;
   updated_at: string;
 };

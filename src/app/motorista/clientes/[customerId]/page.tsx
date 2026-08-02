@@ -9,6 +9,7 @@ import {
   ContactRound,
   MapPin,
   MessageCircle,
+  FilePlus2,
   Phone,
   Route,
   WalletCards,
@@ -113,6 +114,9 @@ export default async function DriverCustomerDetailPage({ params }: Props) {
           <a className="button button--primary" href={driverCustomerWhatsAppUrl(customer)} target="_blank" rel="noreferrer">
             <MessageCircle size={18} /> Chamar no WhatsApp
           </a>
+          <Link className="button button--secondary" href={`/motorista/orcamentos/novo?customer=${customer.id}`}>
+            <FilePlus2 size={18} /> Novo orçamento
+          </Link>
         </div>
       </section>
 

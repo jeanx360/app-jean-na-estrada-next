@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, Calculator, CalendarDays, ContactRound, FileText, Luggage, MapPin, MessageCircle, Phone, ReceiptText, Timer, Users, WalletCards } from "lucide-react";
+import { ArrowLeft, CalendarDays, ContactRound, FileText, Luggage, MapPin, MessageCircle, Phone, ReceiptText, Timer, Users, WalletCards } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
 import { DriverReservationActions } from "@/components/DriverReservationActions";
 import { DriverReservationProgress } from "@/components/DriverReservationProgress";
@@ -33,7 +33,6 @@ export default async function DriverReservationDetailPage({ params }: Props) {
   const quote = quoteData as DriverQuote | null;
   const trip = tripData as DriverTrip | null;
   const route = [reservation.origin, reservation.destination].filter(Boolean).join(" → ") || reservation.driver_service_packages?.title || "Solicitação de corrida";
-  const calculatorQuery = new URLSearchParams({ reservation: reservation.id, customerName: reservation.passenger_name, origin: reservation.origin || "", destination: reservation.destination || "", travelDate: reservation.travel_date || "", tripType: reservation.trip_type, notes: reservation.notes || "" });
 
   return (
     <div className="page-stack driver-page">
@@ -56,7 +55,7 @@ export default async function DriverReservationDetailPage({ params }: Props) {
             <div className="driver-reservation-detail__primary-actions">
               <a className="button button--secondary" href={reservationWhatsAppUrl(reservation)} target="_blank" rel="noreferrer"><MessageCircle size={18} /> Conversar</a>
               {reservation.customer_id ? <Link className="button button--secondary" href={`/motorista/clientes/${reservation.customer_id}`}><ContactRound size={18} /> Ver cliente</Link> : null}
-              {!quote ? <Link className="button button--primary" href={`/motorista/calculadora?${calculatorQuery.toString()}`}><Calculator size={18} /> Criar orçamento</Link> : <Link className="button button--primary" href={`/motorista/orcamentos/${quote.id}`}><FileText size={18} /> Abrir orçamento</Link>}
+              {!quote ? <Link className="button button--primary" href={`/motorista/orcamentos/novo?reservation=${reservation.id}`}><FileText size={18} /> Criar orçamento</Link> : <Link className="button button--primary" href={`/motorista/orcamentos/${quote.id}`}><FileText size={18} /> Abrir orçamento</Link>}
             </div>
           </section>
 
