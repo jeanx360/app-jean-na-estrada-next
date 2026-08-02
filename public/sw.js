@@ -1,4 +1,4 @@
-const CACHE_VERSION = "jne-app-v1.7.7";
+const CACHE_VERSION = "jne-app-v1.8.0";
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const DATA_CACHE = `${CACHE_VERSION}-data`;
 
@@ -8,6 +8,11 @@ const PRECACHE = [
   "/data/content-feed.json",
   "/icons/app-icon-192.png",
   "/icons/app-icon-512.png",
+  "/icons/app-icon-maskable-512.png",
+  "/icons/apple-touch-icon.png",
+  "/icons/favicon-16x16.png",
+  "/icons/favicon-32x32.png",
+  "/favicon.ico",
 ];
 
 const PRIVATE_PREFIXES = [
