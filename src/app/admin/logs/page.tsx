@@ -5,7 +5,17 @@ import { formatBrazilDateTime } from "@/lib/date-time";
 
 export const metadata: Metadata = { title: "Logs administrativos" };
 
-const actionLabels: Record<string, string> = { INSERT: "Criação", UPDATE: "Alteração", DELETE: "Exclusão" };
+const actionLabels: Record<string, string> = {
+  INSERT: "Criação",
+  UPDATE: "Alteração",
+  DELETE: "Exclusão",
+  PUBLISH: "Publicação",
+  UNPUBLISH: "Retorno a rascunho",
+  ARCHIVE: "Arquivamento",
+  RESTORE: "Restauração",
+  DUPLICATE: "Duplicação",
+  REORDER: "Reordenação",
+};
 
 export default async function AdminLogsPage() {
   const { supabase } = await requireAdmin();

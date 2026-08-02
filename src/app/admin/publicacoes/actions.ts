@@ -3,8 +3,17 @@
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/admin";
 import { sendPushNotification } from "@/lib/push";
+import { createAdminClient } from "@/lib/supabase/admin";
 import type { NotificationCategory } from "@/types/notification";
-import type { PublicContentActionState, PublicContentType } from "@/types/public-content";
+import type {
+  PublicContentActionState,
+  PublicContentPublicationStatus,
+  PublicContentRow,
+  PublicContentType,
+} from "@/types/public-content";
+
+const PUBLIC_CONTENT_SELECT =
+  "id, content_type, title, slug, summary, category, image_url, image_path, external_url, metadata, publication_status, is_published, is_featured, sort_order, published_at, archived_at, created_at, updated_at";
 
 function readText(formData: FormData, key: string) {
   const value = formData.get(key);
@@ -13,6 +22,11 @@ function readText(formData: FormData, key: string) {
 
 function readBoolean(formData: FormData, key: string) {
   return formData.get(key) === "on" || formData.get(key) === "true";
+}
+
+function readPublicationStatus(formData: FormData): PublicContentPublicationStatus {
+  const value = readText(formData, "publicationStatus");
+  return value === "published" || value === "archived" ? value : "draft";
 }
 
 function slugify(value: string) {
@@ -117,6 +131,7 @@ function revalidatePublicPages(type?: PublicContentType) {
   revalidatePath("/");
   revalidatePath("/admin");
   revalidatePath("/admin/publicacoes");
+  revalidatePath("/admin/logs");
 
   const paths: Record<PublicContentType, string> = {
     tutorial: "/tutoriais",
@@ -127,6 +142,38 @@ function revalidatePublicPages(type?: PublicContentType) {
 
   if (type) revalidatePath(paths[type]);
   else Object.values(paths).forEach((path) => revalidatePath(path));
+}
+
+async function audit(
+  actorUserId: string,
+  action: string,
+  entityId: string,
+  oldData?: unknown,
+  newData?: unknown,
+) {
+  const admin = createAdminClient();
+  const { error } = await admin.from("admin_audit_logs").insert({
+    actor_user_id: actorUserId,
+    action,
+    entity_type: "public_contents",
+    entity_id: entityId,
+    old_data: oldData ?? null,
+    new_data: newData ?? null,
+  });
+
+  if (error) console.warn("Falha ao registrar auditoria de publicação:", error.message);
+}
+
+function statusDates(
+  status: PublicContentPublicationStatus,
+  previous?: Pick<PublicContentRow, "published_at" | "archived_at"> | null,
+) {
+  const now = new Date().toISOString();
+  return {
+    is_published: status === "published",
+    published_at: status === "published" ? previous?.published_at ?? now : null,
+    archived_at: status === "archived" ? previous?.archived_at ?? now : null,
+  };
 }
 
 export async function savePublicContentAction(
@@ -144,11 +191,12 @@ export async function savePublicContentAction(
   const imagePath = readText(formData, "imagePath");
   const requestedSlug = readText(formData, "slug");
   const sortOrder = Number(readText(formData, "sortOrder") || "100");
-  const isPublished = readBoolean(formData, "isPublished");
+  const publicationStatus = readPublicationStatus(formData);
   const isFeatured = readBoolean(formData, "isFeatured");
   const notifyUsers = readBoolean(formData, "notifyUsers");
   const sendPush = readBoolean(formData, "sendPush");
 
+  if (!userId) return { error: "Sessão administrativa inválida." };
   if (!["tutorial", "application", "partner", "product"].includes(type)) {
     return { error: "Tipo de publicação inválido." };
   }
@@ -175,6 +223,18 @@ export async function savePublicContentAction(
     return { error: error instanceof Error ? error.message : "Dados específicos inválidos." };
   }
 
+  let previous: PublicContentRow | null = null;
+  if (contentId) {
+    const { data, error } = await supabase
+      .from("public_contents")
+      .select(PUBLIC_CONTENT_SELECT)
+      .eq("id", contentId)
+      .maybeSingle();
+    if (error) return { error: `Não foi possível carregar a publicação: ${error.message}` };
+    if (!data) return { error: "Publicação não encontrada." };
+    previous = data as PublicContentRow;
+  }
+
   const payload = {
     content_type: type,
     title,
@@ -185,25 +245,27 @@ export async function savePublicContentAction(
     image_path: imagePath || null,
     external_url: type === "tutorial" || (type === "application" && applicationDelivery === "upload") ? null : externalUrl,
     metadata,
-    is_published: isPublished,
+    publication_status: publicationStatus,
+    ...statusDates(publicationStatus, previous),
     is_featured: isFeatured,
     sort_order: sortOrder,
-    published_at: isPublished ? new Date().toISOString() : null,
-    created_by: userId,
   };
 
   const query = contentId
     ? supabase.from("public_contents").update(payload).eq("id", contentId)
-    : supabase.from("public_contents").insert(payload);
+    : supabase.from("public_contents").insert({ ...payload, created_by: userId });
 
-  const { error } = await query;
+  const { data: saved, error } = await query.select(PUBLIC_CONTENT_SELECT).single();
   if (error) {
     if (error.code === "23505") return { error: "Já existe uma publicação usando esse identificador." };
     return { error: `Não foi possível salvar: ${error.message}` };
   }
 
+  const savedItem = saved as PublicContentRow;
+  await audit(userId, contentId ? "UPDATE" : "INSERT", savedItem.id, previous, savedItem);
+
   let notificationMessage = "";
-  if (!contentId && isPublished && (notifyUsers || sendPush)) {
+  if (!contentId && publicationStatus === "published" && (notifyUsers || sendPush)) {
     const categoryByType: Record<PublicContentType, NotificationCategory> = {
       tutorial: "tutorials",
       application: "apps",
@@ -277,53 +339,188 @@ export async function savePublicContentAction(
   revalidatePublicPages(type);
   revalidatePath("/notificacoes");
   revalidatePath("/admin/notificacoes");
-  const baseMessage = contentId ? "Publicação atualizada." : isPublished ? "Publicação criada e publicada." : "Rascunho salvo.";
+
+  const baseMessage = contentId
+    ? "Publicação atualizada."
+    : publicationStatus === "published"
+      ? "Publicação criada e publicada."
+      : publicationStatus === "archived"
+        ? "Publicação criada e arquivada."
+        : "Rascunho salvo.";
+
   return { success: `${baseMessage}${notificationMessage}` };
 }
 
-export async function togglePublicContentAction(formData: FormData) {
-  const { supabase } = await requireAdmin();
+export async function setPublicContentStatusAction(formData: FormData) {
+  const { supabase, userId } = await requireAdmin();
   const contentId = readText(formData, "contentId");
-  const type = readText(formData, "contentType") as PublicContentType;
-  const publish = readText(formData, "publish") === "true";
+  const publicationStatus = readPublicationStatus(formData);
 
+  if (!userId) throw new Error("Sessão administrativa inválida.");
   if (!contentId) throw new Error("Publicação inválida.");
 
-  const { error } = await supabase
+  const { data: previous, error: readError } = await supabase
     .from("public_contents")
-    .update({ is_published: publish, published_at: publish ? new Date().toISOString() : null })
-    .eq("id", contentId);
+    .select(PUBLIC_CONTENT_SELECT)
+    .eq("id", contentId)
+    .maybeSingle();
+  if (readError) throw new Error(readError.message);
+  if (!previous) throw new Error("Publicação não encontrada.");
 
+  const update = {
+    publication_status: publicationStatus,
+    ...statusDates(publicationStatus, previous as PublicContentRow),
+  };
+
+  const { data: saved, error } = await supabase
+    .from("public_contents")
+    .update(update)
+    .eq("id", contentId)
+    .select(PUBLIC_CONTENT_SELECT)
+    .single();
   if (error) throw new Error(error.message);
+
+  const action = publicationStatus === "published"
+    ? "PUBLISH"
+    : publicationStatus === "archived"
+      ? "ARCHIVE"
+      : (previous as PublicContentRow).publication_status === "archived"
+        ? "RESTORE"
+        : "UNPUBLISH";
+
+  await audit(userId, action, contentId, previous, saved);
+  revalidatePublicPages((previous as PublicContentRow).content_type);
+}
+
+export async function duplicatePublicContentAction(formData: FormData) {
+  const { supabase, userId } = await requireAdmin();
+  const contentId = readText(formData, "contentId");
+
+  if (!userId) throw new Error("Sessão administrativa inválida.");
+  if (!contentId) throw new Error("Publicação inválida.");
+
+  const { data: original, error: readError } = await supabase
+    .from("public_contents")
+    .select(PUBLIC_CONTENT_SELECT)
+    .eq("id", contentId)
+    .maybeSingle();
+  if (readError) throw new Error(readError.message);
+  if (!original) throw new Error("Publicação não encontrada.");
+
+  const source = original as PublicContentRow;
+  const suffix = Date.now().toString(36);
+  const duplicatePayload = {
+    content_type: source.content_type,
+    title: `${source.title} (cópia)`,
+    slug: `${source.slug.slice(0, 78)}-copia-${suffix}`,
+    summary: source.summary,
+    category: source.category,
+    image_url: source.image_url,
+    image_path: source.image_path,
+    external_url: source.external_url,
+    metadata: source.metadata,
+    publication_status: "draft" as const,
+    is_published: false,
+    is_featured: false,
+    sort_order: source.sort_order + 1,
+    published_at: null,
+    archived_at: null,
+    created_by: userId,
+  };
+
+  const { data: duplicated, error } = await supabase
+    .from("public_contents")
+    .insert(duplicatePayload)
+    .select(PUBLIC_CONTENT_SELECT)
+    .single();
+  if (error) throw new Error(error.message);
+
+  await audit(userId, "DUPLICATE", duplicated.id, source, duplicated);
+  revalidatePublicPages(source.content_type);
+}
+
+export async function movePublicContentAction(formData: FormData) {
+  const { supabase, userId } = await requireAdmin();
+  const contentId = readText(formData, "contentId");
+  const type = readText(formData, "contentType") as PublicContentType;
+  const direction = readText(formData, "direction");
+
+  if (!userId) throw new Error("Sessão administrativa inválida.");
+  if (!["tutorial", "application", "partner", "product"].includes(type)) throw new Error("Tipo de publicação inválido.");
+  if (!contentId || !["up", "down"].includes(direction)) throw new Error("Movimentação inválida.");
+
+  const { data, error } = await supabase
+    .from("public_contents")
+    .select("id, title, sort_order, created_at")
+    .eq("content_type", type)
+    .order("sort_order", { ascending: true })
+    .order("created_at", { ascending: true });
+  if (error) throw new Error(error.message);
+
+  const ordered = data ?? [];
+  const currentIndex = ordered.findIndex((item) => item.id === contentId);
+  if (currentIndex < 0) throw new Error("Publicação não encontrada.");
+
+  const targetIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
+  if (targetIndex < 0 || targetIndex >= ordered.length) return;
+
+  const reordered = [...ordered];
+  [reordered[currentIndex], reordered[targetIndex]] = [reordered[targetIndex], reordered[currentIndex]];
+
+  const admin = createAdminClient();
+  const updates = await Promise.all(
+    reordered.map((item, index) => admin.from("public_contents").update({ sort_order: (index + 1) * 10 }).eq("id", item.id)),
+  );
+  const updateError = updates.find((result) => result.error)?.error;
+  if (updateError) throw new Error(updateError.message);
+
+  await audit(userId, "REORDER", contentId, { position: currentIndex + 1 }, { position: targetIndex + 1 });
   revalidatePublicPages(type);
 }
 
 export async function deletePublicContentAction(formData: FormData) {
-  const { supabase } = await requireAdmin();
+  const { supabase, userId } = await requireAdmin();
   const contentId = readText(formData, "contentId");
-  const type = readText(formData, "contentType") as PublicContentType;
 
+  if (!userId) throw new Error("Sessão administrativa inválida.");
   if (!contentId) throw new Error("Publicação inválida.");
 
   const { data: item, error: readError } = await supabase
     .from("public_contents")
-    .select("image_path, metadata")
+    .select(PUBLIC_CONTENT_SELECT)
     .eq("id", contentId)
     .maybeSingle();
-
   if (readError) throw new Error(readError.message);
-  if (item?.image_path) {
-    const { error: storageError } = await supabase.storage.from("public-assets").remove([item.image_path]);
-    if (storageError) throw new Error(storageError.message);
-  }
-  const metadata = (item?.metadata ?? {}) as Record<string, unknown>;
+  if (!item) throw new Error("Publicação não encontrada.");
+
+  const { data: otherItems, error: referencesError } = await supabase
+    .from("public_contents")
+    .select("id, image_path, metadata")
+    .neq("id", contentId);
+  if (referencesError) throw new Error(referencesError.message);
+
+  const metadata = (item.metadata ?? {}) as Record<string, unknown>;
   const appFilePath = typeof metadata.filePath === "string" ? metadata.filePath : "";
-  if (appFilePath) {
-    const { error: appStorageError } = await supabase.storage.from("app-files").remove([appFilePath]);
-    if (appStorageError) throw new Error(appStorageError.message);
-  }
+  const imageIsShared = Boolean(item.image_path && otherItems?.some((other) => other.image_path === item.image_path));
+  const appFileIsShared = Boolean(
+    appFilePath && otherItems?.some((other) => {
+      const otherMetadata = (other.metadata ?? {}) as Record<string, unknown>;
+      return otherMetadata.filePath === appFilePath;
+    }),
+  );
 
   const { error } = await supabase.from("public_contents").delete().eq("id", contentId);
   if (error) throw new Error(error.message);
-  revalidatePublicPages(type);
+
+  if (item.image_path && !imageIsShared) {
+    const { error: storageError } = await supabase.storage.from("public-assets").remove([item.image_path]);
+    if (storageError) console.warn("Publicação excluída, mas a imagem não foi removida:", storageError.message);
+  }
+  if (appFilePath && !appFileIsShared) {
+    const { error: appStorageError } = await supabase.storage.from("app-files").remove([appFilePath]);
+    if (appStorageError) console.warn("Publicação excluída, mas o arquivo não foi removido:", appStorageError.message);
+  }
+
+  await audit(userId, "DELETE", contentId, item, null);
+  revalidatePublicPages((item as PublicContentRow).content_type);
 }

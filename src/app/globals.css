@@ -11544,3 +11544,126 @@ button {
     grid-column: auto;
   }
 }
+
+/* =========================================================
+   JNE APP 1.9.0 — FLUXO EDITORIAL DE PUBLICAÇÕES
+   ========================================================= */
+.admin-publication-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0 0 18px;
+}
+
+.admin-publication-summary article {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 72px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  background: var(--elevated-panel);
+}
+
+.admin-publication-summary span {
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.admin-publication-summary strong {
+  color: var(--accent);
+  font-size: 1.35rem;
+}
+
+.admin-publication-filters {
+  display: grid;
+  grid-template-columns: minmax(240px, 1.6fr) minmax(150px, .7fr) minmax(150px, .7fr) auto;
+  gap: 12px;
+  align-items: end;
+  margin-bottom: 18px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: rgb(var(--accent-rgb) / .035);
+}
+
+.admin-publication-filters label {
+  display: grid;
+  gap: 7px;
+}
+
+.admin-publication-filters label > span {
+  color: var(--text-soft);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.admin-publication-filters input,
+.admin-publication-filters select {
+  width: 100%;
+  min-height: 46px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  outline: none;
+  background: var(--input-bg);
+  color: var(--text);
+  font: inherit;
+}
+
+.admin-publication-filters .admin-input-with-icon input {
+  min-height: 44px;
+}
+
+.admin-publication-filters__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.admin-publication-order-actions form {
+  display: contents;
+}
+
+.admin-list-card--archived {
+  border-style: dashed;
+  opacity: .78;
+}
+
+.admin-status--muted {
+  background: rgb(148 163 184 / .14);
+  color: var(--text-muted);
+}
+
+@media (max-width: 900px) {
+  .admin-publication-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .admin-publication-filters__actions {
+    align-self: stretch;
+  }
+
+  .admin-publication-filters__actions .button {
+    flex: 1;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 620px) {
+  .admin-publication-summary,
+  .admin-publication-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-publication-summary article {
+    min-height: 58px;
+  }
+
+  .admin-publication-filters__actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+}

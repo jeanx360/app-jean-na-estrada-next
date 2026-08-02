@@ -1,0 +1,20 @@
+{
+  "name": "JNE App",
+  "version": "1.9.0",
+  "release": "Fluxo editorial de publicações",
+  "base_version": "1.8.1",
+  "database_migration": "supabase/migrations/1.9.0_public_content_editorial_workflow.sql",
+  "features": [
+    "Estados rascunho, publicado e arquivado",
+    "Busca e filtros administrativos",
+    "Duplicação segura de publicações",
+    "Reordenação por subir e descer",
+    "Auditoria das ações editoriais",
+    "Preservação de ativos compartilhados na exclusão"
+  ],
+  "validation": {
+    "typescript_syntax": "passed",
+    "package_versions": "1.9.0",
+    "full_next_build": "required_after_installation"
+  }
+}

@@ -3,7 +3,12 @@
 import { FilePlus2, Save } from "lucide-react";
 import { useActionState, useEffect, useMemo, useState } from "react";
 import { savePublicContentAction } from "@/app/admin/publicacoes/actions";
-import type { PublicContentActionState, PublicContentRow, PublicContentType } from "@/types/public-content";
+import type {
+  PublicContentActionState,
+  PublicContentPublicationStatus,
+  PublicContentRow,
+  PublicContentType,
+} from "@/types/public-content";
 
 const initialState: PublicContentActionState = {};
 
@@ -18,6 +23,12 @@ function metaString(metadata: Record<string, unknown>, key: string) {
 function metaNumber(metadata: Record<string, unknown>, key: string) {
   const value = Number(metadata[key] ?? 0);
   return Number.isFinite(value) && value > 0 ? String(value) : "";
+}
+
+function initialPublicationStatus(initialData?: PublicContentRow): PublicContentPublicationStatus {
+  if (!initialData) return "published";
+  if (initialData.publication_status) return initialData.publication_status;
+  return initialData.is_published ? "published" : "draft";
 }
 
 export function AdminPublicContentForm({ initialData }: Props) {
@@ -78,6 +89,15 @@ export function AdminPublicContentForm({ initialData }: Props) {
         </label>
         <label><span>Título</span><input name="title" required defaultValue={initialData?.title ?? ""} placeholder="Título exibido no app" /></label>
         <label><span>Identificador</span><input name="slug" defaultValue={initialData?.slug ?? ""} placeholder="Gerado automaticamente" /></label>
+        <label>
+          <span>Estado editorial</span>
+          <select name="publicationStatus" defaultValue={initialPublicationStatus(initialData)}>
+            <option value="draft">Rascunho</option>
+            <option value="published">Publicado</option>
+            <option value="archived">Arquivado</option>
+          </select>
+          <small>Arquivados deixam de aparecer no aplicativo sem serem excluídos.</small>
+        </label>
       </div>
 
       <label><span>Descrição</span><textarea name="summary" rows={3} defaultValue={initialData?.summary ?? ""} placeholder="Resumo exibido no card." /></label>
@@ -95,7 +115,7 @@ export function AdminPublicContentForm({ initialData }: Props) {
           <div className="admin-form__grid admin-form__grid--wide">
             <label><span>Veículo</span><input name="vehicle" defaultValue={metaString(metadata, "vehicle")} placeholder="Geely EX2" /></label>
             <label><span>Nível</span><select name="level" defaultValue={metaString(metadata, "level") || "Básico"}><option>Básico</option><option>Intermediário</option><option>Avançado</option></select></label>
-            <label><span>Status</span><select name="status" defaultValue={metaString(metadata, "status") || "Disponível"}><option>Disponível</option><option>Em preparação</option></select></label>
+            <label><span>Status do material</span><select name="status" defaultValue={metaString(metadata, "status") || "Disponível"}><option>Disponível</option><option>Em preparação</option></select></label>
           </div>
           {[0, 1, 2].map((index) => {
             const resource = resources[index] ?? {};
@@ -136,7 +156,7 @@ export function AdminPublicContentForm({ initialData }: Props) {
           <div className="admin-form__grid admin-form__grid--wide">
             <label><span>Compatibilidade</span><input name="compatibility" defaultValue={metaString(metadata, "compatibility")} placeholder="Geely EX2 2025/2026" /></label>
             <label><span>Versão</span><input name="version" defaultValue={metaString(metadata, "version")} placeholder="1.2.0" /></label>
-            <label><span>Status</span><select name="status" defaultValue={metaString(metadata, "status") || "Disponível"}><option>Disponível</option><option>Testado pelo Jean</option><option>Em validação</option><option>Versão antiga</option></select></label>
+            <label><span>Status do arquivo</span><select name="status" defaultValue={metaString(metadata, "status") || "Disponível"}><option>Disponível</option><option>Testado pelo Jean</option><option>Em validação</option><option>Versão antiga</option></select></label>
             <label><span>Origem</span><input name="origin" defaultValue={metaString(metadata, "origin") || "Jean na Estrada"} placeholder="Desenvolvedor, GitHub ou fonte" /></label>
             <label><span>Texto do botão</span><input name="buttonLabel" defaultValue={metaString(metadata, "buttonLabel")} placeholder={deliveryType === "upload" ? "Baixar arquivo" : "Abrir página oficial"} /></label>
             <label><span>Checksum SHA-256</span><input name="checksumSha256" value={appFile.checksum || metaString(metadata, "checksumSha256")} onChange={(event) => setAppFile((current) => ({ ...current, checksum: event.target.value }))} placeholder="Preenchido automaticamente no upload" /></label>
@@ -162,9 +182,8 @@ export function AdminPublicContentForm({ initialData }: Props) {
       ) : null}
 
       <div className="admin-form__checks">
-        <label className="admin-checkbox"><input name="isPublished" type="checkbox" defaultChecked={initialData?.is_published ?? true} /><span>Publicar imediatamente</span></label>
         <label className="admin-checkbox"><input name="isFeatured" type="checkbox" defaultChecked={initialData?.is_featured ?? false} /><span>Marcar como destaque</span></label>
-        {!initialData ? <label className="admin-checkbox"><input name="notifyUsers" type="checkbox" defaultChecked /><span>Criar aviso na central</span></label> : null}
+        {!initialData ? <label className="admin-checkbox"><input name="notifyUsers" type="checkbox" defaultChecked /><span>Criar aviso ao publicar</span></label> : null}
         {!initialData ? <label className="admin-checkbox"><input name="sendPush" type="checkbox" /><span>Enviar também por Web Push</span></label> : null}
       </div>
 

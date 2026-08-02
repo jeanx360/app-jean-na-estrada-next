@@ -28,7 +28,7 @@ async function fetchPublished(type: PublicContentType) {
     const { data, error } = await supabase
       .from("public_contents")
       .select(
-        "id, content_type, title, slug, summary, category, image_url, image_path, external_url, metadata, is_published, is_featured, sort_order, published_at, created_at, updated_at",
+        "id, content_type, title, slug, summary, category, image_url, image_path, external_url, metadata, publication_status, is_published, is_featured, sort_order, published_at, archived_at, created_at, updated_at",
       )
       .eq("content_type", type)
       .eq("is_published", true)
