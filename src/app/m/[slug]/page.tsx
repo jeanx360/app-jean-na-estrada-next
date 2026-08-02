@@ -3,9 +3,12 @@ import Link from "next/link";
 import { BriefcaseBusiness, CalendarDays, Car, CheckCircle2, Luggage, MapPin, MessageCircle, ShieldCheck, Users } from "lucide-react";
 import { notFound } from "next/navigation";
 import { DriverProfileEventTracker } from "@/components/DriverProfileEventTracker";
+import { PassengerQuickActions } from "@/components/PassengerQuickActions";
 import { PublicReservationForm } from "@/components/PublicReservationForm";
 import {
+  driverContactRelativeUrl,
   driverMarketingRelativeUrl,
+  driverMarketingUrl,
   normalizeDriverCampaignCode,
   normalizeDriverMarketingSource,
 } from "@/lib/driver-marketing";
@@ -60,8 +63,10 @@ export default async function PublicDriverPage({ params, searchParams }: Props) 
   const campaignCode = normalizeDriverCampaignCode(query.cmp);
   const selectedPackageId = packages.some((item) => item.id === query.servico) ? query.servico : "";
   const trackPublicAccess = query.preview !== "admin";
-  const whatsappText = `Olá, ${profile.display_name}! Encontrei seu cartão profissional no JNE App e gostaria de conversar sobre uma corrida.`;
+  const whatsappText = `Olá, ${profile.display_name}! Encontrei seu contato profissional no JNE App e gostaria de consultar uma corrida particular.`;
   const whatsappUrl = `https://wa.me/${normalizeWhatsAppPhone(profile.whatsapp_phone)}?text=${encodeURIComponent(whatsappText)}`;
+  const contactUrl = driverContactRelativeUrl(profile.slug, source, campaignCode);
+  const shareUrl = driverMarketingUrl(profile.slug, source, campaignCode);
 
   return (
     <main className={`public-driver-page public-driver-page--${profile.theme}`}>
@@ -72,7 +77,16 @@ export default async function PublicDriverPage({ params, searchParams }: Props) 
           <div className="public-driver-avatar">{profile.photo_url ? <img src={profile.photo_url} alt={`Foto de ${profile.display_name}`} /> : <span>{profile.display_name.slice(0, 2).toUpperCase()}</span>}</div>
           <div className="public-driver-identity"><span className="public-driver-verified"><CheckCircle2 size={16} /> Perfil profissional</span><h1>{profile.display_name}</h1><p>{profile.headline || "Motorista particular"}</p><div><span><MapPin size={16} /> {profile.city || "Região não informada"}</span><span><Car size={16} /> {profile.vehicle_name || "Veículo informado na reserva"}</span></div></div>
         </div>
-        <div className="public-driver-hero__actions"><a className="button button--primary" href="#reservar"><CalendarDays size={19} /> Solicitar corrida</a><a className="button button--secondary" href={whatsappUrl} target="_blank" rel="noreferrer" data-driver-event="whatsapp"><MessageCircle size={19} /> Conversar no WhatsApp</a></div>
+        <PassengerQuickActions
+          driverSlug={profile.slug}
+          driverName={profile.display_name}
+          whatsappUrl={whatsappUrl}
+          contactUrl={contactUrl}
+          shareUrl={shareUrl}
+          source={source}
+          campaignCode={campaignCode}
+          acceptsReservations={profile.accepts_reservations}
+        />
       </header>
 
       <div className="public-driver-content">
@@ -82,7 +96,7 @@ export default async function PublicDriverPage({ params, searchParams }: Props) 
 
         {packages.length ? <section className="public-driver-services"><div className="public-section-heading"><div><span className="eyebrow">SERVIÇOS</span><h2>Opções disponíveis</h2><p>Escolha uma opção ou solicite uma rota personalizada.</p></div><BriefcaseBusiness size={28} /></div><div className="public-driver-services__grid">{packages.map((item) => <article key={item.id}><div><h3>{item.title}</h3><p>{item.description || "Serviço particular mediante confirmação."}</p>{item.route_summary ? <span><MapPin size={15} /> {item.route_summary}</span> : null}{item.duration_label ? <span><CalendarDays size={15} /> {item.duration_label}</span> : null}</div><div className="public-driver-services__price"><strong>{formatDriverPackagePrice(item)}</strong>{item.includes ? <small>{item.includes}</small> : null}<Link href={`${driverMarketingRelativeUrl(profile.slug, source, campaignCode, item.id)}#reservar`} className="button button--secondary">Tenho interesse</Link></div></article>)}</div></section> : null}
 
-        {profile.accepts_reservations ? <PublicReservationForm driverSlug={profile.slug} packages={packages} initialPackageId={selectedPackageId} source={source} campaignCode={campaignCode} /> : <section className="public-reservation-disabled"><CalendarDays size={30} /><h2>Reservas pausadas</h2><p>Use o WhatsApp para consultar disponibilidade.</p><a className="button button--primary" href={whatsappUrl} target="_blank" rel="noreferrer" data-driver-event="whatsapp"><MessageCircle size={18} /> Falar no WhatsApp</a></section>}
+        {profile.accepts_reservations ? <PublicReservationForm driverSlug={profile.slug} driverName={profile.display_name} contactUrl={contactUrl} packages={packages} initialPackageId={selectedPackageId} source={source} campaignCode={campaignCode} /> : <section className="public-reservation-disabled"><CalendarDays size={30} /><h2>Reservas pausadas</h2><p>Use o WhatsApp para consultar disponibilidade.</p><a className="button button--primary" href={whatsappUrl} target="_blank" rel="noreferrer" data-driver-event="whatsapp_click"><MessageCircle size={18} /> Falar no WhatsApp</a></section>}
 
         <section className="public-driver-trust"><ShieldCheck size={25} /><div><strong>Contato direto entre passageiro e motorista</strong><p>O JNE App organiza a solicitação. Preço, disponibilidade, rota e condições devem ser confirmados diretamente antes da viagem.</p></div></section>
         <footer className="public-driver-footer"><Link href="/">JNE App · Jean na Estrada</Link><span>Cartão profissional digital</span></footer>

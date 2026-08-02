@@ -1,13 +1,15 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
-import { CalendarDays, CheckCircle2, LoaderCircle, Send } from "lucide-react";
+import { CalendarDays, CheckCircle2, ContactRound, LoaderCircle, Send } from "lucide-react";
 import { TRIP_TYPE_LABELS, type DriverTripType } from "@/lib/driver";
 import type { DriverMarketingSource } from "@/lib/driver-marketing";
 import { type DriverServicePackage } from "@/lib/driver-public";
 
 type Props = {
   driverSlug: string;
+  driverName: string;
+  contactUrl: string;
   packages: DriverServicePackage[];
   initialPackageId?: string;
   source?: DriverMarketingSource;
@@ -44,7 +46,7 @@ const initialForm: FormState = {
   company: "",
 };
 
-export function PublicReservationForm({ driverSlug, packages, initialPackageId = "", source = "profile", campaignCode = "" }: Props) {
+export function PublicReservationForm({ driverSlug, driverName, contactUrl, packages, initialPackageId = "", source = "profile", campaignCode = "" }: Props) {
   const [form, setForm] = useState<FormState>({ ...initialForm, packageId: initialPackageId });
   const [sending, setSending] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -107,7 +109,14 @@ export function PublicReservationForm({ driverSlug, packages, initialPackageId =
         <span className="eyebrow">SOLICITAÇÃO ENVIADA</span>
         <h2>O motorista já foi avisado</h2>
         <p>Ele recebeu os dados da viagem e poderá entrar em contato pelo WhatsApp para confirmar detalhes e valor.</p>
-        <button className="button button--secondary" type="button" onClick={() => setSuccess(false)}>Fazer outra solicitação</button>
+        <div className="public-reservation-success__save">
+          <strong>Não perca este contato</strong>
+          <span>Salve {driverName} na agenda para suas próximas viagens.</span>
+        </div>
+        <div className="public-reservation-success__actions">
+          <a className="button button--primary" href={contactUrl} data-driver-event="contact_save"><ContactRound size={18} /> Salvar motorista</a>
+          <button className="button button--secondary" type="button" onClick={() => setSuccess(false)}>Fazer outra solicitação</button>
+        </div>
       </section>
     );
   }

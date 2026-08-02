@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { NextResponse } from "next/server";
 import {
+  DRIVER_PUBLIC_EVENT_TYPES,
   normalizeDriverCampaignCode,
   normalizeDriverMarketingSource,
 } from "@/lib/driver-marketing";
@@ -8,7 +9,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
 
-const allowedEvents = new Set(["profile_view", "whatsapp_click", "reservation_started", "reservation_submitted"]);
+const allowedEvents = new Set<string>(DRIVER_PUBLIC_EVENT_TYPES);
 
 function visitorHash(request: Request, slug: string) {
   const forwarded = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";

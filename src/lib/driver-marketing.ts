@@ -13,6 +13,18 @@ export const DRIVER_MARKETING_SOURCES = [
 
 export type DriverMarketingSource = (typeof DRIVER_MARKETING_SOURCES)[number];
 
+export const DRIVER_PUBLIC_EVENT_TYPES = [
+  "profile_view",
+  "whatsapp_click",
+  "reservation_cta",
+  "reservation_started",
+  "reservation_submitted",
+  "contact_save",
+  "profile_share",
+] as const;
+
+export type DriverPublicEventType = (typeof DRIVER_PUBLIC_EVENT_TYPES)[number];
+
 export type DriverMarketingCampaign = {
   id: string;
   user_id: string;
@@ -88,6 +100,29 @@ export function driverMarketingRelativeUrl(
   serviceId = "",
 ) {
   const absolute = driverMarketingUrl(slug, source, campaignCode, serviceId);
+  const parsed = new URL(absolute);
+  return `${parsed.pathname}${parsed.search}`;
+}
+
+export function driverContactUrl(
+  slug: string,
+  source: DriverMarketingSource,
+  campaignCode = "",
+) {
+  const base = (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000").replace(/\/$/, "");
+  const params = new URLSearchParams();
+  params.set("src", source);
+  const normalizedCampaign = normalizeDriverCampaignCode(campaignCode);
+  if (normalizedCampaign) params.set("cmp", normalizedCampaign);
+  return `${base}/api/motorista/contato/${encodeURIComponent(slug)}?${params.toString()}`;
+}
+
+export function driverContactRelativeUrl(
+  slug: string,
+  source: DriverMarketingSource,
+  campaignCode = "",
+) {
+  const absolute = driverContactUrl(slug, source, campaignCode);
   const parsed = new URL(absolute);
   return `${parsed.pathname}${parsed.search}`;
 }

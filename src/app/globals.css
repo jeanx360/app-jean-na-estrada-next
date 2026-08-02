@@ -10067,6 +10067,22 @@ button {
 .public-driver-identity > div span { display: flex; align-items: center; gap: 6px; padding: 8px 10px; border: 1px solid rgb(255 255 255 / .1); border-radius: 999px; color: #dbeafe; font-size: .79rem; }
 .public-driver-verified { display: inline-flex; align-items: center; gap: 6px; color: #86efac; font-size: .75rem; font-weight: 900; text-transform: uppercase; }
 .public-driver-hero__actions { display: grid; grid-template-columns: 1.1fr .9fr; gap: 11px; }
+.passenger-quick-actions { display: grid; gap: 16px; padding: 18px; border: 1px solid rgb(255 255 255 / .1); border-radius: 19px; background: linear-gradient(135deg, rgb(37 99 235 / .2), rgb(15 23 42 / .82)); box-shadow: 0 20px 60px rgb(0 0 0 / .22); }
+.passenger-quick-actions__intro { display: grid; gap: 4px; }
+.passenger-quick-actions__intro > span { color: #60a5fa; font-size: .68rem; font-weight: 950; letter-spacing: .12em; }
+.passenger-quick-actions__intro > strong { font-size: 1.16rem; }
+.passenger-quick-actions__intro > small { color: #aebbd0; font-size: .8rem; line-height: 1.5; }
+.passenger-quick-actions__grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 9px; }
+.passenger-action { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 10px; min-height: 68px; padding: 12px; border: 1px solid rgb(255 255 255 / .1); border-radius: 14px; background: rgb(255 255 255 / .055); color: #f8fafc; cursor: pointer; text-align: left; transition: 160ms ease; }
+.passenger-action:hover { border-color: rgb(96 165 250 / .55); background: rgb(59 130 246 / .12); transform: translateY(-2px); }
+.passenger-action > svg { color: #93c5fd; }
+.passenger-action > span { display: grid; gap: 2px; min-width: 0; }
+.passenger-action strong { font-size: .8rem; }
+.passenger-action small { overflow: hidden; color: #94a3b8; font-size: .65rem; line-height: 1.35; text-overflow: ellipsis; }
+.passenger-action--primary { border-color: rgb(34 197 94 / .32); background: rgb(22 163 74 / .16); }
+.passenger-action--primary > svg { color: #86efac; }
+.passenger-action--primary:hover { border-color: rgb(74 222 128 / .62); background: rgb(22 163 74 / .24); }
+.passenger-mobile-actions { display: none; }
 .public-driver-content { display: grid; gap: 20px; max-width: 980px; margin: 0 auto; padding: 0 24px 40px; }
 .public-driver-about,
 .public-driver-comfort,
@@ -10137,6 +10153,10 @@ button {
 .public-reservation-disabled p { margin: 0; }
 .public-reservation-success p,
 .public-reservation-disabled p { max-width: 560px; }
+.public-reservation-success__save { display: grid; gap: 3px; width: min(100%, 520px); margin-top: 8px; padding: 14px; border: 1px solid rgb(96 165 250 / .24); border-radius: 14px; background: rgb(59 130 246 / .09); }
+.public-reservation-success__save strong { color: #dbeafe; }
+.public-reservation-success__save span { color: #94a3b8; font-size: .78rem; }
+.public-reservation-success__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 9px; margin-top: 4px; }
 .public-driver-trust { display: flex; align-items: flex-start; gap: 13px; padding: 18px; }
 .public-driver-trust svg { flex: 0 0 auto; color: #4ade80; }
 .public-driver-trust p { margin: 4px 0 0; color: #94a3b8; font-size: .82rem; line-height: 1.55; }
@@ -10174,6 +10194,13 @@ button {
   .driver-reservation-detail__primary-actions { grid-template-columns: 1fr; }
   .public-driver-hero { padding: 22px 16px 34px; }
   .public-driver-content { padding: 0 16px 28px; }
+  .public-driver-page { padding-bottom: 82px; }
+  .passenger-quick-actions { padding: 15px; }
+  .passenger-quick-actions__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .passenger-mobile-actions { position: fixed; right: 10px; bottom: max(10px, env(safe-area-inset-bottom)); left: 10px; z-index: 90; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; overflow: hidden; border: 1px solid rgb(255 255 255 / .13); border-radius: 17px; background: rgb(8 15 29 / .94); box-shadow: 0 18px 55px rgb(0 0 0 / .48); backdrop-filter: blur(18px); }
+  .passenger-mobile-actions a { display: grid; justify-items: center; gap: 4px; min-width: 0; padding: 10px 7px; color: #dbeafe; font-size: .66rem; font-weight: 850; }
+  .passenger-mobile-actions a + a { border-left: 1px solid rgb(255 255 255 / .09); }
+  .passenger-mobile-actions a:first-child { color: #86efac; }
   .public-driver-hero__content { align-items: flex-start; flex-direction: column; }
   .public-driver-avatar { width: 96px; height: 96px; }
   .public-driver-hero__actions,
@@ -10203,6 +10230,7 @@ button {
   .driver-qr-card-preview { min-height: 550px; padding: 22px; }
   .driver-qr-image { width: 245px; height: 245px; }
   .public-driver-hero__brand small { max-width: 150px; text-align: right; }
+  .passenger-quick-actions__grid { grid-template-columns: 1fr; }
 }
 
 /* JNE APP 1.7.2 — FLUXO DE RESERVAS E DOCUMENTOS */
