@@ -12315,3 +12315,221 @@ button {
   .driver-campaign-performance__list em { grid-column: 2; }
   .driver-campaign-performance__empty { align-items: flex-start; flex-direction: column; }
 }
+
+/* =========================================================
+   JNE APP 1.12.0 — ORGANIZACAO VISUAL DO GUIA E MANUAIS
+   ========================================================= */
+.guide-manual-page {
+  gap: 24px;
+}
+
+.beginner-guide-disclosure {
+  overflow: clip;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--card);
+  box-shadow: 0 18px 48px rgb(0 0 0 / 0.08);
+}
+
+.beginner-guide-disclosure__summary {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: center;
+  min-height: 150px;
+  padding: 24px;
+  cursor: pointer;
+  list-style: none;
+  background:
+    radial-gradient(circle at 88% 20%, rgb(var(--accent-rgb) / 0.18), transparent 34%),
+    linear-gradient(135deg, rgb(var(--accent-rgb) / 0.08), var(--card) 58%);
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.beginner-guide-disclosure__summary::-webkit-details-marker {
+  display: none;
+}
+
+.beginner-guide-disclosure__summary::marker {
+  content: "";
+}
+
+.beginner-guide-disclosure__summary:hover {
+  background:
+    radial-gradient(circle at 88% 20%, rgb(var(--accent-rgb) / 0.24), transparent 36%),
+    linear-gradient(135deg, rgb(var(--accent-rgb) / 0.12), var(--card) 60%);
+}
+
+.beginner-guide-disclosure__summary:focus-visible {
+  outline: 3px solid rgb(var(--accent-rgb) / 0.26);
+  outline-offset: -3px;
+}
+
+.beginner-guide-disclosure__icon,
+.vehicle-library-section__icon {
+  display: grid;
+  width: 54px;
+  height: 54px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 17px;
+  color: var(--accent);
+  background: rgb(var(--accent-rgb) / 0.13);
+}
+
+.beginner-guide-disclosure__copy {
+  min-width: 0;
+}
+
+.beginner-guide-disclosure__copy > span {
+  color: var(--accent);
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.11em;
+}
+
+.beginner-guide-disclosure__copy h2 {
+  margin: 6px 0 0;
+  font-size: clamp(1.3rem, 3vw, 2rem);
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+.beginner-guide-disclosure__copy p {
+  max-width: 760px;
+  margin: 8px 0 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.beginner-guide-disclosure__action {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 14px;
+  border: 1px solid rgb(var(--accent-rgb) / 0.25);
+  border-radius: 999px;
+  color: var(--accent);
+  background: rgb(var(--accent-rgb) / 0.09);
+  font-size: 0.78rem;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.beginner-guide-disclosure__action svg {
+  transition: transform 0.24s ease;
+}
+
+.beginner-guide-disclosure[open] .beginner-guide-disclosure__action svg {
+  transform: rotate(180deg);
+}
+
+.beginner-guide-disclosure[open] .beginner-guide-disclosure__action-label {
+  font-size: 0;
+}
+
+.beginner-guide-disclosure[open] .beginner-guide-disclosure__action-label::after {
+  content: "Fechar guia";
+  font-size: 0.78rem;
+}
+
+.beginner-guide-disclosure__content {
+  display: grid;
+  gap: 18px;
+  padding: 0 24px 24px;
+  border-top: 1px solid var(--line);
+}
+
+.beginner-guide-disclosure__content > .guide-intro {
+  margin-top: 24px;
+}
+
+.vehicle-library-section--featured {
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+
+.vehicle-library-section__heading {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.vehicle-library-section__heading .section-heading {
+  flex: 1;
+  min-width: 0;
+}
+
+.vehicle-library-section--featured .manual-library__filters {
+  background: var(--card);
+  box-shadow: 0 14px 36px rgb(0 0 0 / 0.05);
+}
+
+@media (max-width: 760px) {
+  .guide-manual-page {
+    gap: 18px;
+  }
+
+  .beginner-guide-disclosure__summary {
+    grid-template-columns: auto minmax(0, 1fr);
+    min-height: auto;
+    gap: 14px;
+    padding: 19px;
+  }
+
+  .beginner-guide-disclosure__icon,
+  .vehicle-library-section__icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+  }
+
+  .beginner-guide-disclosure__copy h2 {
+    font-size: 1.22rem;
+  }
+
+  .beginner-guide-disclosure__copy p {
+    font-size: 0.82rem;
+  }
+
+  .beginner-guide-disclosure__action {
+    grid-column: 1 / -1;
+    justify-content: space-between;
+    width: 100%;
+    padding: 11px 13px;
+  }
+
+  .beginner-guide-disclosure__content {
+    gap: 14px;
+    padding: 0 14px 14px;
+  }
+
+  .beginner-guide-disclosure__content > .guide-intro {
+    margin-top: 14px;
+  }
+
+  .vehicle-library-section--featured {
+    gap: 17px;
+    padding: 17px;
+  }
+
+  .vehicle-library-section__heading {
+    display: grid;
+    gap: 12px;
+  }
+
+  .vehicle-library-section__heading .section-heading,
+  .vehicle-library-section__heading .section-heading--inline {
+    display: grid;
+    gap: 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .beginner-guide-disclosure__action svg {
+    transition: none;
+  }
+}
