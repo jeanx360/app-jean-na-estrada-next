@@ -13643,3 +13643,428 @@ button {
   .public-quote-document { border: 0; box-shadow: none; }
   .public-quote-header { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
 }
+
+/* =========================================================
+   JNE APP 1.16.0 - FINANCEIRO PROFISSIONAL E AJUSTE MOBILE
+   ========================================================= */
+.driver-finance-dashboard {
+  min-width: 0;
+}
+
+.driver-finance-toolbar {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--surface);
+}
+
+.driver-finance-period-form {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) minmax(170px, .8fr) auto;
+  align-items: end;
+  gap: 10px;
+  min-width: min(100%, 580px);
+}
+
+.driver-finance-period-form label,
+.driver-finance-goal-fields label {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+}
+
+.driver-finance-period-form label > span,
+.driver-finance-goal-fields label > span {
+  color: var(--muted);
+  font-size: .75rem;
+  font-weight: 800;
+}
+
+.driver-finance-period-form select,
+.driver-finance-period-form input,
+.driver-finance-goal-fields input {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  outline: none;
+  background: var(--input-bg, var(--surface));
+  color: var(--text);
+  font: inherit;
+}
+
+.driver-finance-period-form select:focus,
+.driver-finance-period-form input:focus,
+.driver-finance-goal-fields input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.driver-finance-period-title {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.driver-finance-period-title h2 {
+  margin: 5px 0 0;
+  font-size: clamp(1.35rem, 3vw, 2rem);
+}
+
+.driver-finance-period-title > small {
+  color: var(--muted);
+  text-align: right;
+}
+
+.driver-finance-change {
+  font-size: .68rem;
+  font-weight: 800;
+}
+
+.driver-finance-change.is-positive { color: #16a34a; }
+.driver-finance-change.is-negative { color: #dc2626; }
+
+.driver-finance-efficiency--professional {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.driver-finance-professional-grid,
+.driver-finance-analysis-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  align-items: stretch;
+}
+
+.driver-finance-goal-card,
+.driver-finance-maintenance-card,
+.driver-finance-analysis-card {
+  display: grid;
+  gap: 18px;
+  min-width: 0;
+  padding: 22px;
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  background: var(--surface);
+}
+
+.driver-finance-goal-card > header,
+.driver-finance-maintenance-card > header,
+.driver-finance-analysis-card > header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 13px;
+}
+
+.driver-finance-goal-card > header > div:last-child,
+.driver-finance-maintenance-card > header > div:last-child,
+.driver-finance-analysis-card > header > div:first-child {
+  min-width: 0;
+  flex: 1;
+}
+
+.driver-finance-goal-card h2,
+.driver-finance-maintenance-card h2,
+.driver-finance-analysis-card h2 {
+  margin: 5px 0 0;
+  font-size: 1.25rem;
+}
+
+.driver-finance-goal-card__icon {
+  display: grid;
+  width: 43px;
+  height: 43px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 13px;
+  background: color-mix(in srgb, var(--driver-accent) 12%, var(--surface));
+  color: var(--driver-accent);
+}
+
+.driver-finance-goal-progress {
+  display: grid;
+  gap: 14px;
+}
+
+.driver-finance-goal-progress > div {
+  display: grid;
+  gap: 7px;
+}
+
+.driver-finance-goal-progress span,
+.driver-finance-maintenance-card__adjusted span {
+  color: var(--muted);
+  font-size: .78rem;
+}
+
+.driver-finance-goal-progress strong {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  align-items: baseline;
+}
+
+.driver-finance-goal-progress strong small {
+  color: var(--muted);
+  font-size: .72rem;
+  font-weight: 600;
+}
+
+.driver-finance-goal-progress i,
+.driver-finance-category-list i {
+  display: block;
+  height: 7px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--muted) 18%, transparent);
+}
+
+.driver-finance-goal-progress i b,
+.driver-finance-category-list i b {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--driver-accent), var(--accent));
+}
+
+.driver-finance-goal-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 11px;
+}
+
+.driver-finance-goal-card > .button {
+  justify-self: start;
+}
+
+.driver-finance-maintenance-card__value,
+.driver-finance-maintenance-card__adjusted {
+  display: grid;
+  gap: 5px;
+  padding: 15px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--driver-accent) 7%, var(--surface));
+}
+
+.driver-finance-maintenance-card__value strong {
+  font-size: clamp(1.55rem, 4vw, 2.25rem);
+}
+
+.driver-finance-maintenance-card__value span,
+.driver-finance-maintenance-card > p {
+  color: var(--muted);
+  font-size: .8rem;
+  line-height: 1.55;
+}
+
+.driver-finance-maintenance-card__adjusted strong {
+  font-size: 1.2rem;
+}
+
+.driver-finance-maintenance-card > p {
+  margin: 0;
+}
+
+.driver-finance-analysis-card > header > svg {
+  flex: 0 0 auto;
+  color: var(--driver-accent);
+}
+
+.driver-finance-trend {
+  display: flex;
+  align-items: end;
+  gap: 5px;
+  min-height: 210px;
+  overflow-x: auto;
+  padding: 14px 4px 2px;
+  border-bottom: 1px solid var(--border);
+}
+
+.driver-finance-trend > div {
+  display: grid;
+  grid-template-rows: 160px auto;
+  align-items: end;
+  justify-items: center;
+  gap: 7px;
+  min-width: 26px;
+  height: 100%;
+}
+
+.driver-finance-trend > div > span {
+  display: block;
+  width: 13px;
+  min-height: 8px;
+  border-radius: 7px 7px 2px 2px;
+  background: linear-gradient(180deg, var(--driver-accent), var(--accent));
+}
+
+.driver-finance-trend > div > span.is-negative {
+  background: linear-gradient(180deg, #ef4444, #991b1b);
+}
+
+.driver-finance-trend small {
+  color: var(--muted);
+  font-size: .6rem;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+
+.driver-finance-category-list {
+  display: grid;
+  gap: 14px;
+}
+
+.driver-finance-category-list > div {
+  display: grid;
+  gap: 6px;
+}
+
+.driver-finance-category-list > div > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.driver-finance-category-list span {
+  color: var(--text);
+  font-size: .84rem;
+}
+
+.driver-finance-category-list strong {
+  white-space: nowrap;
+  font-size: .84rem;
+}
+
+.driver-finance-category-list small {
+  color: var(--muted);
+  font-size: .68rem;
+}
+
+@media (max-width: 1060px) {
+  .driver-finance-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .driver-finance-efficiency--professional {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .vehicle-library-section__heading {
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+
+  .vehicle-library-section__heading .section-heading,
+  .vehicle-library-section__heading .section-heading--inline {
+    grid-template-columns: 1fr;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .vehicle-library-section__heading .section-heading > div,
+  .vehicle-library-section__heading .section-heading > p {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .vehicle-library-section__heading h2 {
+    max-width: none;
+    overflow-wrap: normal;
+    word-break: normal;
+    text-wrap: balance;
+  }
+
+  .vehicle-library-section--featured .manual-library,
+  .vehicle-library-section--featured .manual-library__filters,
+  .vehicle-library-section--featured .manual-library__summary,
+  .vehicle-library-section--featured .manual-document-grid {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .driver-finance-period-form {
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+  }
+
+  .driver-finance-period-form .button {
+    grid-column: 1 / -1;
+    justify-content: center;
+  }
+
+  .driver-finance-professional-grid,
+  .driver-finance-analysis-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .driver-finance-period-title {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .driver-finance-period-title > small {
+    text-align: left;
+  }
+}
+
+@media (max-width: 520px) {
+  .vehicle-library-section--featured {
+    padding: 14px;
+  }
+
+  .vehicle-library-section__heading {
+    gap: 10px;
+  }
+
+  .vehicle-library-section__heading .section-heading h2 {
+    font-size: clamp(1.45rem, 8vw, 2rem);
+    line-height: 1.08;
+  }
+
+  .vehicle-library-section__heading .section-heading > p {
+    font-size: .82rem;
+    line-height: 1.55;
+  }
+
+  .vehicle-library-section--featured .manual-library__filters {
+    padding: 14px;
+  }
+
+  .driver-finance-period-form,
+  .driver-finance-goal-fields,
+  .driver-finance-efficiency--professional {
+    grid-template-columns: 1fr;
+  }
+
+  .driver-finance-period-form .button {
+    grid-column: auto;
+  }
+
+  .driver-finance-goal-card,
+  .driver-finance-maintenance-card,
+  .driver-finance-analysis-card {
+    padding: 17px;
+    border-radius: 18px;
+  }
+
+  .driver-finance-goal-card > .button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .driver-finance-trend {
+    min-height: 190px;
+  }
+}

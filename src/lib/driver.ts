@@ -40,6 +40,15 @@ export type DriverSettings = {
   updated_at?: string;
 };
 
+export type DriverFinanceGoal = {
+  user_id: string;
+  month_start: string;
+  gross_goal: number;
+  net_goal: number;
+  created_at?: string;
+  updated_at?: string;
+};
+
 export type DriverQuote = {
   id: string;
   user_id: string;
