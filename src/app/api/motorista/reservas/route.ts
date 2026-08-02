@@ -1,9 +1,14 @@
 import { createHash } from "node:crypto";
 import { NextResponse } from "next/server";
-import { createAdminClient } from "@/lib/supabase/admin";
-import { sendPushNotification } from "@/lib/push";
-import { normalizeWhatsAppPhone } from "@/lib/driver-public";
 import { formatBrazilDate, formatBrazilTime } from "@/lib/date-time";
+import {
+  normalizeDriverCampaignCode,
+  normalizeDriverMarketingSource,
+  type DriverMarketingSource,
+} from "@/lib/driver-marketing";
+import { normalizeWhatsAppPhone } from "@/lib/driver-public";
+import { sendPushNotification } from "@/lib/push";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
 
@@ -17,14 +22,17 @@ function fingerprint(request: Request, driverUserId: string) {
   return createHash("sha256").update(`${ip}|${agent}|${driverUserId}`).digest("hex");
 }
 
-function sourceFromRequest(request: Request) {
+function marketingFromRequest(request: Request): { source: DriverMarketingSource; campaignCode: string } {
   try {
     const referer = request.headers.get("referer");
-    if (!referer) return "profile";
-    const source = new URL(referer).searchParams.get("src");
-    return source === "qr" ? "qr" : source === "shared_link" ? "shared_link" : source === "whatsapp" ? "whatsapp" : "profile";
+    if (!referer) return { source: "profile", campaignCode: "" };
+    const url = new URL(referer);
+    return {
+      source: normalizeDriverMarketingSource(url.searchParams.get("src")),
+      campaignCode: normalizeDriverCampaignCode(url.searchParams.get("cmp")),
+    };
   } catch {
-    return "profile";
+    return { source: "profile", campaignCode: "" };
   }
 }
 
@@ -45,8 +53,10 @@ export async function POST(request: Request) {
     const luggage = clean(body.luggage, 180);
     const notes = clean(body.notes, 700);
     const packageId = clean(body.packageId, 64) || null;
-    const requestedSource = clean(body.source, 20);
-    const reservationSource = ["profile", "qr", "shared_link", "whatsapp"].includes(requestedSource) ? requestedSource : sourceFromRequest(request);
+    const refererMarketing = marketingFromRequest(request);
+    const bodySource = clean(body.source, 30);
+    let reservationSource = bodySource ? normalizeDriverMarketingSource(bodySource) : refererMarketing.source;
+    const campaignCode = normalizeDriverCampaignCode(clean(body.campaignCode, 48) || refererMarketing.campaignCode);
 
     if (!driverSlug || passengerName.length < 2 || passengerPhone.length < 10 || !travelDate) {
       return NextResponse.json({ ok: false, error: "Confira nome, WhatsApp e data da viagem." }, { status: 400 });
@@ -55,7 +65,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false, error: "Informe uma data e um horário válidos." }, { status: 400 });
     }
     const requestedDay = new Date(`${travelDate}T12:00:00`);
-    const todayInSaoPaulo = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
+    const todayInSaoPaulo = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "America/Sao_Paulo",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(new Date());
     if (!Number.isFinite(requestedDay.getTime()) || travelDate < todayInSaoPaulo) {
       return NextResponse.json({ ok: false, error: "Escolha uma data de hoje em diante." }, { status: 400 });
     }
@@ -82,6 +97,21 @@ export async function POST(request: Request) {
       .maybeSingle();
     if (!ownerProfile?.is_professional_driver || ownerProfile.is_blocked) {
       return NextResponse.json({ ok: false, error: "Este perfil não está disponível agora." }, { status: 404 });
+    }
+
+    let campaignId: string | null = null;
+    if (campaignCode) {
+      const { data: campaign } = await supabase
+        .from("driver_marketing_campaigns")
+        .select("id, source")
+        .eq("user_id", profile.user_id)
+        .eq("code", campaignCode)
+        .eq("is_active", true)
+        .maybeSingle();
+      if (campaign) {
+        campaignId = campaign.id;
+        reservationSource = normalizeDriverMarketingSource(campaign.source);
+      }
     }
 
     let selectedPackage: { id: string; title: string } | null = null;
@@ -113,6 +143,7 @@ export async function POST(request: Request) {
       .insert({
         driver_user_id: profile.user_id,
         package_id: selectedPackage?.id ?? null,
+        campaign_id: campaignId,
         passenger_name: passengerName,
         passenger_phone: passengerPhone,
         origin: origin || null,
@@ -181,8 +212,9 @@ export async function POST(request: Request) {
     await supabase.from("driver_profile_events").insert({
       driver_user_id: profile.user_id,
       package_id: selectedPackage?.id ?? null,
+      campaign_id: campaignId,
       event_type: "reservation_submitted",
-      source: reservationSource === "qr" ? "qr" : reservationSource === "shared_link" ? "shared_link" : "profile",
+      source: reservationSource,
       visitor_hash: requestHash,
     });
 

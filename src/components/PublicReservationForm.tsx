@@ -3,13 +3,15 @@
 import { useMemo, useRef, useState } from "react";
 import { CalendarDays, CheckCircle2, LoaderCircle, Send } from "lucide-react";
 import { TRIP_TYPE_LABELS, type DriverTripType } from "@/lib/driver";
+import type { DriverMarketingSource } from "@/lib/driver-marketing";
 import { type DriverServicePackage } from "@/lib/driver-public";
 
 type Props = {
   driverSlug: string;
   packages: DriverServicePackage[];
   initialPackageId?: string;
-  source?: "profile" | "qr" | "shared_link";
+  source?: DriverMarketingSource;
+  campaignCode?: string;
 };
 
 type FormState = {
@@ -42,7 +44,7 @@ const initialForm: FormState = {
   company: "",
 };
 
-export function PublicReservationForm({ driverSlug, packages, initialPackageId = "", source = "profile" }: Props) {
+export function PublicReservationForm({ driverSlug, packages, initialPackageId = "", source = "profile", campaignCode = "" }: Props) {
   const [form, setForm] = useState<FormState>({ ...initialForm, packageId: initialPackageId });
   const [sending, setSending] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -67,7 +69,7 @@ export function PublicReservationForm({ driverSlug, packages, initialPackageId =
     void fetch("/api/motorista/perfil-evento", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ driverSlug, eventType: "reservation_started", source, packageId: form.packageId || null }),
+      body: JSON.stringify({ driverSlug, eventType: "reservation_started", source, campaignCode, packageId: form.packageId || null }),
       keepalive: true,
     });
   }
@@ -85,7 +87,7 @@ export function PublicReservationForm({ driverSlug, packages, initialPackageId =
       const response = await fetch("/api/motorista/reservas", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ driverSlug, source, ...form }),
+        body: JSON.stringify({ driverSlug, source, campaignCode, ...form }),
       });
       const data = (await response.json()) as { ok?: boolean; error?: string };
       if (!response.ok || !data.ok) throw new Error(data.error || "Não foi possível enviar a solicitação.");

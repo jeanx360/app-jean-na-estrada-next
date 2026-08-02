@@ -6,3 +6,5 @@ export type {
   DriverReservationStatus,
   DriverServicePackage,
 } from "@/lib/driver-public";
+
+export type { DriverMarketingCampaign, DriverMarketingSource } from "@/lib/driver-marketing";

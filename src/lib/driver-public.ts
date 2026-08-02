@@ -1,3 +1,4 @@
+import type { DriverMarketingSource } from "@/lib/driver-marketing";
 import { formatCurrency, type DriverTripType } from "@/lib/driver";
 import { formatBrazilDate, formatBrazilTime } from "@/lib/date-time";
 
@@ -66,7 +67,8 @@ export type DriverReservation = {
   luggage: string | null;
   notes: string | null;
   status: DriverReservationStatus;
-  source: "profile" | "qr" | "shared_link" | "whatsapp";
+  source: DriverMarketingSource;
+  campaign_id: string | null;
   quote_id: string | null;
   request_fingerprint_hash: string | null;
   contact_consent: boolean;

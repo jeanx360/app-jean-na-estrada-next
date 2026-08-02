@@ -4,18 +4,37 @@ import { BriefcaseBusiness, CalendarDays, Car, CheckCircle2, Luggage, MapPin, Me
 import { notFound } from "next/navigation";
 import { DriverProfileEventTracker } from "@/components/DriverProfileEventTracker";
 import { PublicReservationForm } from "@/components/PublicReservationForm";
+import {
+  driverMarketingRelativeUrl,
+  normalizeDriverCampaignCode,
+  normalizeDriverMarketingSource,
+} from "@/lib/driver-marketing";
 import { createClient } from "@/lib/supabase/server";
 import { formatDriverPackagePrice, normalizeWhatsAppPhone, type DriverPublicProfile, type DriverServicePackage } from "@/lib/driver-public";
 
 export const dynamic = "force-dynamic";
 
-type Props = { params: Promise<{ slug: string }>; searchParams: Promise<{ src?: string; servico?: string; preview?: string }> };
+type Props = {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ src?: string; cmp?: string; servico?: string; preview?: string }>;
+};
 
 async function loadProfile(slug: string) {
   const supabase = await createClient();
-  const { data: profile } = await supabase.from("driver_public_profiles").select("*").eq("slug", slug).eq("is_published", true).maybeSingle();
+  const { data: profile } = await supabase
+    .from("driver_public_profiles")
+    .select("*")
+    .eq("slug", slug)
+    .eq("is_published", true)
+    .maybeSingle();
   if (!profile) return null;
-  const { data: packages } = await supabase.from("driver_service_packages").select("*").eq("user_id", profile.user_id).eq("is_active", true).order("sort_order", { ascending: true }).order("created_at", { ascending: true });
+  const { data: packages } = await supabase
+    .from("driver_service_packages")
+    .select("*")
+    .eq("user_id", profile.user_id)
+    .eq("is_active", true)
+    .order("sort_order", { ascending: true })
+    .order("created_at", { ascending: true });
   return { profile: profile as DriverPublicProfile, packages: (packages ?? []) as DriverServicePackage[] };
 }
 
@@ -35,8 +54,10 @@ export default async function PublicDriverPage({ params, searchParams }: Props) 
   const query = await searchParams;
   const result = await loadProfile(slug);
   if (!result) return notFound();
+
   const { profile, packages } = result;
-  const source = query.src === "qr" ? "qr" : query.src === "shared_link" ? "shared_link" : "profile";
+  const source = normalizeDriverMarketingSource(query.src);
+  const campaignCode = normalizeDriverCampaignCode(query.cmp);
   const selectedPackageId = packages.some((item) => item.id === query.servico) ? query.servico : "";
   const trackPublicAccess = query.preview !== "admin";
   const whatsappText = `Olá, ${profile.display_name}! Encontrei seu cartão profissional no JNE App e gostaria de conversar sobre uma corrida.`;
@@ -44,7 +65,7 @@ export default async function PublicDriverPage({ params, searchParams }: Props) 
 
   return (
     <main className={`public-driver-page public-driver-page--${profile.theme}`}>
-      {trackPublicAccess ? <DriverProfileEventTracker driverSlug={profile.slug} source={source} /> : null}
+      {trackPublicAccess ? <DriverProfileEventTracker driverSlug={profile.slug} source={source} campaignCode={campaignCode} /> : null}
       <header className="public-driver-hero">
         <div className="public-driver-hero__brand"><span>JNE</span><small>Cartão profissional digital</small></div>
         <div className="public-driver-hero__content">
@@ -59,9 +80,9 @@ export default async function PublicDriverPage({ params, searchParams }: Props) 
 
         {profile.vehicle_details || profile.amenities.length ? <section className="public-driver-comfort"><div><span className="eyebrow">VEÍCULO E CONFORTO</span><h2>{profile.vehicle_name || "Atendimento profissional"}</h2>{profile.vehicle_details ? <p>{profile.vehicle_details}</p> : null}</div><div>{profile.amenities.map((item) => <span key={item}><CheckCircle2 size={15} /> {item}</span>)}</div></section> : null}
 
-        {packages.length ? <section className="public-driver-services"><div className="public-section-heading"><div><span className="eyebrow">SERVIÇOS</span><h2>Opções disponíveis</h2><p>Escolha uma opção ou solicite uma rota personalizada.</p></div><BriefcaseBusiness size={28} /></div><div className="public-driver-services__grid">{packages.map((item) => <article key={item.id}><div><h3>{item.title}</h3><p>{item.description || "Serviço particular mediante confirmação."}</p>{item.route_summary ? <span><MapPin size={15} /> {item.route_summary}</span> : null}{item.duration_label ? <span><CalendarDays size={15} /> {item.duration_label}</span> : null}</div><div className="public-driver-services__price"><strong>{formatDriverPackagePrice(item)}</strong>{item.includes ? <small>{item.includes}</small> : null}<Link href={`/m/${profile.slug}?src=${source}&servico=${item.id}#reservar`} className="button button--secondary">Tenho interesse</Link></div></article>)}</div></section> : null}
+        {packages.length ? <section className="public-driver-services"><div className="public-section-heading"><div><span className="eyebrow">SERVIÇOS</span><h2>Opções disponíveis</h2><p>Escolha uma opção ou solicite uma rota personalizada.</p></div><BriefcaseBusiness size={28} /></div><div className="public-driver-services__grid">{packages.map((item) => <article key={item.id}><div><h3>{item.title}</h3><p>{item.description || "Serviço particular mediante confirmação."}</p>{item.route_summary ? <span><MapPin size={15} /> {item.route_summary}</span> : null}{item.duration_label ? <span><CalendarDays size={15} /> {item.duration_label}</span> : null}</div><div className="public-driver-services__price"><strong>{formatDriverPackagePrice(item)}</strong>{item.includes ? <small>{item.includes}</small> : null}<Link href={`${driverMarketingRelativeUrl(profile.slug, source, campaignCode, item.id)}#reservar`} className="button button--secondary">Tenho interesse</Link></div></article>)}</div></section> : null}
 
-        {profile.accepts_reservations ? <PublicReservationForm driverSlug={profile.slug} packages={packages} initialPackageId={selectedPackageId} source={source} /> : <section className="public-reservation-disabled"><CalendarDays size={30} /><h2>Reservas pausadas</h2><p>Use o WhatsApp para consultar disponibilidade.</p><a className="button button--primary" href={whatsappUrl} target="_blank" rel="noreferrer"><MessageCircle size={18} /> Falar no WhatsApp</a></section>}
+        {profile.accepts_reservations ? <PublicReservationForm driverSlug={profile.slug} packages={packages} initialPackageId={selectedPackageId} source={source} campaignCode={campaignCode} /> : <section className="public-reservation-disabled"><CalendarDays size={30} /><h2>Reservas pausadas</h2><p>Use o WhatsApp para consultar disponibilidade.</p><a className="button button--primary" href={whatsappUrl} target="_blank" rel="noreferrer" data-driver-event="whatsapp"><MessageCircle size={18} /> Falar no WhatsApp</a></section>}
 
         <section className="public-driver-trust"><ShieldCheck size={25} /><div><strong>Contato direto entre passageiro e motorista</strong><p>O JNE App organiza a solicitação. Preço, disponibilidade, rota e condições devem ser confirmados diretamente antes da viagem.</p></div></section>
         <footer className="public-driver-footer"><Link href="/">JNE App · Jean na Estrada</Link><span>Cartão profissional digital</span></footer>

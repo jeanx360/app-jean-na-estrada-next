@@ -1,3 +1,8 @@
+import {
+  DRIVER_MARKETING_SOURCE_LABELS,
+  type DriverMarketingSource,
+} from "@/lib/driver-marketing";
+
 export type DriverPerformanceSummary = {
   period_days: number | string;
   profile_views: number | string;
@@ -17,7 +22,7 @@ export type DriverPerformanceSummary = {
 };
 
 export type DriverPerformanceSource = {
-  source: "profile" | "qr" | "shared_link" | "whatsapp";
+  source: DriverMarketingSource;
   profile_views: number | string;
   whatsapp_clicks: number | string;
   reservation_starts: number | string;
@@ -25,6 +30,20 @@ export type DriverPerformanceSource = {
   reservations_total: number | string;
   completed_trips: number | string;
   gross_revenue: number | string;
+  net_result: number | string;
+};
+
+export type DriverPerformanceCampaign = {
+  campaign_id: string;
+  name: string;
+  code: string;
+  source: DriverMarketingSource;
+  is_active: boolean;
+  profile_views: number | string;
+  whatsapp_clicks: number | string;
+  reservation_submissions: number | string;
+  reservations_total: number | string;
+  completed_trips: number | string;
   net_result: number | string;
 };
 
@@ -54,12 +73,7 @@ export type AdminDriverIntelligenceSummary = {
   recurring_customers: number | string;
 };
 
-export const DRIVER_SOURCE_LABELS: Record<DriverPerformanceSource["source"], string> = {
-  profile: "Acesso direto",
-  qr: "QR Code",
-  shared_link: "Link compartilhado",
-  whatsapp: "WhatsApp",
-};
+export const DRIVER_SOURCE_LABELS = DRIVER_MARKETING_SOURCE_LABELS;
 
 export const DRIVER_WEEKDAY_LABELS: Record<number, string> = {
   1: "Segunda-feira",

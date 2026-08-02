@@ -9,6 +9,7 @@ import {
   CheckCircle2,
   Crown,
   Eye,
+  Link2,
   MessageCircle,
   QrCode,
   Route,
@@ -28,6 +29,7 @@ import {
   percentage,
   periodChange,
   type DriverDemandPeriod,
+  type DriverPerformanceCampaign,
   type DriverPerformanceService,
   type DriverPerformanceSource,
   type DriverPerformanceSummary,
@@ -75,16 +77,19 @@ export default async function DriverPerformancePage() {
   const hasVip = profile.role === "vip" || profile.role === "admin";
   if (!hasVip) redirect("/vip?next=/motorista/desempenho");
 
-  const [summaryResult, sourceResult, serviceResult, demandResult] = await Promise.all([
+  const [summaryResult, sourceResult, campaignResult, serviceResult, demandResult] = await Promise.all([
     supabase.rpc("driver_performance_summary", { days_count: 30 }),
     supabase.rpc("driver_performance_sources", { days_count: 30 }),
+    supabase.rpc("driver_performance_campaigns", { days_count: 30, result_limit: 8 }),
     supabase.rpc("driver_performance_services", { days_count: 30, result_limit: 5 }),
     supabase.rpc("driver_performance_demand", { days_count: 90 }),
   ]);
 
-  const unavailable = Boolean(summaryResult.error || sourceResult.error || serviceResult.error || demandResult.error);
+  const coreUnavailable = Boolean(summaryResult.error || sourceResult.error || serviceResult.error || demandResult.error);
+  const marketingUnavailable = Boolean(campaignResult.error);
   const summary = (firstRow(summaryResult.data) ?? {}) as Partial<DriverPerformanceSummary>;
   const sources = (sourceResult.data ?? []) as DriverPerformanceSource[];
+  const campaigns = (campaignResult.data ?? []) as DriverPerformanceCampaign[];
   const services = (serviceResult.data ?? []) as DriverPerformanceService[];
   const demand = (demandResult.data ?? []) as DriverDemandPeriod[];
 
@@ -103,23 +108,30 @@ export default async function DriverPerformancePage() {
   const previousTrips = intelligenceNumber(summary.previous_completed_trips);
   const previousNet = intelligenceNumber(summary.previous_net_result);
   const maximumSourceViews = Math.max(1, ...sources.map((item) => intelligenceNumber(item.profile_views)));
+  const maximumCampaignViews = Math.max(1, ...campaigns.map((item) => intelligenceNumber(item.profile_views)));
 
   const recommendations = [
     views > 0 && percentage(whatsappClicks, views) < 5 ? "Fortaleça a chamada para o WhatsApp no cartão e divulgue o QR em locais de maior circulação." : null,
     reservationStarts > 0 && percentage(submissions, reservationStarts) < 40 ? "Muitos passageiros iniciam o formulário e não concluem. Revise serviços, preços e clareza das informações." : null,
     reservations > 0 && percentage(completedTrips, reservations) < 25 ? "Acompanhe reservas abertas e transforme as confirmadas em viagens para medir a receita corretamente." : null,
+    campaigns.length === 0 ? "Crie campanhas diferentes para o veículo e para cada rede social. Assim você identifica onde vale insistir." : null,
     recurringCustomers > 0 ? `${recurringCustomers} clientes já voltaram a solicitar seus serviços. Priorize relacionamento e pós-atendimento.` : "Ainda não há clientes recorrentes identificados; incentive novas reservas pelo mesmo WhatsApp.",
   ].filter(Boolean) as string[];
 
   return (
     <div className="page-stack driver-page driver-intelligence-page">
       <Link className="text-link driver-back-link" href="/motorista"><ArrowLeft size={17} /> Voltar ao painel</Link>
-      <PageHeader icon={<BarChart3 size={24} />} eyebrow="INTELIGÊNCIA VIP" title="Desempenho do seu atendimento" description="Entenda de onde chegam os passageiros, onde o funil perde força e quanto as viagens concluídas geraram." />
+      <PageHeader icon={<BarChart3 size={24} />} eyebrow="INTELIGÊNCIA VIP" title="Desempenho do seu atendimento" description="Entenda de onde chegam os passageiros, quais campanhas funcionam e quanto as viagens concluídas geraram." />
 
-      {unavailable ? (
+      {coreUnavailable ? (
         <section className="driver-intelligence-warning">
           <Target size={25} />
-          <div><strong>O painel ainda não está conectado ao banco.</strong><p>Execute a migration da versão 1.10.0 no Supabase para ativar os indicadores.</p></div>
+          <div><strong>O painel principal ainda não está conectado ao banco.</strong><p>Execute as migrations 1.10.0 e 1.11.0 no Supabase para ativar todos os indicadores.</p></div>
+        </section>
+      ) : marketingUnavailable ? (
+        <section className="driver-intelligence-warning">
+          <Link2 size={25} />
+          <div><strong>Os indicadores gerais estão ativos.</strong><p>Execute a migration 1.11.0 para liberar campanhas rastreáveis e o ranking de divulgação.</p></div>
         </section>
       ) : null}
 
@@ -147,7 +159,7 @@ export default async function DriverPerformancePage() {
 
       <section className="driver-intelligence-grid">
         <article className="driver-intelligence-panel">
-          <header><div><span>ORIGEM</span><h2>Onde o passageiro encontrou você</h2><p>Compare QR, link compartilhado e acesso direto.</p></div><QrCode size={23} /></header>
+          <header><div><span>ORIGEM</span><h2>Onde o passageiro encontrou você</h2><p>Compare veículo, cartões, redes sociais e links compartilhados.</p></div><QrCode size={23} /></header>
           <div className="driver-source-list">
             {sources.map((item) => {
               const sourceViews = intelligenceNumber(item.profile_views);
@@ -155,7 +167,7 @@ export default async function DriverPerformancePage() {
               const sourceNet = intelligenceNumber(item.net_result);
               return (
                 <div key={item.source}>
-                  <div><strong>{DRIVER_SOURCE_LABELS[item.source]}</strong><span>{sourceViews} visualizações · {sourceReservations} reservas</span></div>
+                  <div><strong>{DRIVER_SOURCE_LABELS[item.source] || item.source}</strong><span>{sourceViews} visualizações · {sourceReservations} reservas</span></div>
                   <small>{formatCurrency(sourceNet)} líquidos</small>
                   <i><b style={{ width: `${Math.max(5, (sourceViews / maximumSourceViews) * 100)}%` }} /></i>
                 </div>
@@ -176,6 +188,24 @@ export default async function DriverPerformancePage() {
             <div><small>Clientes recorrentes</small><strong>{recurringCustomers}</strong></div>
           </div>
         </article>
+      </section>
+
+      <section className="driver-intelligence-panel driver-campaign-performance">
+        <header><div><span>CAMPANHAS</span><h2>Quais divulgações trouxeram resultado</h2><p>Ranking dos últimos 30 dias por campanha identificada.</p></div><Link2 size={23} /></header>
+        <div className="driver-campaign-performance__list">
+          {campaigns.map((item, index) => {
+            const campaignViews = intelligenceNumber(item.profile_views);
+            const campaignReservations = intelligenceNumber(item.reservations_total);
+            return (
+              <article key={item.campaign_id}>
+                <b>{index + 1}</b>
+                <div><strong>{item.name}</strong><small>{DRIVER_SOURCE_LABELS[item.source] || item.source} · {campaignViews} visualizações · {campaignReservations} reservas</small><i><span style={{ width: `${Math.max(5, (campaignViews / maximumCampaignViews) * 100)}%` }} /></i></div>
+                <em>{formatCurrency(intelligenceNumber(item.net_result))}</em>
+              </article>
+            );
+          })}
+          {!campaigns.length ? <div className="driver-campaign-performance__empty"><p>Nenhuma campanha com movimento neste período.</p><Link className="button button--secondary button--compact" href="/motorista/cartao">Criar campanha rastreável <ArrowRight size={16} /></Link></div> : null}
+        </div>
       </section>
 
       <section className="driver-intelligence-grid">
@@ -205,7 +235,7 @@ export default async function DriverPerformancePage() {
       <section className="driver-intelligence-panel driver-intelligence-recommendations">
         <header><div><span>PRÓXIMAS AÇÕES</span><h2>O que os dados sugerem</h2><p>Recomendações simples baseadas no seu próprio funil.</p></div>{netResult >= previousNet ? <TrendingUp size={23} /> : <TrendingDown size={23} />}</header>
         <div>{recommendations.map((item) => <article key={item}><CheckCircle2 size={18} /><p>{item}</p></article>)}</div>
-        <footer><Crown size={16} /><span>Painel exclusivo para membros VIP e administradores.</span><Link className="text-link" href="/motorista/financeiro">Abrir financeiro <ArrowRight size={16} /></Link></footer>
+        <footer><Crown size={16} /><span>Painel exclusivo para membros VIP e administradores.</span><Link className="text-link" href="/motorista/cartao">Abrir divulgação <ArrowRight size={16} /></Link></footer>
       </section>
     </div>
   );

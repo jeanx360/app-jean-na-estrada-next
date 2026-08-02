@@ -164,6 +164,7 @@ export async function duplicateDriverReservationAction(formData: FormData) {
     .insert({
       driver_user_id: userId,
       package_id: reservation.package_id,
+      campaign_id: reservation.campaign_id,
       passenger_name: reservation.passenger_name,
       passenger_phone: reservation.passenger_phone,
       origin: reservation.origin,

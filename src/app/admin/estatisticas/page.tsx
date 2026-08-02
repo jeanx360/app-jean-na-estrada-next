@@ -5,6 +5,7 @@ import {
   CalendarDays,
   Download,
   Eye,
+  Link2,
   MousePointerClick,
   Route,
   UserPlus,
@@ -37,6 +38,13 @@ type TopPage = {
   unique_visitors: number | string;
 };
 
+type AdminDriverMarketingSummary = {
+  total_campaigns: number | string;
+  active_campaigns: number | string;
+  attributed_views: number | string;
+  attributed_reservations: number | string;
+};
+
 type DriverMetric = {
   profile_views: number | string;
   profile_views_30d: number | string;
@@ -66,13 +74,14 @@ function pathLabel(path: string) {
 
 export default async function AdminStatisticsPage() {
   const { supabase } = await requireAdmin();
-  const [dailyResult, summaryResult, topPagesResult, driverResult, dashboardResult, driverIntelligenceResult] = await Promise.all([
+  const [dailyResult, summaryResult, topPagesResult, driverResult, dashboardResult, driverIntelligenceResult, driverMarketingResult] = await Promise.all([
     supabase.rpc("admin_site_traffic_daily", { days_count: 30 }),
     supabase.rpc("admin_site_traffic_summary", { days_count: 30 }),
     supabase.rpc("admin_site_top_pages", { days_count: 30, result_limit: 10 }),
     supabase.rpc("admin_driver_metrics"),
     supabase.rpc("admin_dashboard_metrics"),
     supabase.rpc("admin_driver_intelligence_summary", { days_count: 30 }),
+    supabase.rpc("admin_driver_marketing_summary", { days_count: 30 }),
   ]);
 
   const analyticsUnavailable = Boolean(dailyResult.error || summaryResult.error || topPagesResult.error);
@@ -89,6 +98,8 @@ export default async function AdminStatisticsPage() {
   const dashboardData = Array.isArray(dashboardResult.data) ? dashboardResult.data[0] : dashboardResult.data;
   const driverIntelligenceData = Array.isArray(driverIntelligenceResult.data) ? driverIntelligenceResult.data[0] : driverIntelligenceResult.data;
   const driverIntelligence = (driverIntelligenceData ?? {}) as Partial<AdminDriverIntelligenceSummary>;
+  const driverMarketingData = Array.isArray(driverMarketingResult.data) ? driverMarketingResult.data[0] : driverMarketingResult.data;
+  const driverMarketing = (driverMarketingData ?? {}) as Partial<AdminDriverMarketingSummary>;
 
   const pageViews = numberValue(summary.page_views);
   const previousViews = numberValue(summary.previous_period_views);
@@ -155,7 +166,14 @@ export default async function AdminStatisticsPage() {
             <div><small>Receita registrada</small><strong>{new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(numberValue(driverIntelligence.gross_revenue))}</strong></div>
             <div><small>Resultado líquido</small><strong>{new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(numberValue(driverIntelligence.net_result))}</strong></div>
           </div>
+          <div className="admin-driver-marketing-strip">
+            <Link2 size={19} />
+            <div><small>Campanhas ativas</small><strong>{numberValue(driverMarketing.active_campaigns)} de {numberValue(driverMarketing.total_campaigns)}</strong></div>
+            <div><small>Acessos identificados</small><strong>{numberValue(driverMarketing.attributed_views)}</strong></div>
+            <div><small>Reservas atribuídas</small><strong>{numberValue(driverMarketing.attributed_reservations)}</strong></div>
+          </div>
           {driverIntelligenceResult.error ? <p className="admin-analytics-note">Execute a migration 1.10.0 para ativar o consolidado financeiro dos motoristas.</p> : null}
+          {driverMarketingResult.error ? <p className="admin-analytics-note">Execute a migration 1.11.0 para ativar o consolidado de campanhas.</p> : null}
           <Link className="admin-panel-link" href="/admin/motoristas">Abrir gestão dos motoristas <ArrowUpRight size={17} /></Link>
         </article>
 
