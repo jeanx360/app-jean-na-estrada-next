@@ -15,3 +15,5 @@ A documentaÃ§Ã£o histÃ³rica foi retirada da raiz para manter o projeto leg
 - Arquivos temporÃ¡rios, logs, ZIPs e builds nÃ£o devem ser versionados.
 - Migrations continuam em `supabase/migrations/`.
 - CÃ³digo da aplicaÃ§Ã£o continua em `src/`.
+
+- [1.10.0 — Inteligência do motorista](./releases/1.10.0/ALTERACOES.md)

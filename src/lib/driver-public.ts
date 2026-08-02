@@ -66,7 +66,7 @@ export type DriverReservation = {
   luggage: string | null;
   notes: string | null;
   status: DriverReservationStatus;
-  source: "profile" | "qr" | "whatsapp";
+  source: "profile" | "qr" | "shared_link" | "whatsapp";
   quote_id: string | null;
   request_fingerprint_hash: string | null;
   contact_consent: boolean;

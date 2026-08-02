@@ -22,7 +22,7 @@ function sourceFromRequest(request: Request) {
     const referer = request.headers.get("referer");
     if (!referer) return "profile";
     const source = new URL(referer).searchParams.get("src");
-    return source === "qr" ? "qr" : source === "whatsapp" ? "whatsapp" : "profile";
+    return source === "qr" ? "qr" : source === "shared_link" ? "shared_link" : source === "whatsapp" ? "whatsapp" : "profile";
   } catch {
     return "profile";
   }
@@ -46,7 +46,7 @@ export async function POST(request: Request) {
     const notes = clean(body.notes, 700);
     const packageId = clean(body.packageId, 64) || null;
     const requestedSource = clean(body.source, 20);
-    const reservationSource = requestedSource === "qr" ? "qr" : sourceFromRequest(request);
+    const reservationSource = ["profile", "qr", "shared_link", "whatsapp"].includes(requestedSource) ? requestedSource : sourceFromRequest(request);
 
     if (!driverSlug || passengerName.length < 2 || passengerPhone.length < 10 || !travelDate) {
       return NextResponse.json({ ok: false, error: "Confira nome, WhatsApp e data da viagem." }, { status: 400 });
@@ -182,7 +182,7 @@ export async function POST(request: Request) {
       driver_user_id: profile.user_id,
       package_id: selectedPackage?.id ?? null,
       event_type: "reservation_submitted",
-      source: reservationSource === "qr" ? "qr" : "profile",
+      source: reservationSource === "qr" ? "qr" : reservationSource === "shared_link" ? "shared_link" : "profile",
       visitor_hash: requestHash,
     });
 

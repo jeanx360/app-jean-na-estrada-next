@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { AdminTrafficChart, type AdminTrafficPoint } from "@/components/AdminTrafficChart";
 import { requireAdmin } from "@/lib/admin";
+import type { AdminDriverIntelligenceSummary } from "@/lib/driver-intelligence";
 
 export const metadata: Metadata = { title: "Estatísticas administrativas" };
 export const dynamic = "force-dynamic";
@@ -65,12 +66,13 @@ function pathLabel(path: string) {
 
 export default async function AdminStatisticsPage() {
   const { supabase } = await requireAdmin();
-  const [dailyResult, summaryResult, topPagesResult, driverResult, dashboardResult] = await Promise.all([
+  const [dailyResult, summaryResult, topPagesResult, driverResult, dashboardResult, driverIntelligenceResult] = await Promise.all([
     supabase.rpc("admin_site_traffic_daily", { days_count: 30 }),
     supabase.rpc("admin_site_traffic_summary", { days_count: 30 }),
     supabase.rpc("admin_site_top_pages", { days_count: 30, result_limit: 10 }),
     supabase.rpc("admin_driver_metrics"),
     supabase.rpc("admin_dashboard_metrics"),
+    supabase.rpc("admin_driver_intelligence_summary", { days_count: 30 }),
   ]);
 
   const analyticsUnavailable = Boolean(dailyResult.error || summaryResult.error || topPagesResult.error);
@@ -85,6 +87,8 @@ export default async function AdminStatisticsPage() {
   const topPages = (topPagesResult.data ?? []) as TopPage[];
   const driverMetrics = (driverResult.data ?? []) as DriverMetric[];
   const dashboardData = Array.isArray(dashboardResult.data) ? dashboardResult.data[0] : dashboardResult.data;
+  const driverIntelligenceData = Array.isArray(driverIntelligenceResult.data) ? driverIntelligenceResult.data[0] : driverIntelligenceResult.data;
+  const driverIntelligence = (driverIntelligenceData ?? {}) as Partial<AdminDriverIntelligenceSummary>;
 
   const pageViews = numberValue(summary.page_views);
   const previousViews = numberValue(summary.previous_period_views);
@@ -145,6 +149,13 @@ export default async function AdminStatisticsPage() {
             <div><span>Reservas iniciadas</span><strong>{reservationStarts}</strong><small>formulários abertos</small></div>
             <div><span>Reservas enviadas</span><strong>{reservationSubmissions}</strong><small>{conversion.toFixed(1)}% de conversão</small></div>
           </div>
+          <div className="admin-driver-intelligence-summary">
+            <div><small>Motoristas ativos</small><strong>{numberValue(driverIntelligence.active_drivers)}</strong></div>
+            <div><small>Viagens concluídas</small><strong>{numberValue(driverIntelligence.completed_trips)}</strong></div>
+            <div><small>Receita registrada</small><strong>{new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(numberValue(driverIntelligence.gross_revenue))}</strong></div>
+            <div><small>Resultado líquido</small><strong>{new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(numberValue(driverIntelligence.net_result))}</strong></div>
+          </div>
+          {driverIntelligenceResult.error ? <p className="admin-analytics-note">Execute a migration 1.10.0 para ativar o consolidado financeiro dos motoristas.</p> : null}
           <Link className="admin-panel-link" href="/admin/motoristas">Abrir gestão dos motoristas <ArrowUpRight size={17} /></Link>
         </article>
 

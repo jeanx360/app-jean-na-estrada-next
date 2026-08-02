@@ -11667,3 +11667,465 @@ button {
     grid-template-columns: 1fr 1fr;
   }
 }
+
+/* JNE App 1.10.0 — Inteligência do motorista */
+.driver-vip-preview-grid article.is-available {
+  border-color: color-mix(in srgb, var(--driver-accent) 58%, var(--border));
+  box-shadow: 0 18px 44px color-mix(in srgb, var(--driver-accent) 14%, transparent);
+}
+
+.driver-vip-preview-grid article.is-available > small {
+  color: var(--driver-accent);
+  font-weight: 800;
+}
+
+.driver-vip-preview-grid article.is-available .button {
+  margin-top: auto;
+  justify-self: flex-start;
+}
+
+.driver-intelligence-page {
+  gap: 18px;
+}
+
+.driver-intelligence-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid color-mix(in srgb, #f59e0b 55%, var(--border));
+  border-radius: 18px;
+  background: color-mix(in srgb, #f59e0b 9%, var(--surface));
+}
+
+.driver-intelligence-warning svg {
+  flex: 0 0 auto;
+  color: #f59e0b;
+}
+
+.driver-intelligence-warning strong,
+.driver-intelligence-warning p {
+  margin: 0;
+}
+
+.driver-intelligence-warning p {
+  margin-top: 4px;
+  color: var(--muted);
+}
+
+.driver-intelligence-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.driver-intelligence-summary article {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface);
+}
+
+.driver-intelligence-summary article > span {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  border-radius: 13px;
+  color: var(--driver-accent);
+  background: color-mix(in srgb, var(--driver-accent) 13%, transparent);
+}
+
+.driver-intelligence-summary article > div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.driver-intelligence-summary small,
+.driver-intelligence-summary p {
+  color: var(--muted);
+}
+
+.driver-intelligence-summary small {
+  font-size: .76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.driver-intelligence-summary strong {
+  font-size: clamp(1.35rem, 2.4vw, 2rem);
+  line-height: 1.05;
+}
+
+.driver-intelligence-summary p {
+  margin: 0;
+  font-size: .75rem;
+  line-height: 1.35;
+}
+
+.driver-intelligence-panel {
+  min-width: 0;
+  padding: 22px;
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  background: var(--surface);
+}
+
+.driver-intelligence-panel > header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.driver-intelligence-panel > header > svg {
+  flex: 0 0 auto;
+  color: var(--driver-accent);
+}
+
+.driver-intelligence-panel header span {
+  color: var(--driver-accent);
+  font-size: .7rem;
+  font-weight: 850;
+  letter-spacing: .09em;
+}
+
+.driver-intelligence-panel h2,
+.driver-intelligence-panel header p {
+  margin: 0;
+}
+
+.driver-intelligence-panel h2 {
+  margin-top: 4px;
+  font-size: clamp(1.15rem, 2vw, 1.55rem);
+}
+
+.driver-intelligence-panel header p {
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: .85rem;
+}
+
+.driver-intelligence-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.driver-intelligence-funnel {
+  display: grid;
+  grid-template-columns: repeat(9, auto);
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.driver-intelligence-funnel > svg {
+  color: var(--muted);
+}
+
+.driver-intelligence-funnel article {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  background: var(--card, var(--surface));
+}
+
+.driver-intelligence-funnel article > span {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  border-radius: 10px;
+  color: #081018;
+  background: var(--driver-accent);
+  font-weight: 900;
+}
+
+.driver-intelligence-funnel article > div {
+  display: grid;
+  gap: 2px;
+}
+
+.driver-intelligence-funnel small,
+.driver-intelligence-funnel em {
+  color: var(--muted);
+  font-size: .68rem;
+  font-style: normal;
+}
+
+.driver-intelligence-funnel strong {
+  font-size: 1.25rem;
+}
+
+.driver-source-list,
+.driver-intelligence-ranking {
+  display: grid;
+  gap: 14px;
+}
+
+.driver-source-list > div,
+.driver-intelligence-ranking > div {
+  display: grid;
+  gap: 7px;
+}
+
+.driver-source-list > div > div,
+.driver-intelligence-ranking > div > span {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.driver-source-list span,
+.driver-source-list small,
+.driver-intelligence-ranking small {
+  color: var(--muted);
+  font-size: .76rem;
+}
+
+.driver-source-list > div > small {
+  justify-self: end;
+}
+
+.driver-source-list i,
+.driver-intelligence-ranking i {
+  display: block;
+  height: 7px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--muted) 18%, transparent);
+}
+
+.driver-source-list i b,
+.driver-intelligence-ranking i b {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--driver-accent), #38bdf8);
+}
+
+.driver-intelligence-finance {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.driver-intelligence-finance > div {
+  display: grid;
+  gap: 4px;
+  padding: 13px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--card, var(--surface));
+}
+
+.driver-intelligence-finance > div.is-highlight {
+  border-color: color-mix(in srgb, var(--driver-accent) 50%, var(--border));
+  background: color-mix(in srgb, var(--driver-accent) 9%, var(--surface));
+}
+
+.driver-intelligence-finance small,
+.driver-intelligence-finance span {
+  color: var(--muted);
+  font-size: .72rem;
+}
+
+.driver-intelligence-finance strong {
+  font-size: 1.15rem;
+}
+
+.driver-service-ranking {
+  display: grid;
+  gap: 10px;
+}
+
+.driver-service-ranking > div {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+
+.driver-service-ranking > div > b {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  color: #081018;
+  background: var(--driver-accent);
+}
+
+.driver-service-ranking span {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.driver-service-ranking small {
+  color: var(--muted);
+  font-size: .72rem;
+}
+
+.driver-service-ranking em {
+  color: var(--driver-accent);
+  font-size: .83rem;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.driver-demand-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.driver-demand-columns h3 {
+  margin: 0 0 12px;
+  font-size: .9rem;
+}
+
+.driver-intelligence-recommendations > div {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.driver-intelligence-recommendations article {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 13px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+
+.driver-intelligence-recommendations article svg {
+  flex: 0 0 auto;
+  color: var(--driver-accent);
+}
+
+.driver-intelligence-recommendations article p {
+  margin: 0;
+  color: var(--muted);
+  font-size: .82rem;
+  line-height: 1.45;
+}
+
+.driver-intelligence-recommendations footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 15px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: .76rem;
+}
+
+.driver-intelligence-recommendations footer svg {
+  color: var(--driver-accent);
+}
+
+.driver-intelligence-recommendations footer .text-link {
+  margin-left: auto;
+}
+
+.admin-driver-intelligence-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+  margin-top: 12px;
+}
+
+.admin-driver-intelligence-summary > div {
+  display: grid;
+  gap: 4px;
+  padding: 11px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--card, var(--surface));
+}
+
+.admin-driver-intelligence-summary small {
+  color: var(--muted);
+  font-size: .68rem;
+}
+
+.admin-driver-intelligence-summary strong {
+  font-size: 1rem;
+}
+
+@media (max-width: 1050px) {
+  .driver-intelligence-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .driver-intelligence-funnel {
+    grid-template-columns: 1fr;
+  }
+
+  .driver-intelligence-funnel > svg {
+    display: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .driver-intelligence-grid,
+  .driver-demand-columns,
+  .driver-intelligence-recommendations > div {
+    grid-template-columns: 1fr;
+  }
+
+  .driver-intelligence-panel {
+    padding: 17px;
+    border-radius: 18px;
+  }
+}
+
+@media (max-width: 520px) {
+  .driver-intelligence-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .driver-intelligence-finance,
+  .admin-driver-intelligence-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .driver-service-ranking > div {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .driver-service-ranking em {
+    grid-column: 2;
+  }
+
+  .driver-intelligence-recommendations footer {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .driver-intelligence-recommendations footer .text-link {
+    width: 100%;
+    margin-left: 24px;
+  }
+}
