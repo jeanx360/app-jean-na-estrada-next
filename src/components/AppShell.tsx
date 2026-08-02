@@ -1,5 +1,7 @@
 "use client";
 
+import { APP_VERSION } from "@/lib/app-version";
+
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, Settings, X } from "lucide-react";
@@ -71,7 +73,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           ))}
         </nav>
         <SidebarAccountAction />
-        <p className="sidebar__version" suppressHydrationWarning>Versão 1.7.4</p>
+        <p className="sidebar__version" suppressHydrationWarning>Versão {APP_VERSION}</p>
       </aside>
 
       <ReservationAlertWatcher />
