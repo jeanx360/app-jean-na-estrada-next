@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, Calculator, CalendarDays, FileText, Luggage, MapPin, MessageCircle, Phone, ReceiptText, Users, WalletCards } from "lucide-react";
+import { ArrowLeft, Calculator, CalendarDays, ContactRound, FileText, Luggage, MapPin, MessageCircle, Phone, ReceiptText, Users, WalletCards } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
 import { DriverReservationActions } from "@/components/DriverReservationActions";
 import { DriverReservationProgress } from "@/components/DriverReservationProgress";
@@ -53,6 +53,7 @@ export default async function DriverReservationDetailPage({ params }: Props) {
             {reservation.notes ? <div className="driver-reservation-notes"><span>Observações</span><p>{reservation.notes}</p></div> : null}
             <div className="driver-reservation-detail__primary-actions">
               <a className="button button--secondary" href={reservationWhatsAppUrl(reservation)} target="_blank" rel="noreferrer"><MessageCircle size={18} /> Conversar</a>
+              {reservation.customer_id ? <Link className="button button--secondary" href={`/motorista/clientes/${reservation.customer_id}`}><ContactRound size={18} /> Ver cliente</Link> : null}
               {!quote ? <Link className="button button--primary" href={`/motorista/calculadora?${calculatorQuery.toString()}`}><Calculator size={18} /> Criar orçamento</Link> : <Link className="button button--primary" href={`/motorista/orcamentos/${quote.id}`}><FileText size={18} /> Abrir orçamento</Link>}
             </div>
           </section>

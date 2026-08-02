@@ -250,6 +250,16 @@ export default async function DriverDashboardPage() {
         {publicProfile?.is_published ? <div className="driver-profile-activity-strip"><span><strong>{profileViews ?? 0}</strong> visualizações nos últimos 30 dias</span><span><strong>{reservations.length}</strong> solicitações recentes</span><span><strong>{publicProfile.accepts_reservations ? "Ativo" : "Pausado"}</strong> recebimento de reservas</span></div> : null}
       </section>
 
+      <section className="driver-crm-callout">
+        <div className="driver-crm-callout__icon"><ContactRound size={30} /></div>
+        <div>
+          <span className="eyebrow">CARTEIRA DE CLIENTES</span>
+          <h2>Transforme reservas em relacionamento</h2>
+          <p>Contatos, recorrência, histórico, etiquetas e observações privadas organizados automaticamente.</p>
+        </div>
+        <Link className="button button--primary" href="/motorista/clientes">Abrir clientes <ArrowRight size={17} /></Link>
+      </section>
+
       <section className="driver-dashboard-grid driver-dashboard-grid--four">
         <article className="driver-dashboard-card"><Calculator size={26} /><div><h2>Novo orçamento</h2><p>Distância, tempo, espera, pedágios e custos em uma conta só.</p></div><Link className="button button--secondary" href="/motorista/calculadora">Começar</Link></article>
         <article className="driver-dashboard-card"><FileText size={26} /><div><h2>Histórico</h2><p>Consulte e compartilhe as últimas referências salvas.</p></div><Link className="button button--secondary" href="/motorista/orcamentos">Ver orçamentos</Link></article>

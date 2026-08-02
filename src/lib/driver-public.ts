@@ -69,6 +69,7 @@ export type DriverReservation = {
   status: DriverReservationStatus;
   source: DriverMarketingSource;
   campaign_id: string | null;
+  customer_id: string | null;
   quote_id: string | null;
   request_fingerprint_hash: string | null;
   contact_consent: boolean;
