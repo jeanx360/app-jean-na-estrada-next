@@ -142,7 +142,7 @@ export function DriverServicesManager({ userId, initialItems }: Props) {
           <details
             key={form.id || "new-route"}
             className="driver-service-editor__optional"
-            defaultOpen={Boolean(form.description || form.durationLabel || form.includes)}
+            open={Boolean(form.description || form.durationLabel || form.includes)}
           >
             <summary>Adicionar descrição e detalhes (opcional)</summary>
             <div className="driver-field-grid">
