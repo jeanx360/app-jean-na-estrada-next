@@ -16,7 +16,8 @@ export async function GET() {
     publicUrlConfigured: Boolean(process.env.NEXT_PUBLIC_APP_URL),
     vipMode: "manual-and-direct-subscription",
     communityMode: "vip-moderated",
-    professionalDriverMode: "public-profile-reservations-quotes-finance-network-and-internal-automations",
+    professionalDriverMode: "public-profile-reservations-quotes-finance-network-internal-automations-and-executive-admin",
+    executiveAdminDashboard: true,
     youtubeMembershipAutomation: "removed",
     timestamp: new Date().toISOString(),
   });

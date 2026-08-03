@@ -2,17 +2,26 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowLeft, Menu, ShieldCheck, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { ArrowLeft, Menu, Search, ShieldCheck, X } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { ThemePicker } from "@/components/ThemePicker";
 import {
   adminNavigationGroups,
   getAdminNavigationItem,
 } from "@/data/admin-navigation";
+import { APP_VERSION } from "@/lib/app-version";
 
 function normalizePath(pathname: string) {
   if (pathname.length > 1 && pathname.endsWith("/")) return pathname.slice(0, -1);
   return pathname;
+}
+
+function normalizeSearch(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
 }
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
@@ -20,6 +29,24 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const activeItem = getAdminNavigationItem(pathname);
   const ActiveIcon = activeItem.icon;
   const [menuOpen, setMenuOpen] = useState(false);
+  const [navigationQuery, setNavigationQuery] = useState("");
+
+  const visibleGroups = useMemo(() => {
+    const query = normalizeSearch(navigationQuery);
+    if (!query) return adminNavigationGroups;
+
+    return adminNavigationGroups
+      .map((group) => ({
+        ...group,
+        items: group.items.filter((item) => normalizeSearch([
+          item.label,
+          item.shortLabel,
+          item.description,
+          ...(item.keywords ?? []),
+        ].join(" ")).includes(query)),
+      }))
+      .filter((group) => group.items.length > 0);
+  }, [navigationQuery]);
 
   useEffect(() => setMenuOpen(false), [pathname]);
   useEffect(() => {
@@ -37,7 +64,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 
       <aside className={`admin-sidebar ${menuOpen ? "is-open" : ""}`}>
         <header className="admin-sidebar__header">
-          <Link href="/admin" className="admin-sidebar__brand" aria-label="Página inicial da administração">
+          <Link href="/admin" className="admin-sidebar__brand" aria-label="Painel executivo da administração">
             <span><ShieldCheck size={24} /></span>
             <div>
               <strong>JNE Admin</strong>
@@ -49,8 +76,22 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           </button>
         </header>
 
+        <div className="admin-sidebar__finder">
+          <Search size={17} />
+          <input
+            type="search"
+            value={navigationQuery}
+            onChange={(event) => setNavigationQuery(event.target.value)}
+            placeholder="Buscar recurso"
+            aria-label="Buscar recurso administrativo"
+          />
+          {navigationQuery ? (
+            <button type="button" aria-label="Limpar busca" onClick={() => setNavigationQuery("")}><X size={15} /></button>
+          ) : null}
+        </div>
+
         <nav className="admin-sidebar__navigation" aria-label="Navegação administrativa">
-          {adminNavigationGroups.map((group) => (
+          {visibleGroups.map((group) => (
             <section className="admin-sidebar__group" key={group.label}>
               <p>{group.label}</p>
               <div>
@@ -72,6 +113,14 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
               </div>
             </section>
           ))}
+
+          {!visibleGroups.length ? (
+            <div className="admin-sidebar__empty">
+              <Search size={22} />
+              <strong>Nenhum recurso encontrado</strong>
+              <small>Tente outro termo.</small>
+            </div>
+          ) : null}
         </nav>
 
         <footer className="admin-sidebar__footer">
@@ -79,7 +128,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             <ArrowLeft size={18} />
             <span>Voltar ao JNE App</span>
           </Link>
-          <small>Modo administrador · v1.7.3</small>
+          <small>Modo administrador · v{APP_VERSION}</small>
         </footer>
       </aside>
 
