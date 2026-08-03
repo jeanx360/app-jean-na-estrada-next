@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { ArrowLeft, ImageUp, Pencil } from "lucide-react";
+import { SmartBackButton } from "@/components/SmartBackButton";
+import { ImageUp, Pencil } from "lucide-react";
 import { notFound } from "next/navigation";
 import { AdminApplicationFileUploader } from "@/components/AdminApplicationFileUploader";
 import { AdminPublicAssetUploader } from "@/components/AdminPublicAssetUploader";
@@ -27,7 +27,7 @@ export default async function EditPublicContentPage({ params }: { params: Promis
   return (
     <div className="admin-content-stack">
       <div>
-        <Link className="text-link" href="/admin/publicacoes"><ArrowLeft size={16} /> Voltar às publicações</Link>
+        <SmartBackButton className="text-link" fallbackHref="/admin/publicacoes" label="Voltar às publicações" />
       </div>
 
       <section className="admin-section">

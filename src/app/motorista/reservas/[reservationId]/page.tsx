@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, CalendarDays, ContactRound, FileText, Luggage, MapPin, MessageCircle, Phone, ReceiptText, Timer, Users, WalletCards } from "lucide-react";
+import { CalendarDays, ContactRound, FileText, Luggage, MapPin, MessageCircle, Phone, ReceiptText, Timer, Users, WalletCards } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
 import { DriverReservationActions } from "@/components/DriverReservationActions";
 import { DriverReservationProgress } from "@/components/DriverReservationProgress";
 import { DriverReservationManagementForms } from "@/components/DriverReservationManagementForms";
 import { DriverReferralForm } from "@/components/DriverReferralForm";
 import { PageHeader } from "@/components/PageHeader";
+import { SmartBackButton } from "@/components/SmartBackButton";
 import { getAuthContext } from "@/lib/auth";
 import { accountHasFeature, getAccountPlan } from "@/lib/account-plan";
 import { formatCurrency, type DriverQuote, type DriverTrip } from "@/lib/driver";
@@ -44,7 +45,7 @@ export default async function DriverReservationDetailPage({ params }: Props) {
 
   return (
     <div className="page-stack driver-page">
-      <div className="driver-reservation-detail-nav"><Link className="text-link driver-back-link" href="/motorista/reservas"><ArrowLeft size={17} /> Voltar às reservas</Link><Link className="text-link" href={`/motorista/agenda?month=${(reservation.travel_date || new Date().toISOString().slice(0, 7)).slice(0, 7)}&day=${reservation.travel_date || new Date().toISOString().slice(0, 10)}`}><CalendarDays size={17} /> Ver na agenda</Link></div>
+      <div className="driver-reservation-detail-nav"><SmartBackButton className="text-link driver-back-link" fallbackHref="/motorista/reservas" label="Voltar às reservas" /><Link className="text-link" href={`/motorista/agenda?month=${(reservation.travel_date || new Date().toISOString().slice(0, 7)).slice(0, 7)}&day=${reservation.travel_date || new Date().toISOString().slice(0, 10)}`}><CalendarDays size={17} /> Ver na agenda</Link></div>
       <PageHeader icon={<CalendarDays size={24} />} eyebrow={DRIVER_RESERVATION_STATUS_LABELS[reservation.status].toUpperCase()} title={reservation.passenger_name} description={route} />
       <DriverReservationProgress status={reservation.status} />
 

@@ -3,6 +3,7 @@
 import { Download, RefreshCw, WifiOff, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { publicPath } from "@/lib/public-path";
+import { clearPwaInstalledHint, isPwaInstalled, isRunningAsInstalledApp, markPwaInstalled } from "@/lib/pwa-client";
 
 type InstallPromptEvent = Event & {
   prompt: () => Promise<void>;
@@ -49,6 +50,7 @@ export function PwaManager() {
     if (choice.outcome === "accepted") {
       installPrompt.current = null;
       setCanInstall(false);
+      markPwaInstalled();
       window.dispatchEvent(new Event("jne-app-installed"));
     }
   }, []);
@@ -65,8 +67,19 @@ export function PwaManager() {
     const handleOffline = () => setOnline(false);
     const handleInstallRequest = () => void requestInstall();
     const handleInstallQuery = () => {
-      if (installPrompt.current) window.dispatchEvent(new Event("jne-install-ready"));
+      if (isPwaInstalled()) {
+        markPwaInstalled();
+        window.dispatchEvent(new Event("jne-app-installed"));
+      } else if (installPrompt.current) {
+        window.dispatchEvent(new Event("jne-install-ready"));
+      }
     };
+
+    if (isPwaInstalled()) {
+      markPwaInstalled();
+      setCanInstall(false);
+      window.dispatchEvent(new Event("jne-app-installed"));
+    }
 
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
@@ -84,6 +97,12 @@ export function PwaManager() {
   useEffect(() => {
     const handleBeforeInstall = (event: Event) => {
       event.preventDefault();
+      if (isRunningAsInstalledApp()) {
+        markPwaInstalled();
+        setCanInstall(false);
+        return;
+      }
+      clearPwaInstalledHint();
       installPrompt.current = event as InstallPromptEvent;
       setCanInstall(true);
       window.dispatchEvent(new Event("jne-install-ready"));
@@ -92,6 +111,7 @@ export function PwaManager() {
     const handleInstalled = () => {
       installPrompt.current = null;
       setCanInstall(false);
+      markPwaInstalled();
       window.dispatchEvent(new Event("jne-app-installed"));
     };
 

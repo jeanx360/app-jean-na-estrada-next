@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import {
-  ArrowLeft,
   ArrowRight,
   BadgeCheck,
   CalendarClock,
@@ -17,6 +16,7 @@ import {
 import { notFound, redirect } from "next/navigation";
 import { DriverCustomerEditor } from "@/components/DriverCustomerEditor";
 import { PageHeader } from "@/components/PageHeader";
+import { SmartBackButton } from "@/components/SmartBackButton";
 import { requireDriverFeature } from "@/lib/account-plan";
 import { formatCurrency, type DriverTrip } from "@/lib/driver";
 import {
@@ -88,9 +88,7 @@ export default async function DriverCustomerDetailPage({ params }: Props) {
 
   return (
     <div className="page-stack driver-page driver-customer-detail-page">
-      <Link className="text-link driver-back-link" href="/motorista/clientes">
-        <ArrowLeft size={17} /> Voltar aos clientes
-      </Link>
+      <SmartBackButton className="text-link driver-back-link" fallbackHref="/motorista/clientes" label="Voltar aos clientes" />
 
       <PageHeader
         icon={<ContactRound size={24} />}

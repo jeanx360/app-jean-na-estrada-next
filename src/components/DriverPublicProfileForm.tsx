@@ -105,7 +105,7 @@ export function DriverPublicProfileForm({ userId, defaultName, defaultPhotoUrl, 
       luggage_note: luggageNote.trim() || null,
       amenities,
       availability_note: availabilityNote.trim() || null,
-      photo_url: defaultPhotoUrl ?? initialProfile?.photo_url,
+      photo_url: defaultPhotoUrl,
       theme,
       is_published: published,
       accepts_reservations: acceptsReservations,
@@ -204,7 +204,7 @@ export function DriverPublicProfileForm({ userId, defaultName, defaultPhotoUrl, 
 
       <aside className={`driver-profile-preview driver-profile-preview--${theme}`}>
         <div className="driver-profile-preview__top"><span>PRÉVIA</span>{savedPublished ? <a href={publicHref} target="_blank" rel="noreferrer"><Eye size={16} /> Abrir</a> : null}</div>
-        <div className="driver-profile-preview__avatar">{(defaultPhotoUrl ?? initialProfile?.photo_url) ? <img src={(defaultPhotoUrl ?? initialProfile?.photo_url) as string} alt="Foto do motorista" /> : <span>{displayName.slice(0, 2).toUpperCase()}</span>}</div>
+        <div className="driver-profile-preview__avatar">{defaultPhotoUrl ? <img src={defaultPhotoUrl} alt="Foto do motorista" /> : <span>{displayName.slice(0, 2).toUpperCase()}</span>}</div>
         <h3>{displayName || "Seu nome"}</h3>
         <p>{headline || "Sua apresentação profissional"}</p>
         <div className="driver-profile-preview__facts"><span>{city || "Sua cidade"}</span><span>{vehicleName || "Seu veículo"}</span><span>{Math.max(1, Number(seats) || 4)} passageiros</span></div>

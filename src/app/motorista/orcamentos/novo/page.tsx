@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { ArrowLeft, FilePlus2 } from "lucide-react";
+import { FilePlus2 } from "lucide-react";
 import { redirect } from "next/navigation";
 import { DriverProfessionalQuoteForm } from "@/components/DriverProfessionalQuoteForm";
 import { PageHeader } from "@/components/PageHeader";
+import { SmartBackButton } from "@/components/SmartBackButton";
 import { requireDriverFeature } from "@/lib/account-plan";
 import { DEFAULT_DRIVER_SETTINGS, type DriverSettings } from "@/lib/driver";
 import { driverCustomerName, type DriverCustomer } from "@/lib/driver-crm";
@@ -37,7 +37,7 @@ export default async function NewDriverQuotePage({ searchParams }: Props) {
 
   return (
     <div className="page-stack driver-page">
-      <Link className="text-link driver-back-link" href="/motorista/orcamentos"><ArrowLeft size={17} /> Voltar aos orçamentos</Link>
+      <SmartBackButton className="text-link driver-back-link" fallbackHref="/motorista/orcamentos" label="Voltar aos orçamentos" />
       <PageHeader icon={<FilePlus2 size={24} />} eyebrow="PROPOSTA PROFISSIONAL" title="Novo orçamento" description="Monte a proposta, defina a validade e gere um link para o passageiro aceitar ou recusar pelo celular." />
       <DriverProfessionalQuoteForm
         settings={settings}

@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, CalendarDays, Filter, Inbox, LayoutList, MapPin, MessageCircle, RotateCcw, Search, Users } from "lucide-react";
+import { ArrowRight, CalendarDays, Filter, Inbox, LayoutList, MapPin, MessageCircle, RotateCcw, Search, Users } from "lucide-react";
 import { redirect } from "next/navigation";
 import { DriverReservationManagementForms } from "@/components/DriverReservationManagementForms";
 import { PageHeader } from "@/components/PageHeader";
+import { SmartBackButton } from "@/components/SmartBackButton";
 import { getAuthContext } from "@/lib/auth";
 import { DRIVER_RESERVATION_STATUS_LABELS, reservationWhatsAppUrl, type DriverReservation, type DriverReservationStatus } from "@/lib/driver-public";
 import { formatBrazilDate, formatBrazilDateTime, formatBrazilTime, JNE_TIME_ZONE } from "@/lib/date-time";
@@ -98,7 +99,7 @@ export default async function DriverReservationsPage({ searchParams }: Props) {
 
   return (
     <div className="page-stack driver-page">
-      <Link className="text-link driver-back-link" href="/motorista"><ArrowLeft size={17} /> Voltar ao painel</Link>
+      <SmartBackButton className="text-link driver-back-link" fallbackHref="/motorista" label="Voltar ao painel" />
       <PageHeader icon={<Inbox size={24} />} eyebrow="MOTORISTA PROFISSIONAL" title="Central de agendamentos" description="Pesquise, filtre, remarque, duplique ou cancele solicitações sem perder o histórico do atendimento." />
 
       <nav className="driver-schedule-view-nav" aria-label="Visualizacao de agendamentos">

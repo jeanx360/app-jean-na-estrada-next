@@ -491,3 +491,32 @@
     flex-direction: column;
   }
 }
+
+/* JNE App 2.0.1 — correção do card de conta no smartphone */
+.member-action-card > div {
+  min-width: 0;
+}
+
+.member-button-row {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  width: 100%;
+  gap: 10px;
+}
+
+.member-action-card .member-button-row .button {
+  width: 100%;
+  min-width: 0;
+  justify-self: stretch;
+  justify-content: center;
+  margin-top: 0;
+  text-align: center;
+  white-space: normal;
+}
+
+@media (max-width: 460px) {
+  .member-button-row {
+    grid-template-columns: 1fr;
+  }
+}

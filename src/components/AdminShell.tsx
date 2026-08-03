@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { ArrowLeft, Menu, Search, ShieldCheck, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { ThemePicker } from "@/components/ThemePicker";
+import { SmartBackButton } from "@/components/SmartBackButton";
 import {
   adminNavigationGroups,
   getAdminNavigationItem,
@@ -138,10 +139,11 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             <button className="admin-topbar__menu" type="button" aria-label="Abrir menu administrativo" onClick={() => setMenuOpen(true)}>
               <Menu size={21} />
             </button>
-            <Link className="admin-topbar__back" href="/" aria-label="Voltar ao JNE App">
-              <ArrowLeft size={19} />
-              <span>Voltar</span>
-            </Link>
+            <SmartBackButton
+              className="admin-topbar__back"
+              fallbackHref="/"
+              label="Voltar"
+            />
             <div className="admin-topbar__title">
               <small>ADMINISTRAÇÃO JNE</small>
               <strong>{activeItem.shortLabel}</strong>

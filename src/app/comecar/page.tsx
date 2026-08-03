@@ -6,12 +6,12 @@ import {
   Car,
   CheckCircle2,
   Crown,
-  Download,
   PlayCircle,
   ShieldCheck,
   UserRound,
 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
+import { PwaInstallChecklistItem } from "@/components/PwaInstallChecklistItem";
 import { getAccountPlan } from "@/lib/account-plan";
 import { getAuthContext } from "@/lib/auth";
 import { getLegalAcceptanceStatus } from "@/lib/legal";
@@ -65,11 +65,7 @@ export default async function StartPage() {
             <div><strong>Modo motorista</strong><span>{driverReady ? "Ativado" : "Opcional"}</span></div>
             <Link href={userId ? "/perfil" : "/cadastro"}>{driverReady ? "Configurar" : "Conhecer"}</Link>
           </article>
-          <article>
-            <Download size={21} />
-            <div><strong>Instalação</strong><span>Atalho na tela inicial</span></div>
-            <Link href="/instalar">Abrir</Link>
-          </article>
+          <PwaInstallChecklistItem />
         </div>
       </section>
 

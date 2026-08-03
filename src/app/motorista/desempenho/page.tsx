@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import {
-  ArrowLeft,
   ArrowRight,
   BadgeDollarSign,
   BarChart3,
@@ -20,6 +19,7 @@ import {
 } from "lucide-react";
 import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/PageHeader";
+import { SmartBackButton } from "@/components/SmartBackButton";
 import { requireDriverFeature } from "@/lib/account-plan";
 import { formatCurrency } from "@/lib/driver";
 import {
@@ -115,7 +115,7 @@ export default async function DriverPerformancePage() {
 
   return (
     <div className="page-stack driver-page driver-intelligence-page">
-      <Link className="text-link driver-back-link" href="/motorista"><ArrowLeft size={17} /> Voltar ao painel</Link>
+      <SmartBackButton className="text-link driver-back-link" fallbackHref="/motorista" label="Voltar ao painel" />
       <PageHeader icon={<BarChart3 size={24} />} eyebrow="INTELIGÊNCIA VIP" title="Desempenho do seu atendimento" description="Entenda de onde chegam os passageiros, quais campanhas funcionam e quanto as viagens concluídas geraram." />
 
       {coreUnavailable ? (

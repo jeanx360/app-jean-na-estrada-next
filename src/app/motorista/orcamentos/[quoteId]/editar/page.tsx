@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { ArrowLeft, PencilLine } from "lucide-react";
+import { PencilLine } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
 import { DriverProfessionalQuoteForm } from "@/components/DriverProfessionalQuoteForm";
 import { PageHeader } from "@/components/PageHeader";
+import { SmartBackButton } from "@/components/SmartBackButton";
 import { requireDriverFeature } from "@/lib/account-plan";
 import { DEFAULT_DRIVER_SETTINGS, type DriverQuote, type DriverSettings } from "@/lib/driver";
 import { driverCustomerName, type DriverCustomer } from "@/lib/driver-crm";
@@ -36,7 +36,7 @@ export default async function EditDriverQuotePage({ params }: Props) {
 
   return (
     <div className="page-stack driver-page">
-      <Link className="text-link driver-back-link" href={`/motorista/orcamentos/${quote.id}`}><ArrowLeft size={17} /> Voltar ao orçamento</Link>
+      <SmartBackButton className="text-link driver-back-link" fallbackHref={`/motorista/orcamentos/${quote.id}`} label="Voltar ao orçamento" />
       <PageHeader icon={<PencilLine size={24} />} eyebrow="PROPOSTA PROFISSIONAL" title="Editar orçamento" description="A edição cria uma nova versão no histórico e mantém o mesmo link público." />
       <DriverProfessionalQuoteForm
         quoteId={quote.id}

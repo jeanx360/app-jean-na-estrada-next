@@ -76,6 +76,15 @@ export function ProfileEditor({ profile, email }: { profile: MemberProfile; emai
       });
       if (driverError) throw driverError;
 
+      const { error: publicProfileError } = await supabase
+        .from("driver_public_profiles")
+        .update({
+          photo_url: nextAvatarUrl,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("user_id", profile.id);
+      if (publicProfileError) throw publicProfileError;
+
       if (uploadedPath && avatarPath && avatarPath !== uploadedPath) {
         await supabase.storage.from("avatars").remove([avatarPath]);
       }
@@ -112,6 +121,16 @@ export function ProfileEditor({ profile, email }: { profile: MemberProfile; emai
       setSaving(false);
       return;
     }
+    const { error: publicProfileError } = await supabase
+      .from("driver_public_profiles")
+      .update({ photo_url: null, updated_at: new Date().toISOString() })
+      .eq("user_id", profile.id);
+    if (publicProfileError) {
+      setMessage({ type: "error", text: publicProfileError.message });
+      setSaving(false);
+      return;
+    }
+
     await supabase.storage.from("avatars").remove([avatarPath]);
     setAvatarUrl(null);
     setAvatarPath(null);

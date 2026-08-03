@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, Clock3, FileDown, Gauge, ReceiptText, TrendingDown, TrendingUp, WalletCards } from "lucide-react";
+import { Clock3, FileDown, Gauge, ReceiptText, TrendingDown, TrendingUp, WalletCards } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
 import { DriverFinancialEntryDeleteButton } from "@/components/DriverFinancialEntryDeleteButton";
 import { DriverFinancialEntryForm } from "@/components/DriverFinancialEntryForm";
 import { DriverTripActions } from "@/components/DriverTripActions";
 import { PageHeader } from "@/components/PageHeader";
+import { SmartBackButton } from "@/components/SmartBackButton";
 import { requireDriverFeature } from "@/lib/account-plan";
 import {
   DRIVER_FINANCIAL_CATEGORY_LABELS,
@@ -40,7 +41,7 @@ export default async function DriverTripDetailPage({ params }: Props) {
 
   return (
     <div className="page-stack driver-page">
-      <Link className="text-link driver-back-link" href="/motorista/financeiro"><ArrowLeft size={17} />Voltar ao financeiro</Link>
+      <SmartBackButton className="text-link driver-back-link" fallbackHref="/motorista/financeiro" label="Voltar ao financeiro" />
       <PageHeader icon={<WalletCards size={24} />} eyebrow="DETALHES DA VIAGEM" title={route} description={trip.travel_date ? `Data: ${formatBrazilDate(trip.travel_date)}` : "Data não informada"} />
       <div className="driver-page-actions no-print"><Link className="button button--secondary" href={`/motorista/financeiro/${trip.id}/recibo`}><FileDown size={18} /> Gerar recibo / PDF</Link>{trip.reservation_id ? <Link className="button button--ghost" href={`/motorista/reservas/${trip.reservation_id}`}>Abrir reserva</Link> : null}</div>
 

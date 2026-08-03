@@ -33,7 +33,14 @@ function normalize(value: string) {
   return value
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase();
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim()
+    .replace(/\s+/g, " ");
+}
+
+function queryTokens(value: string) {
+  return normalize(value).split(" ").filter(Boolean);
 }
 
 const staticItems: SearchItem[] = [
@@ -91,7 +98,7 @@ export function GlobalSearch() {
   const [query, setQuery] = useState("");
   const [feed, setFeed] = useState<LiveContentFeed | null>(null);
   const [catalogItems, setCatalogItems] = useState<SearchItem[]>([]);
-  const [catalogLoaded, setCatalogLoaded] = useState(false);
+  const [catalogLoading, setCatalogLoading] = useState(false);
   const [portalReady, setPortalReady] = useState(false);
 
   useEffect(() => {
@@ -116,17 +123,30 @@ export function GlobalSearch() {
   }, [feed, open]);
 
   useEffect(() => {
-    if (!open || catalogLoaded) return;
+    if (!open) return;
 
-    void fetch("/api/search", { cache: "no-store" })
+    const controller = new AbortController();
+    setCatalogLoading(true);
+
+    void fetch(`/api/search?refresh=${Date.now()}`, {
+      cache: "no-store",
+      signal: controller.signal,
+    })
       .then((response) => {
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         return response.json() as Promise<SearchApiResponse>;
       })
       .then((data) => setCatalogItems(Array.isArray(data.items) ? data.items : []))
-      .catch(() => setCatalogItems([]))
-      .finally(() => setCatalogLoaded(true));
-  }, [catalogLoaded, open]);
+      .catch((error: unknown) => {
+        if (error instanceof DOMException && error.name === "AbortError") return;
+        setCatalogItems([]);
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setCatalogLoading(false);
+      });
+
+    return () => controller.abort();
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -182,10 +202,11 @@ export function GlobalSearch() {
 
     const deduped = new Map<string, SearchItem>();
     [...catalogItems, ...liveItems, ...staticItems].forEach((item) => {
-      deduped.set(`${item.category}:${item.title}`, item);
+      deduped.set(`${item.category}:${item.title}:${item.href}`, item);
     });
 
     const normalizedQuery = normalize(query.trim());
+    const tokens = queryTokens(query);
     const all = Array.from(deduped.values());
 
     if (!normalizedQuery) {
@@ -200,18 +221,22 @@ export function GlobalSearch() {
         const description = normalize(item.description);
         const category = normalize(item.category);
         const keywords = normalize(item.keywords ?? "");
-        let score = 0;
-        if (title === normalizedQuery) score += 10;
-        if (title.startsWith(normalizedQuery)) score += 6;
-        if (title.includes(normalizedQuery)) score += 4;
+        const haystack = `${title} ${description} ${category} ${keywords}`;
+        const matchesAllTokens = tokens.every((token) => haystack.includes(token));
+        let score = matchesAllTokens ? 1 : 0;
+        if (title === normalizedQuery) score += 12;
+        if (title.startsWith(normalizedQuery)) score += 7;
+        if (title.includes(normalizedQuery)) score += 5;
+        if (keywords.includes(normalizedQuery)) score += 4;
         if (category.includes(normalizedQuery)) score += 2;
-        if (keywords.includes(normalizedQuery)) score += 2;
         if (description.includes(normalizedQuery)) score += 1;
+        score += tokens.filter((token) => title.includes(token)).length * 2;
+        score += tokens.filter((token) => keywords.includes(token)).length;
         return { item, score };
       })
       .filter((result) => result.score > 0)
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 12)
+      .sort((a, b) => b.score - a.score || a.item.title.localeCompare(b.item.title, "pt-BR"))
+      .slice(0, 20)
       .map((result) => result.item);
   }, [catalogItems, feed, query]);
 
@@ -280,7 +305,7 @@ export function GlobalSearch() {
 
                 <div className="search-dialog__heading" aria-live="polite">
                   <span>{query.trim() ? `Resultados para “${query.trim()}”` : "Acessos rápidos"}</span>
-                  <small>{results.length} encontrados</small>
+                  <small>{catalogLoading ? "Atualizando…" : `${results.length} encontrados`}</small>
                 </div>
 
                 <div className="search-results">

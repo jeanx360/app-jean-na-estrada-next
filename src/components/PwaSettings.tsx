@@ -2,17 +2,7 @@
 
 import { CheckCircle2, Download, RefreshCw, Smartphone, Wifi, WifiOff } from "lucide-react";
 import { useEffect, useState } from "react";
-
-type DisplayModeNavigator = Navigator & {
-  standalone?: boolean;
-};
-
-function isStandalone() {
-  return (
-    window.matchMedia("(display-mode: standalone)").matches ||
-    Boolean((navigator as DisplayModeNavigator).standalone)
-  );
-}
+import { isPwaInstalled, markPwaInstalled } from "@/lib/pwa-client";
 
 export function PwaSettings() {
   const [online, setOnline] = useState(true);
@@ -23,9 +13,14 @@ export function PwaSettings() {
 
   useEffect(() => {
     const updateConnection = () => setOnline(navigator.onLine);
-    const updateInstalled = () => setInstalled(isStandalone());
+    const updateInstalled = () => {
+      const nextInstalled = isPwaInstalled();
+      if (nextInstalled) markPwaInstalled();
+      setInstalled(nextInstalled);
+    };
     const handleInstallReady = () => setCanInstall(true);
     const handleInstalled = () => {
+      markPwaInstalled();
       setInstalled(true);
       setCanInstall(false);
     };
@@ -41,6 +36,8 @@ export function PwaSettings() {
     window.addEventListener("jne-install-ready", handleInstallReady);
     window.addEventListener("jne-app-installed", handleInstalled);
     window.addEventListener("jne-sw-ready", handleSwReady);
+    window.addEventListener("pageshow", updateInstalled);
+    window.addEventListener("focus", updateInstalled);
     window.dispatchEvent(new Event("jne-query-install"));
 
     return () => {
@@ -49,6 +46,8 @@ export function PwaSettings() {
       window.removeEventListener("jne-install-ready", handleInstallReady);
       window.removeEventListener("jne-app-installed", handleInstalled);
       window.removeEventListener("jne-sw-ready", handleSwReady);
+      window.removeEventListener("pageshow", updateInstalled);
+      window.removeEventListener("focus", updateInstalled);
     };
   }, []);
 

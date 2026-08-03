@@ -154,12 +154,30 @@ export async function GET() {
     const params = new URLSearchParams({ marca: brand.slug, modelo: model.slug });
     if (firstYear) params.set("ano", String(firstYear));
 
+    const compactBrand = brand.name.replace(/[^a-z0-9]/gi, "");
+    const compactModel = model.name.replace(/[^a-z0-9]/gi, "");
+
     items.push({
       title: document.title,
       description: document.description || `${brand.name} ${model.name} — documento disponível na biblioteca do veículo.`,
       href: `/guia?${params.toString()}#manuais`,
       category: "Manual",
-      keywords: [brand.name, model.name, ...(document.years ?? []), document.document_type, document.language, document.source_name]
+      keywords: [
+        document.title,
+        document.description,
+        brand.name,
+        brand.slug,
+        model.name,
+        model.slug,
+        `${brand.name} ${model.name}`,
+        `${compactBrand} ${compactModel}`,
+        compactModel,
+        ...(document.years ?? []),
+        document.document_type,
+        document.language,
+        document.source_name,
+        "manual manuais documento documentos biblioteca veiculo carro bev eletrico",
+      ]
         .filter(Boolean)
         .join(" "),
     });

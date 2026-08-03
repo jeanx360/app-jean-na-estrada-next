@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import {
   Archive,
-  ArrowLeft,
   ArrowRight,
   BadgeCheck,
   CalendarClock,
@@ -17,6 +16,7 @@ import {
 } from "lucide-react";
 import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/PageHeader";
+import { SmartBackButton } from "@/components/SmartBackButton";
 import { requireDriverFeature } from "@/lib/account-plan";
 import { formatCurrency } from "@/lib/driver";
 import {
@@ -98,9 +98,7 @@ export default async function DriverCustomersPage({ searchParams }: Props) {
 
   return (
     <div className="page-stack driver-page driver-customer-page">
-      <Link className="text-link driver-back-link" href="/motorista">
-        <ArrowLeft size={17} /> Voltar ao painel
-      </Link>
+      <SmartBackButton className="text-link driver-back-link" fallbackHref="/motorista" label="Voltar ao painel" />
 
       <PageHeader
         icon={<UsersRound size={24} />}

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { ArrowLeft, MessageCircle, ShieldAlert } from "lucide-react";
+import { MessageCircle, ShieldAlert } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
+import { SmartBackButton } from "@/components/SmartBackButton";
 import { CommunityPostForm } from "@/components/CommunityPostForm";
 import { requireCommunityAccess } from "@/lib/community";
 import type { CommunityCategory } from "@/types/community";
@@ -25,7 +25,7 @@ export default async function NewCommunityPostPage() {
 
   return (
     <div className="page-stack community-page">
-      <Link className="text-link community-back-link" href="/comunidade"><ArrowLeft size={17} /> Voltar à comunidade</Link>
+      <SmartBackButton className="text-link community-back-link" fallbackHref="/comunidade" label="Voltar à comunidade" />
       <PageHeader
         icon={<MessageCircle size={24} />}
         eyebrow="COMUNIDADE VIP"

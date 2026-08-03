@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { ArrowLeft, CalendarDays, Car, CheckCircle2, MapPin, ReceiptText, UserRound } from "lucide-react";
+import { SmartBackButton } from "@/components/SmartBackButton";
+import { CalendarDays, Car, CheckCircle2, MapPin, ReceiptText, UserRound } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
 import { DriverDocumentActions } from "@/components/DriverDocumentActions";
 import { requireDriverFeature } from "@/lib/account-plan";
@@ -51,7 +51,7 @@ export default async function DriverTripReceiptPage({ params }: Props) {
   return (
     <div className="driver-document-page">
       <div className="driver-document-toolbar no-print">
-        <Link className="text-link" href={`/motorista/financeiro/${trip.id}`}><ArrowLeft size={17} /> Voltar à viagem</Link>
+        <SmartBackButton className="text-link" fallbackHref={`/motorista/financeiro/${trip.id}`} label="Voltar à viagem" />
         <DriverDocumentActions title="Recibo de viagem" text={shareText} whatsappPhone={passengerPhone} />
       </div>
 

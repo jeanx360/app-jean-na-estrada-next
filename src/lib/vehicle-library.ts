@@ -28,7 +28,7 @@ export async function getVehicleLibrary(): Promise<VehicleLibraryBrand[]> {
           "id, model_id, title, document_type, description, years, source_type, external_url, file_path, file_name, file_size, language, source_name, access_level, is_published, sort_order, published_at, created_at, updated_at",
         )
         .eq("is_published", true)
-        .lte("published_at", new Date().toISOString())
+        .or(`published_at.is.null,published_at.lte.${new Date().toISOString()}`)
         .order("sort_order", { ascending: true })
         .order("published_at", { ascending: false }),
     ]);

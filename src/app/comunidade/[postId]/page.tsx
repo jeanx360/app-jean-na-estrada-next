@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { ArrowLeft, LockKeyhole, MessageCircle } from "lucide-react";
+import { SmartBackButton } from "@/components/SmartBackButton";
+import { LockKeyhole, MessageCircle } from "lucide-react";
 import { notFound } from "next/navigation";
 import { CommunityCommentForm } from "@/components/CommunityCommentForm";
 import { CommunityComments } from "@/components/CommunityComments";
@@ -31,7 +31,7 @@ export default async function CommunityPostPage({ params }: Props) {
 
   return (
     <div className="page-stack community-page community-detail-page">
-      <Link className="text-link community-back-link" href="/comunidade"><ArrowLeft size={17} /> Voltar ao feed</Link>
+      <SmartBackButton className="text-link community-back-link" fallbackHref="/comunidade" label="Voltar ao feed" />
       <CommunityPostCard
         post={post}
         currentUserId={userId}

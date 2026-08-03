@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, Crown, QrCode } from "lucide-react";
+import { Crown, QrCode } from "lucide-react";
 import { redirect } from "next/navigation";
 import { DriverCampaignManager } from "@/components/DriverCampaignManager";
 import { DriverQrCard } from "@/components/DriverQrCard";
 import { PageHeader } from "@/components/PageHeader";
+import { SmartBackButton } from "@/components/SmartBackButton";
 import { getAuthContext } from "@/lib/auth";
 import { accountHasFeature, getAccountPlan, planUpgradeUrl } from "@/lib/account-plan";
 import type { DriverMarketingCampaign } from "@/lib/driver-marketing";
@@ -38,7 +39,7 @@ export default async function DriverCardPage() {
 
   return (
     <div className="page-stack driver-page driver-marketing-page">
-      <Link className="text-link driver-back-link" href="/motorista"><ArrowLeft size={17} /> Voltar ao painel</Link>
+      <SmartBackButton className="text-link driver-back-link" fallbackHref="/motorista" label="Voltar ao painel" />
       <PageHeader icon={<QrCode size={24} />} eyebrow="DIVULGAÇÃO RASTREÁVEL" title="Links, QR Codes e campanhas" description="Crie uma origem para cada canal e descubra quais divulgações realmente geram contatos e reservas." />
       <DriverQrCard profile={publicProfile} />
       {canUseCampaigns ? (

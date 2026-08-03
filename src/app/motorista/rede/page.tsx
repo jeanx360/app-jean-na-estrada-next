@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import {
-  ArrowLeft,
   ArrowRight,
   CalendarDays,
   CheckCircle2,
@@ -16,6 +15,7 @@ import {
 import { cancelDriverReferralAction, respondDriverReferralAction } from "@/app/motorista/rede/actions";
 import { DriverNetworkSettingsForm } from "@/components/DriverNetworkSettingsForm";
 import { PageHeader } from "@/components/PageHeader";
+import { SmartBackButton } from "@/components/SmartBackButton";
 import { requireDriverFeature } from "@/lib/account-plan";
 import { formatBrazilDate, formatBrazilTime } from "@/lib/date-time";
 import {
@@ -75,7 +75,7 @@ export default async function DriverNetworkPage({ searchParams }: Props) {
 
   return (
     <div className="page-stack driver-page driver-network-page">
-      <Link className="text-link driver-back-link" href="/motorista"><ArrowLeft size={17} /> Voltar ao painel</Link>
+      <SmartBackButton className="text-link driver-back-link" fallbackHref="/motorista" label="Voltar ao painel" />
       <PageHeader
         icon={<UsersRound size={24} />}
         eyebrow="PLANO PREMIUM"

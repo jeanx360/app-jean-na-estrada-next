@@ -17036,3 +17036,62 @@ button {
     scroll-behavior: auto !important;
   }
 }
+
+/* JNE App 2.0.1 — navegação contextual, área segura e acabamento mobile */
+.context-back-row {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  margin-bottom: -4px;
+}
+
+.smart-back-button {
+  appearance: none;
+  border: 0;
+  font: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 0;
+  background: transparent;
+  color: var(--accent-secondary);
+  font-weight: 800;
+}
+
+.smart-back-button:hover {
+  color: var(--accent);
+}
+
+.admin-topbar__back {
+  appearance: none;
+  font: inherit;
+  cursor: pointer;
+}
+
+@media (max-width: 760px) {
+  .public-driver-page {
+    padding-bottom: calc(142px + env(safe-area-inset-bottom));
+  }
+
+  .public-driver-content {
+    padding-bottom: 20px;
+  }
+}
+
+/* Preserva a aparência de botão da barra administrativa sobre o reset global. */
+.admin-topbar__back.smart-back-button {
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--card);
+  color: var(--text-soft);
+  font-size: 0.75rem;
+  font-weight: 850;
+}
+
+.admin-topbar__back.smart-back-button:hover {
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--line));
+  color: var(--text);
+}

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
+import { SmartBackButton } from "@/components/SmartBackButton";
 import Link from "next/link";
-import { ArrowLeft, CalendarDays, Car, CheckCircle2, Clock3, Eye, FileText, Link2, MapPin, MessageCircle, UserRound, WalletCards } from "lucide-react";
+import { CalendarDays, Car, CheckCircle2, Clock3, Eye, FileText, Link2, MapPin, MessageCircle, UserRound, WalletCards } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
 import { DriverDocumentActions } from "@/components/DriverDocumentActions";
 import { DriverQuoteWorkflowActions } from "@/components/DriverQuoteWorkflowActions";
@@ -67,7 +68,7 @@ export default async function DriverQuoteDocumentPage({ params }: Props) {
   return (
     <div className="driver-document-page">
       <div className="driver-document-toolbar no-print">
-        <Link className="text-link" href="/motorista/orcamentos"><ArrowLeft size={17} /> Voltar aos orçamentos</Link>
+        <SmartBackButton className="text-link" fallbackHref="/motorista/orcamentos" label="Voltar aos orçamentos" />
         <DriverDocumentActions title="Orçamento de viagem" text={shareText} whatsappPhone={quote.customer_phone || reservation?.passenger_phone} />
       </div>
 

@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, BellRing, CheckCheck, MessageCircle, ShieldAlert, UserRound } from "lucide-react";
+import { BellRing, CheckCheck, MessageCircle, ShieldAlert, UserRound } from "lucide-react";
 import { markCommunityNotificationsReadAction } from "@/app/comunidade/actions";
 import { PageHeader } from "@/components/PageHeader";
+import { SmartBackButton } from "@/components/SmartBackButton";
 import { requireCommunityAccess, formatCommunityDate } from "@/lib/community";
 
 type NotificationRow = {
@@ -42,7 +43,7 @@ export default async function CommunityNotificationsPage() {
 
   return (
     <div className="page-stack community-page">
-      <Link className="text-link community-back-link" href="/comunidade"><ArrowLeft size={17} /> Voltar à comunidade</Link>
+      <SmartBackButton className="text-link community-back-link" fallbackHref="/comunidade" label="Voltar à comunidade" />
       <PageHeader
         icon={<BellRing size={24} />}
         eyebrow="COMUNIDADE VIP"

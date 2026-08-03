@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import {
-  ArrowLeft,
   ArrowRight,
   CalendarDays,
   CalendarOff,
@@ -18,6 +17,7 @@ import { deleteDriverScheduleBlockAction } from "@/app/motorista/agenda/actions"
 import { ConfirmSubmitButton } from "@/components/ConfirmSubmitButton";
 import { DriverScheduleBlockForm } from "@/components/DriverScheduleBlockForm";
 import { PageHeader } from "@/components/PageHeader";
+import { SmartBackButton } from "@/components/SmartBackButton";
 import { requireDriverFeature } from "@/lib/account-plan";
 import { formatBrazilTime } from "@/lib/date-time";
 import { DRIVER_RESERVATION_STATUS_LABELS, type DriverReservation } from "@/lib/driver-public";
@@ -116,7 +116,7 @@ export default async function DriverAgendaPage({ searchParams }: Props) {
 
   return (
     <div className="page-stack driver-page">
-      <Link className="text-link driver-back-link" href="/motorista"><ArrowLeft size={17} /> Voltar ao painel</Link>
+      <SmartBackButton className="text-link driver-back-link" fallbackHref="/motorista" label="Voltar ao painel" />
       <PageHeader
         icon={<CalendarDays size={24} />}
         eyebrow="MOTORISTA PROFISSIONAL"

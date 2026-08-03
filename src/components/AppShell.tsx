@@ -13,8 +13,41 @@ import { GlobalSearch } from "@/components/GlobalSearch";
 import { NotificationBell } from "@/components/NotificationBell";
 import { ReservationAlertWatcher } from "@/components/ReservationAlertWatcher";
 import { SitePageViewTracker } from "@/components/SitePageViewTracker";
+import { SmartBackButton } from "@/components/SmartBackButton";
 import { ThemePicker } from "@/components/ThemePicker";
 import { navigationGroups, primaryNavigation } from "@/data/navigation";
+
+
+const CONTEXT_BACK_FALLBACKS: Record<string, { href: string; label?: string }> = {
+  "/comecar": { href: "/", label: "Voltar" },
+  "/perfil": { href: "/membros", label: "Voltar para a conta" },
+  "/atualizar-senha": { href: "/perfil", label: "Voltar ao perfil" },
+  "/configuracoes": { href: "/membros", label: "Voltar" },
+  "/instalar": { href: "/comecar", label: "Voltar" },
+  "/suporte": { href: "/", label: "Voltar" },
+  "/aceite": { href: "/membros", label: "Voltar" },
+  "/notificacoes": { href: "/membros", label: "Voltar" },
+  "/vip": { href: "/membros", label: "Voltar" },
+  "/assinar": { href: "/planos", label: "Voltar aos planos" },
+  "/contato": { href: "/", label: "Voltar" },
+  "/diagnostico": { href: "/configuracoes", label: "Voltar" },
+  "/seguranca-apks": { href: "/aplicativos", label: "Voltar aos aplicativos" },
+  "/termos": { href: "/", label: "Voltar" },
+  "/privacidade": { href: "/", label: "Voltar" },
+  "/sobre": { href: "/", label: "Voltar" },
+  "/planos": { href: "/", label: "Voltar" },
+  "/produtos": { href: "/", label: "Voltar" },
+  "/calculadora": { href: "/", label: "Voltar" },
+  "/motorista/calculadora": { href: "/motorista", label: "Voltar ao painel" },
+  "/motorista/configuracoes": { href: "/motorista", label: "Voltar ao painel" },
+  "/motorista/financeiro": { href: "/motorista", label: "Voltar ao painel" },
+  "/motorista/financeiro/nova": { href: "/motorista/financeiro", label: "Voltar ao financeiro" },
+  "/motorista/notificacoes": { href: "/motorista", label: "Voltar ao painel" },
+  "/motorista/orcamentos": { href: "/motorista", label: "Voltar ao painel" },
+};
+
+const CURRENT_PATH_KEY = "jne-current-path";
+const PREVIOUS_PATH_KEY = "jne-previous-path";
 
 function normalizePath(pathname: string) {
   if (pathname.length > 1 && pathname.endsWith("/")) return pathname.slice(0, -1);
@@ -27,9 +60,22 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   useEffect(() => { setMenuOpen(false); }, [pathname]);
   useEffect(() => {
+    try {
+      const currentPath = window.sessionStorage.getItem(CURRENT_PATH_KEY);
+      if (currentPath && currentPath !== pathname) {
+        window.sessionStorage.setItem(PREVIOUS_PATH_KEY, currentPath);
+      }
+      window.sessionStorage.setItem(CURRENT_PATH_KEY, pathname);
+    } catch {
+      // A navegação continua com o fallback mesmo quando o storage está bloqueado.
+    }
+  }, [pathname]);
+  useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
   }, [menuOpen]);
+
+  const contextBack = CONTEXT_BACK_FALLBACKS[pathname];
 
   const mobileItems = useMemo(() => {
     const mobileHrefs = ["/", "/videos", "/comunidade", "/membros"];
@@ -78,6 +124,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       <ReservationAlertWatcher />
       <main className="app-main">
+        {contextBack ? (
+          <div className="context-back-row">
+            <SmartBackButton fallbackHref={contextBack.href} label={contextBack.label} />
+          </div>
+        ) : null}
         {children}
         <footer className="global-footer">
           <div>
