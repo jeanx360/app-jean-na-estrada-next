@@ -77,7 +77,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </aside>
 
       <ReservationAlertWatcher />
-      <main className="app-main">{children}<footer className="global-footer"><span>© 2026 Jean na Estrada</span><nav aria-label="Documentos e informações"><Link href="/sobre">Sobre</Link><Link href="/termos">Termos</Link><Link href="/privacidade">Privacidade</Link><Link href="/seguranca-apks">Segurança de APKs</Link></nav></footer></main>
+      <main className="app-main">{children}<footer className="global-footer"><span>© 2026 Jean na Estrada</span><nav aria-label="Documentos e informações"><Link href="/motoristas">Motoristas</Link><Link href="/sobre">Sobre</Link><Link href="/termos">Termos</Link><Link href="/privacidade">Privacidade</Link><Link href="/seguranca-apks">Segurança de APKs</Link></nav></footer></main>
 
       <nav className="bottom-navigation" aria-label="Navegação mobile">
         {mobileItems.map((item) => { const active = pathname === normalizePath(item.href); const Icon = item.icon; return <Link key={item.href} href={item.href} className={`bottom-navigation__item ${active ? "is-active" : ""}`} aria-current={active ? "page" : undefined}><Icon size={21} strokeWidth={active ? 2.3 : 1.8} /><span>{item.shortLabel ?? item.label}</span></Link>; })}

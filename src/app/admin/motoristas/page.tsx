@@ -13,8 +13,10 @@ import {
   MessageCircle,
   ReceiptText,
   RotateCcw,
+  ShieldCheck,
   ShieldOff,
   Trash2,
+  XCircle,
   UserRoundCog,
   UsersRound,
   WalletCards,
@@ -22,6 +24,7 @@ import {
 import { deleteMemberAccountAction, setMemberBlockedAction } from "@/app/admin/actions";
 import {
   deleteDriverRecordAdminAction,
+  setDriverNetworkVerificationAction,
   setDriverProfessionalStatusAction,
   setDriverPublicProfilePublishedAction,
 } from "@/app/admin/motoristas/actions";
@@ -29,6 +32,7 @@ import { ConfirmSubmitButton } from "@/components/ConfirmSubmitButton";
 import { requireAdmin } from "@/lib/admin";
 import { formatCurrency, DRIVER_TRIP_STATUS_LABELS, type DriverQuote, type DriverTrip } from "@/lib/driver";
 import { DRIVER_RESERVATION_STATUS_LABELS, type DriverPublicProfile, type DriverReservation } from "@/lib/driver-public";
+import { DRIVER_NETWORK_SERVICE_LABELS, DRIVER_NETWORK_VERIFICATION_LABELS, type DriverNetworkSettings } from "@/lib/driver-network";
 import { formatBrazilDate, formatBrazilDateTime, formatBrazilTime } from "@/lib/date-time";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { MemberRole } from "@/types/auth";
@@ -82,26 +86,30 @@ export default async function AdminDriversPage({ searchParams }: Props) {
   const { supabase, userId } = await requireAdmin();
   const admin = createAdminClient();
 
-  const [membersResult, profilesResult, publicProfilesResult, metricsResult] = await Promise.all([
+  const [membersResult, profilesResult, publicProfilesResult, metricsResult, networkResult] = await Promise.all([
     supabase.rpc("admin_list_members"),
     admin.from("profiles").select("id, is_professional_driver"),
     admin.from("driver_public_profiles").select("*").order("created_at", { ascending: false }),
     supabase.rpc("admin_driver_metrics"),
+    admin.from("driver_network_settings").select("*").order("updated_at", { ascending: false }),
   ]);
 
   const members = (membersResult.data ?? []) as MemberRow[];
   const profiles = (profilesResult.data ?? []) as ProfileRow[];
   const publicProfiles = (publicProfilesResult.data ?? []) as DriverPublicProfile[];
   const metrics = (metricsResult.data ?? []) as DriverMetric[];
+  const networkSettings = (networkResult.data ?? []) as DriverNetworkSettings[];
 
   const memberMap = new Map(members.map((item) => [item.id, item]));
   const profileMap = new Map(profiles.map((item) => [item.id, item]));
   const publicProfileMap = new Map(publicProfiles.map((item) => [item.user_id, item]));
   const metricMap = new Map(metrics.map((item) => [item.user_id, item]));
+  const networkMap = new Map(networkSettings.map((item) => [item.user_id, item]));
   const driverIds = new Set<string>();
   profiles.filter((item) => item.is_professional_driver).forEach((item) => driverIds.add(item.id));
   publicProfiles.forEach((item) => driverIds.add(item.user_id));
   metrics.forEach((item) => driverIds.add(item.user_id));
+  networkSettings.forEach((item) => driverIds.add(item.user_id));
 
   const drivers = [...driverIds]
     .map((id) => ({
@@ -110,6 +118,7 @@ export default async function AdminDriversPage({ searchParams }: Props) {
       profile: profileMap.get(id),
       publicProfile: publicProfileMap.get(id),
       metrics: metricMap.get(id),
+      network: networkMap.get(id),
     }))
     .filter((item) => item.member)
     .sort((first, second) => (first.member?.full_name || first.member?.email || "").localeCompare(second.member?.full_name || second.member?.email || "", "pt-BR"));
@@ -118,6 +127,8 @@ export default async function AdminDriversPage({ searchParams }: Props) {
   const views30d = metrics.reduce((sum, item) => sum + countNumber(item.profile_views_30d), 0);
   const blockedDrivers = drivers.filter((item) => item.member?.is_blocked).length;
   const publishedDrivers = drivers.filter((item) => item.publicProfile?.is_published).length;
+  const verifiedNetworkDrivers = networkSettings.filter((item) => item.opted_in && item.verification_status === "verified").length;
+  const pendingNetworkDrivers = networkSettings.filter((item) => item.verification_status === "pending").length;
   const requestedDriver = params.driver || "all";
   const selectedDriver = requestedDriver !== "all" && driverIds.has(requestedDriver) ? requestedDriver : "all";
   const tableName = recordView === "reservations" ? "driver_reservations" : recordView === "quotes" ? "driver_quotes" : "driver_trips";
@@ -146,12 +157,13 @@ export default async function AdminDriversPage({ searchParams }: Props) {
         <article><UsersRound size={22} /><span>Motoristas identificados</span><strong>{drivers.length}</strong></article>
         <article><Eye size={22} /><span>Perfis públicos</span><strong>{publishedDrivers}</strong></article>
         <article><BarChart3 size={22} /><span>Acessos totais</span><strong>{totalViews}</strong><small>{views30d} nos últimos 30 dias</small></article>
+        <article><ShieldCheck size={22} /><span>Rede verificada</span><strong>{verifiedNetworkDrivers}</strong><small>{pendingNetworkDrivers} aguardando análise</small></article>
         <article><Ban size={22} /><span>Motoristas bloqueados</span><strong>{blockedDrivers}</strong></article>
       </section>
 
-      {(membersResult.error || profilesResult.error || publicProfilesResult.error || metricsResult.error) ? (
+      {(membersResult.error || profilesResult.error || publicProfilesResult.error || metricsResult.error || networkResult.error) ? (
         <p className="auth-message auth-message--error">
-          {membersResult.error?.message || profilesResult.error?.message || publicProfilesResult.error?.message || metricsResult.error?.message}
+          {membersResult.error?.message || profilesResult.error?.message || publicProfilesResult.error?.message || metricsResult.error?.message || networkResult.error?.message}
         </p>
       ) : null}
 
@@ -162,7 +174,7 @@ export default async function AdminDriversPage({ searchParams }: Props) {
         </div>
 
         <div className="admin-driver-list">
-          {drivers.map(({ id, member, profile, publicProfile, metrics: driverMetrics }) => {
+          {drivers.map(({ id, member, profile, publicProfile, metrics: driverMetrics, network }) => {
             if (!member) return null;
             const isSelf = id === userId;
             const isDriverActive = Boolean(profile?.is_professional_driver);
@@ -194,6 +206,26 @@ export default async function AdminDriversPage({ searchParams }: Props) {
                   ) : <div><strong>Perfil público não criado</strong><small>O motorista ainda não configurou o cartão profissional.</small></div>}
                   {publicProfile?.is_published ? <Link className="button button--secondary button--compact" href={`/m/${publicProfile.slug}?preview=admin`} target="_blank" rel="noreferrer"><Eye size={16} /> Abrir página</Link> : null}
                 </div>
+
+                {network ? (
+                  <div className={`admin-driver-network admin-driver-network--${network.verification_status}`}>
+                    <ShieldCheck size={20} />
+                    <div>
+                      <strong>Rede de motoristas · {DRIVER_NETWORK_VERIFICATION_LABELS[network.verification_status]}</strong>
+                      <span>{network.opted_in ? "Participação ativa" : "Participação pausada"} · {network.accepts_referrals ? "recebe indicações" : "não recebe indicações"}</span>
+                      <small>{network.region || "Região não informada"}{network.service_types.length ? ` · ${network.service_types.slice(0, 3).map((item) => DRIVER_NETWORK_SERVICE_LABELS[item]).join(", ")}` : ""}</small>
+                    </div>
+                    <form className="admin-driver-network__form" action={setDriverNetworkVerificationAction}>
+                      <input type="hidden" name="userId" value={id} />
+                      <input name="notes" maxLength={500} placeholder="Observação da verificação" defaultValue={network.verification_notes || ""} />
+                      <div>
+                        <button className="button button--primary button--compact" type="submit" name="status" value="verified"><CheckCircle2 size={15} /> Verificar</button>
+                        <button className="button button--danger button--compact" type="submit" name="status" value="rejected"><XCircle size={15} /> Recusar</button>
+                        <button className="button button--secondary button--compact" type="submit" name="status" value="pending"><RotateCcw size={15} /> Revisar novamente</button>
+                      </div>
+                    </form>
+                  </div>
+                ) : null}
 
                 {!isSelf ? (
                   <details className="admin-driver-controls">

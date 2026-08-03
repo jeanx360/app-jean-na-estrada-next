@@ -8,6 +8,7 @@ export const DRIVER_MARKETING_SOURCES = [
   "tiktok",
   "whatsapp",
   "shared_link",
+  "network",
   "other",
 ] as const;
 
@@ -46,6 +47,7 @@ export const DRIVER_MARKETING_SOURCE_LABELS: Record<DriverMarketingSource, strin
   tiktok: "TikTok",
   whatsapp: "WhatsApp",
   shared_link: "Link compartilhado",
+  network: "Rede de motoristas",
   other: "Outra origem",
 };
 

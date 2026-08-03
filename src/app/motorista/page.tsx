@@ -18,9 +18,9 @@ import {
   MapPin,
   QrCode,
   Settings2,
-  Target,
   TrendingUp,
   UserRound,
+  UsersRound,
   WalletCards,
 } from "lucide-react";
 import { redirect } from "next/navigation";
@@ -114,6 +114,7 @@ export default async function DriverDashboardPage() {
   const canUseQuotes = accountHasFeature(accountPlan, "quotes");
   const canUseFinance = accountHasFeature(accountPlan, "finance");
   const canUsePerformance = accountHasFeature(accountPlan, "performance");
+  const canUseNetwork = accountHasFeature(accountPlan, "driver_network");
 
   if (!profile.is_professional_driver) {
     return (
@@ -144,6 +145,10 @@ export default async function DriverDashboardPage() {
               {newReservations ? <b className="driver-quick-action__badge">{newReservations > 99 ? "99+" : newReservations}</b> : null}
             </span>
             <span>Agenda</span>
+          </Link>
+          <Link className="driver-quick-action" href={canUseNetwork ? "/motorista/rede" : planUpgradeUrl("driver_network", "/motorista/rede")}>
+            <span className="driver-quick-action__icon"><UsersRound size={22} /></span>
+            <span>Rede</span>
           </Link>
           <Link className="driver-quick-action" href="/?modo=conteudo">
             <span className="driver-quick-action__icon"><Home size={22} /></span>
@@ -274,8 +279,8 @@ export default async function DriverDashboardPage() {
       </section>
 
       <section className="driver-vip-preview-section">
-        <div className="section-heading section-heading--inline"><div><span className="eyebrow"><Crown size={14} /> PLANO PREMIUM</span><h2>Transforme dados em decisões</h2><p>Seu plano atual é {accountPlan.name}. O Premium libera inteligência, campanhas e relatórios avançados.</p></div>{!canUsePerformance ? <Link className="button button--secondary" href={planUpgradeUrl("performance", "/motorista/desempenho")}>Comparar planos</Link> : <span className="status-pill status-pill--vip"><Crown size={13} /> Seu plano inclui</span>}</div>
-        <div className="driver-vip-preview-grid"><article className="is-available"><span><Crown size={13} /> VIP</span><BarChart3 size={24} /><h3>Conversão e receita</h3><p>Visualizações, contatos, reservas, viagens e resultado por origem.</p><small>Disponível agora</small><Link className="button button--secondary button--compact" href={canUsePerformance ? "/motorista/desempenho" : planUpgradeUrl("performance", "/motorista/desempenho")}>{canUsePerformance ? "Abrir painel" : "Desbloquear"}</Link></article><article><span><Crown size={13} /> VIP</span><Target size={24} /><h3>Metas</h3><p>Objetivos de faturamento, lucro e clientes particulares.</p><small>Próxima etapa</small></article><article><span><Crown size={13} /> VIP</span><FileDown size={24} /><h3>PDF e CSV</h3><p>Orçamentos, recibos e relatórios personalizados.</p><small>Próxima etapa</small></article><article><span><Crown size={13} /> VIP</span><BellRing size={24} /><h3>Automações</h3><p>Lembretes de reserva e acompanhamento de clientes.</p><small>Próxima etapa</small></article></div>
+        <div className="section-heading section-heading--inline"><div><span className="eyebrow"><Crown size={14} /> PLANO PREMIUM</span><h2>Transforme dados em decisões</h2><p>Seu plano atual é {accountPlan.name}. O Premium libera inteligência, campanhas, rede de motoristas e relatórios avançados.</p></div>{!canUsePerformance ? <Link className="button button--secondary" href={planUpgradeUrl("performance", "/motorista/desempenho")}>Comparar planos</Link> : <span className="status-pill status-pill--vip"><Crown size={13} /> Seu plano inclui</span>}</div>
+        <div className="driver-vip-preview-grid"><article className="is-available"><span><Crown size={13} /> VIP</span><BarChart3 size={24} /><h3>Conversão e receita</h3><p>Visualizações, contatos, reservas, viagens e resultado por origem.</p><small>Disponível agora</small><Link className="button button--secondary button--compact" href={canUsePerformance ? "/motorista/desempenho" : planUpgradeUrl("performance", "/motorista/desempenho")}>{canUsePerformance ? "Abrir painel" : "Desbloquear"}</Link></article><article className="is-available"><span><Crown size={13} /> VIP</span><UsersRound size={24} /><h3>Rede de motoristas</h3><p>Diretório verificado, contatos profissionais e indicações autorizadas de corridas.</p><small>Disponível agora</small><Link className="button button--secondary button--compact" href={canUseNetwork ? "/motorista/rede" : planUpgradeUrl("driver_network", "/motorista/rede")}>{canUseNetwork ? "Abrir rede" : "Desbloquear"}</Link></article><article><span><Crown size={13} /> VIP</span><FileDown size={24} /><h3>PDF e CSV</h3><p>Orçamentos, recibos e relatórios personalizados.</p><small>Próxima etapa</small></article><article><span><Crown size={13} /> VIP</span><BellRing size={24} /><h3>Automações</h3><p>Lembretes de reserva e acompanhamento de clientes.</p><small>Próxima etapa</small></article></div>
       </section>
 
       <section className="driver-recent-section"><div className="section-heading section-heading--inline"><div><span className="eyebrow">RECENTES</span><h2>Últimos orçamentos</h2></div><Link className="text-link" href="/motorista/orcamentos">Ver todos <ArrowRight size={17} /></Link></div>{quotes.length ? <div className="driver-recent-list">{quotes.slice(0, 4).map((quote) => <article key={quote.id}><div><strong>{[quote.origin, quote.destination].filter(Boolean).join(" → ") || "Viagem particular"}</strong><span>{formatBrazilDate(quote.created_at)}</span></div><b>{formatCurrency(quote.rounded_total)}</b></article>)}</div> : <p className="driver-empty-copy">Seus orçamentos salvos aparecerão aqui.</p>}</section>

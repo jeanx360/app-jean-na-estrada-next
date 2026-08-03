@@ -5,12 +5,15 @@ import { notFound, redirect } from "next/navigation";
 import { DriverReservationActions } from "@/components/DriverReservationActions";
 import { DriverReservationProgress } from "@/components/DriverReservationProgress";
 import { DriverReservationManagementForms } from "@/components/DriverReservationManagementForms";
+import { DriverReferralForm } from "@/components/DriverReferralForm";
 import { PageHeader } from "@/components/PageHeader";
 import { getAuthContext } from "@/lib/auth";
+import { accountHasFeature, getAccountPlan } from "@/lib/account-plan";
 import { formatCurrency, type DriverQuote, type DriverTrip } from "@/lib/driver";
 import { DRIVER_RESERVATION_STATUS_LABELS, reservationWhatsAppUrl, type DriverReservation } from "@/lib/driver-public";
 import { formatBrazilDate, formatBrazilTime } from "@/lib/date-time";
 import { durationLabel } from "@/lib/driver-schedule";
+import type { DriverNetworkMember } from "@/lib/driver-network";
 
 export const metadata: Metadata = { title: "Solicitação de corrida" };
 export const dynamic = "force-dynamic";
@@ -26,12 +29,17 @@ export default async function DriverReservationDetailPage({ params }: Props) {
   if (!data) notFound();
   const reservation = data as DriverReservation;
 
-  const [{ data: quoteData }, { data: tripData }] = await Promise.all([
+  const accountPlan = await getAccountPlan(supabase, userId, profile.role);
+  const networkEnabled = accountHasFeature(accountPlan, "driver_network");
+  const [{ data: quoteData }, { data: tripData }, networkMembersResult] = await Promise.all([
     reservation.quote_id ? supabase.from("driver_quotes").select("*").eq("id", reservation.quote_id).eq("user_id", userId).maybeSingle() : Promise.resolve({ data: null }),
     supabase.from("driver_trips").select("*").eq("reservation_id", reservation.id).eq("user_id", userId).maybeSingle(),
+    networkEnabled ? supabase.rpc("driver_network_members") : Promise.resolve({ data: [] }),
   ]);
   const quote = quoteData as DriverQuote | null;
   const trip = tripData as DriverTrip | null;
+  const networkMembers = ((networkMembersResult.data ?? []) as DriverNetworkMember[])
+    .filter((member) => member.accepts_referrals);
   const route = [reservation.origin, reservation.destination].filter(Boolean).join(" → ") || reservation.driver_service_packages?.title || "Solicitação de corrida";
 
   return (
@@ -80,6 +88,9 @@ export default async function DriverReservationDetailPage({ params }: Props) {
             <div><span className="eyebrow">AGENDA E HISTÓRICO</span><h2>Gerenciar compromisso</h2><p>Remarque, duplique ou encerre o atendimento informando o motivo.</p></div>
             <DriverReservationManagementForms reservation={reservation} />
           </section>
+          {!(["completed", "cancelled", "declined"] as string[]).includes(reservation.status) ? (
+            <DriverReferralForm reservationId={reservation.id} members={networkMembers} networkEnabled={networkEnabled} />
+          ) : null}
         </div>
       </div>
     </div>

@@ -18,7 +18,8 @@ export type AccountFeature =
   | "performance"
   | "marketing_campaigns"
   | "advanced_reports"
-  | "customization";
+  | "customization"
+  | "driver_network";
 
 export type AccountPlanAccess = {
   code: AccountPlanCode;
@@ -71,6 +72,7 @@ export const ACCOUNT_FEATURE_LABELS: Record<AccountFeature, string> = {
   marketing_campaigns: "Campanhas rastreáveis",
   advanced_reports: "Relatórios avançados",
   customization: "Personalização ampliada",
+  driver_network: "Rede de motoristas e indicações",
 };
 
 export const ACCOUNT_FEATURE_REQUIRED_PLAN: Record<AccountFeature, AccountPlanCode> = {
@@ -88,6 +90,7 @@ export const ACCOUNT_FEATURE_REQUIRED_PLAN: Record<AccountFeature, AccountPlanCo
   marketing_campaigns: "premium",
   advanced_reports: "premium",
   customization: "premium",
+  driver_network: "premium",
 };
 
 const FREE_FEATURES: AccountFeature[] = [
@@ -113,6 +116,7 @@ const PREMIUM_FEATURES: AccountFeature[] = [
   "marketing_campaigns",
   "advanced_reports",
   "customization",
+  "driver_network",
 ];
 
 export const DEFAULT_APP_PLANS: AppPlanCatalogItem[] = [
@@ -137,7 +141,7 @@ export const DEFAULT_APP_PLANS: AppPlanCatalogItem[] = [
   {
     code: "premium",
     name: "Premium",
-    description: "Todos os recursos profissionais, inteligência, campanhas e relatórios avançados.",
+    description: "Todos os recursos profissionais, inteligência, rede de motoristas, campanhas e relatórios avançados.",
     trial_days: 14,
     features: PREMIUM_FEATURES,
     sort_order: 30,

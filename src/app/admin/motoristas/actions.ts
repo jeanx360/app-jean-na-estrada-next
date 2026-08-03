@@ -93,6 +93,41 @@ export async function setDriverPublicProfilePublishedAction(formData: FormData) 
   revalidatePath(`/m/${oldProfile.slug}`);
 }
 
+
+export async function setDriverNetworkVerificationAction(formData: FormData) {
+  const { supabase, userId: actorUserId } = await requireAdmin();
+  if (!actorUserId) throw new Error("Sessão administrativa inválida.");
+  const targetUserId = readText(formData, "userId");
+  const status = readText(formData, "status");
+  const notes = readText(formData, "notes");
+  if (!targetUserId) throw new Error("Motorista inválido.");
+  if (!["pending", "verified", "rejected"].includes(status)) throw new Error("Situação de verificação inválida.");
+
+  const admin = createAdminClient();
+  const { data: oldSettings, error: readError } = await admin
+    .from("driver_network_settings")
+    .select("*")
+    .eq("user_id", targetUserId)
+    .maybeSingle();
+  if (readError) throw new Error(readError.message);
+  if (!oldSettings) throw new Error("Este motorista ainda não solicitou participação na rede.");
+
+  const { error } = await supabase.rpc("admin_set_driver_network_verification", {
+    target_user_id: targetUserId,
+    selected_status: status,
+    admin_notes: notes || null,
+  });
+  if (error) throw new Error(error.message);
+
+  await audit(actorUserId, "SET_DRIVER_NETWORK_VERIFICATION", "driver_network_settings", targetUserId, oldSettings, {
+    verification_status: status,
+    verification_notes: notes || null,
+  });
+  revalidateDriverAdmin();
+  revalidatePath("/motoristas");
+  revalidatePath("/motorista/rede");
+}
+
 export async function deleteDriverRecordAdminAction(formData: FormData) {
   const { userId: actorUserId } = await requireAdmin();
   if (!actorUserId) throw new Error("Sessão administrativa inválida.");
