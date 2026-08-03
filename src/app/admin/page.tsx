@@ -8,6 +8,7 @@ import {
   CheckCircle2,
   CreditCard,
   FileText,
+  RefreshCw,
   ShieldCheck,
   UsersRound,
 } from "lucide-react";
@@ -48,6 +49,7 @@ export default async function AdminDashboardPage() {
     { href: "/admin/assinatura", icon: CreditCard, title: "Revisar pagamentos", description: "Plano, solicitações e comprovantes." },
     { href: "/admin/publicacoes", icon: FileText, title: "Publicar conteúdo", description: "Tutoriais, aplicativos, parceiros e produtos." },
     { href: "/admin/notificacoes", icon: BellRing, title: "Enviar notificação", description: "Mensagens internas e Web Push." },
+    { href: "/admin/automacoes", icon: RefreshCw, title: "Revisar automações", description: "Execuções, alertas criados e falhas técnicas." },
     { href: "/admin/estatisticas", icon: BarChart3, title: "Ver estatísticas", description: "Gráfico de acessos e páginas mais visitadas." },
   ];
 

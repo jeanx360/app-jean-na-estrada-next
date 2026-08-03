@@ -8,20 +8,26 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const requestedLimit = Number(url.searchParams.get("limit") ?? 6);
   const limit = Math.min(20, Math.max(1, Number.isFinite(requestedLimit) ? Math.trunc(requestedLimit) : 6));
+  const now = new Date();
 
   const { data, error } = await supabase
     .from("notifications")
-    .select("id, title, message, category, action_url, published_at")
+    .select("id, title, message, category, priority, action_url, published_at, expires_at")
     .eq("is_published", true)
-    .lte("published_at", new Date().toISOString())
+    .lte("published_at", now.toISOString())
     .order("published_at", { ascending: false })
-    .limit(limit + 30);
+    .limit(limit + 50);
 
   if (error) {
     return NextResponse.json({ ok: false, error: error.message }, { status: 400 });
   }
 
-  const rows = data ?? [];
+  const rows = (data ?? []).filter((item) => {
+    if (!item.expires_at) return true;
+    const expiresAt = Date.parse(item.expires_at as string);
+    return !Number.isFinite(expiresAt) || expiresAt > now.getTime();
+  });
+
   if (!userId || !rows.length) {
     return NextResponse.json(
       { ok: true, authenticated: Boolean(userId), items: rows.slice(0, limit) },

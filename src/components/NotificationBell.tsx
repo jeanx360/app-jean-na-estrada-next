@@ -5,17 +5,17 @@ import { usePathname } from "next/navigation";
 import { Bell, BellRing, ChevronRight, Inbox, LoaderCircle, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { formatBrazilDateTime } from "@/lib/date-time";
+import type { NotificationCategory, NotificationPriority } from "@/types/notification";
 
 const GUEST_READ_KEY = "jne-notification-read-ids";
 const GUEST_DISMISSED_KEY = "jne-notification-dismissed-ids";
-
-type NotificationCategory = "general" | "videos" | "tutorials" | "apps" | "benefits" | "reservations";
 
 type FloatingNotification = {
   id: string;
   title: string;
   message: string;
   category: NotificationCategory;
+  priority: NotificationPriority;
   action_url: string | null;
   published_at: string;
 };
@@ -27,6 +27,13 @@ const categoryLabels: Record<NotificationCategory, string> = {
   apps: "Aplicativo",
   benefits: "Benefício",
   reservations: "Reserva",
+  agenda: "Agenda",
+  customers: "Cliente",
+  quotes: "Orçamento",
+  finance: "Financeiro",
+  network: "Rede",
+  subscription: "Assinatura",
+  administration: "Administração",
 };
 
 function storedIds(key: string) {
@@ -188,6 +195,8 @@ export function NotificationBell() {
     };
   }, [closeMenu, open]);
 
+  const historyHref = pathname.startsWith("/motorista") ? "/motorista/notificacoes" : "/notificacoes";
+
   return (
     <div className="notification-floating" ref={rootRef}>
       <button
@@ -257,7 +266,7 @@ export function NotificationBell() {
           </div>
 
           <footer className="notification-floating__footer">
-            <Link className="button button--secondary" href="/notificacoes" onClick={closeMenu}>
+            <Link className="button button--secondary" href={historyHref} onClick={closeMenu}>
               Ver histórico completo <ChevronRight size={17} />
             </Link>
           </footer>

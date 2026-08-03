@@ -5,19 +5,27 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   const { userId, supabase } = await getAuthContext();
+  const now = new Date();
   const { data, error } = await supabase
     .from("notifications")
-    .select("id")
+    .select("id, expires_at")
     .eq("is_published", true)
-    .lte("published_at", new Date().toISOString())
+    .lte("published_at", now.toISOString())
     .order("published_at", { ascending: false })
-    .limit(100);
+    .limit(250);
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
 
-  const ids = (data ?? []).map((item) => item.id as string);
+  const ids = (data ?? [])
+    .filter((item) => {
+      if (!item.expires_at) return true;
+      const expiresAt = Date.parse(item.expires_at as string);
+      return !Number.isFinite(expiresAt) || expiresAt > now.getTime();
+    })
+    .map((item) => item.id as string);
+
   if (!userId || !ids.length) {
     return NextResponse.json(
       { authenticated: Boolean(userId), count: userId ? 0 : undefined, ids },

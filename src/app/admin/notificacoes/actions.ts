@@ -76,7 +76,7 @@ export async function createNotificationAction(
       created_by: userId,
     })
     .select(
-      "id, title, message, audience, category, action_url, image_url, is_published, is_featured, published_at, push_requested, push_sent_at, push_success_count, push_failure_count, source_key, target_user_id, created_at, updated_at",
+      "id, title, message, audience, category, action_url, image_url, is_published, is_featured, published_at, push_requested, push_sent_at, push_success_count, push_failure_count, source_key, target_user_id, priority, automation_type, source_entity_type, source_entity_id, expires_at, created_at, updated_at",
     )
     .single();
 
@@ -128,7 +128,7 @@ export async function resendNotificationPushAction(formData: FormData) {
   const { data, error } = await supabase
     .from("notifications")
     .select(
-      "id, title, message, audience, category, action_url, image_url, is_published, is_featured, published_at, push_requested, push_sent_at, push_success_count, push_failure_count, source_key, target_user_id, created_at, updated_at",
+      "id, title, message, audience, category, action_url, image_url, is_published, is_featured, published_at, push_requested, push_sent_at, push_success_count, push_failure_count, source_key, target_user_id, priority, automation_type, source_entity_type, source_entity_id, expires_at, created_at, updated_at",
     )
     .eq("id", notificationId)
     .maybeSingle();

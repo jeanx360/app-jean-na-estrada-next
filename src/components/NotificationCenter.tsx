@@ -15,6 +15,13 @@ const categoryLabels: Record<NotificationCategory, string> = {
   apps: "Aplicativos",
   benefits: "Benefícios",
   reservations: "Reservas",
+  agenda: "Agenda",
+  customers: "Clientes",
+  quotes: "Orçamentos",
+  finance: "Financeiro",
+  network: "Rede de motoristas",
+  subscription: "Assinatura",
+  administration: "Administração",
 };
 
 type NotificationDisplay = NotificationRow & {

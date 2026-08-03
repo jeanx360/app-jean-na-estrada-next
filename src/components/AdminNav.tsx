@@ -11,6 +11,7 @@ import {
   LayoutDashboard,
   Megaphone,
   MessageCircle,
+  RefreshCw,
   ScrollText,
   UsersRound,
 } from "lucide-react";
@@ -24,6 +25,7 @@ const items = [
   { href: "/admin/convites", label: "Convites VIP", icon: KeyRound },
   { href: "/admin/recados", label: "Recados", icon: Megaphone },
   { href: "/admin/notificacoes", label: "Notificações", icon: BellRing },
+  { href: "/admin/automacoes", label: "Automações", icon: RefreshCw },
   { href: "/admin/publicacoes", label: "Conteúdo público", icon: FileText },
   { href: "/admin/manuais", label: "Veículos e manuais", icon: BookOpenText },
   { href: "/admin/home", label: "Carrossel da home", icon: Images },

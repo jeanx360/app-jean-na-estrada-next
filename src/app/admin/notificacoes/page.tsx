@@ -27,6 +27,13 @@ const categoryLabels: Record<NotificationCategory, string> = {
   apps: "Aplicativos",
   benefits: "Benefícios",
   reservations: "Reservas",
+  agenda: "Agenda",
+  customers: "Clientes",
+  quotes: "Orçamentos",
+  finance: "Financeiro",
+  network: "Rede de motoristas",
+  subscription: "Assinatura",
+  administration: "Administração",
 };
 
 export default async function AdminNotificationsPage() {
@@ -34,7 +41,7 @@ export default async function AdminNotificationsPage() {
   const { data, error } = await supabase
     .from("notifications")
     .select(
-      "id, title, message, audience, category, action_url, image_url, is_published, is_featured, published_at, push_requested, push_sent_at, push_success_count, push_failure_count, source_key, target_user_id, created_at, updated_at",
+      "id, title, message, audience, category, action_url, image_url, is_published, is_featured, published_at, push_requested, push_sent_at, push_success_count, push_failure_count, source_key, target_user_id, priority, automation_type, source_entity_type, source_entity_id, expires_at, created_at, updated_at",
     )
     .order("created_at", { ascending: false });
   const notifications = (data ?? []) as NotificationRow[];

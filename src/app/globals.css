@@ -14766,3 +14766,638 @@ button {
   .driver-network-settings > .button,
   .driver-network-member-card__actions .button { width: 100%; }
 }
+
+/* JNE App 1.19.0 - automacoes e central profissional de notificacoes */
+.driver-notifications-page {
+  min-width: 0;
+}
+
+.driver-automation-safety-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+  padding: 18px;
+  border: 1px solid color-mix(in srgb, var(--accent) 36%, var(--line));
+  border-radius: 20px;
+  background: color-mix(in srgb, var(--accent) 7%, var(--surface));
+}
+
+.driver-automation-safety-note > svg {
+  flex: 0 0 auto;
+  color: var(--accent);
+}
+
+.driver-automation-safety-note div {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.driver-automation-safety-note p {
+  margin: 0;
+  color: var(--text-muted);
+  line-height: 1.55;
+}
+
+.driver-notification-center,
+.driver-notification-preferences {
+  min-width: 0;
+  display: grid;
+  gap: 18px;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: var(--card);
+  box-shadow: 0 20px 55px rgb(0 0 0 / 0.12);
+}
+
+.driver-notification-summary {
+  min-width: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.driver-notification-summary > div:first-child {
+  min-width: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+}
+
+.driver-notification-summary__icon,
+.driver-notification-preferences__heading > span {
+  width: 46px;
+  height: 46px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--accent) 42%, var(--line));
+  border-radius: 15px;
+  background: color-mix(in srgb, var(--accent) 11%, var(--surface-strong));
+  color: var(--accent);
+}
+
+.driver-notification-summary h2,
+.driver-notification-summary p,
+.driver-notification-preferences h2,
+.driver-notification-preferences p {
+  margin: 0;
+}
+
+.driver-notification-summary small,
+.driver-notification-preferences__heading small {
+  color: var(--accent);
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+}
+
+.driver-notification-summary h2,
+.driver-notification-preferences h2 {
+  margin-top: 4px;
+  font-size: clamp(1.2rem, 3vw, 1.65rem);
+}
+
+.driver-notification-summary p,
+.driver-notification-preferences p {
+  margin-top: 5px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.driver-notification-summary__numbers {
+  flex: 0 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.driver-notification-summary__numbers span {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  padding: 9px 11px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface-strong);
+  color: var(--text-muted);
+  font-size: 0.74rem;
+}
+
+.driver-notification-summary__numbers strong {
+  color: var(--text);
+  font-size: 0.92rem;
+}
+
+.driver-notification-toolbar {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--surface-strong);
+}
+
+.driver-notification-filters,
+.driver-notification-toolbar__actions {
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.driver-notification-filters label {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--input-bg);
+  color: var(--text-muted);
+}
+
+.driver-notification-filters select {
+  min-width: 0;
+  min-height: 40px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--text);
+}
+
+.driver-notification-list {
+  min-width: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.driver-notification-card {
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  display: grid;
+  gap: 10px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--surface-strong);
+}
+
+.driver-notification-card::before {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  content: "";
+  background: var(--accent);
+}
+
+.driver-notification-card.priority-low::before {
+  opacity: 0.45;
+}
+
+.driver-notification-card.priority-high::before {
+  background: #f59e0b;
+}
+
+.driver-notification-card.priority-urgent::before {
+  background: #ef4444;
+}
+
+.driver-notification-card.is-read {
+  opacity: 0.78;
+}
+
+.driver-notification-card.is-archived {
+  opacity: 0.62;
+}
+
+.driver-notification-card__topline,
+.driver-notification-card footer {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.driver-notification-card__topline > div,
+.driver-notification-card__actions,
+.driver-notification-card__state {
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.driver-notification-card__topline time {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  white-space: nowrap;
+}
+
+.driver-notification-priority,
+.driver-notification-category {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text-muted);
+  font-size: 0.66rem;
+  font-weight: 850;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.driver-notification-priority.priority-high {
+  border-color: color-mix(in srgb, #f59e0b 45%, var(--line));
+  color: #f59e0b;
+}
+
+.driver-notification-priority.priority-urgent {
+  border-color: color-mix(in srgb, #ef4444 45%, var(--line));
+  color: #ef4444;
+}
+
+.driver-notification-card h3,
+.driver-notification-card p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.driver-notification-card h3 {
+  font-size: 1.05rem;
+}
+
+.driver-notification-card p {
+  color: var(--text-muted);
+  line-height: 1.55;
+}
+
+.driver-notification-card footer {
+  padding-top: 4px;
+}
+
+.driver-notification-card__state > span,
+.driver-notification-card__state .text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.driver-notification-empty {
+  min-height: 190px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 8px;
+  padding: 30px;
+  border: 1px dashed var(--line);
+  border-radius: 20px;
+  background: var(--surface-strong);
+  text-align: center;
+}
+
+.driver-notification-empty svg {
+  color: var(--accent);
+}
+
+.driver-notification-empty h3,
+.driver-notification-empty p {
+  margin: 0;
+}
+
+.driver-notification-empty p {
+  color: var(--text-muted);
+}
+
+.driver-notification-preferences__heading {
+  min-width: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+}
+
+.driver-notification-preferences__heading > div {
+  min-width: 0;
+}
+
+.driver-notification-preferences__categories {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.driver-notification-preference {
+  min-width: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 17px;
+  background: var(--surface-strong);
+  cursor: pointer;
+}
+
+.driver-notification-preference input {
+  width: 19px;
+  height: 19px;
+  flex: 0 0 auto;
+  margin-top: 2px;
+  accent-color: var(--accent);
+}
+
+.driver-notification-preference > span {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.driver-notification-preference strong,
+.driver-notification-preference small {
+  overflow-wrap: anywhere;
+}
+
+.driver-notification-preference small {
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.driver-notification-windows {
+  min-width: 0;
+  margin: 0;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 19px;
+}
+
+.driver-notification-windows legend {
+  padding: 0 8px;
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.driver-notification-windows > div {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.driver-notification-windows label {
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.driver-notification-windows label > span {
+  color: var(--text-muted);
+  font-size: 0.76rem;
+  font-weight: 750;
+}
+
+.driver-notification-windows select {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: var(--input-bg);
+  color: var(--text);
+}
+
+.admin-automation-page {
+  align-items: start;
+}
+
+.admin-automation-control {
+  position: sticky;
+  top: 20px;
+}
+
+.admin-automation-safety {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid color-mix(in srgb, var(--accent) 38%, var(--line));
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--accent) 7%, var(--surface));
+}
+
+.admin-automation-safety > svg {
+  flex: 0 0 auto;
+  color: var(--accent);
+}
+
+.admin-automation-safety p {
+  margin: 4px 0 0;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.admin-automation-status-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.admin-automation-status-grid article {
+  min-width: 0;
+  display: grid;
+  gap: 5px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface-strong);
+}
+
+.admin-automation-status-grid svg {
+  color: var(--accent);
+}
+
+.admin-automation-status-grid span {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+
+.admin-automation-status-grid strong {
+  overflow-wrap: anywhere;
+}
+
+.admin-automation-run-list {
+  display: grid;
+  gap: 10px;
+}
+
+.admin-automation-run {
+  min-width: 0;
+  display: grid;
+  gap: 10px;
+  padding: 15px;
+  border: 1px solid var(--line);
+  border-radius: 17px;
+  background: var(--surface-strong);
+}
+
+.admin-automation-run.status-failed {
+  border-color: color-mix(in srgb, #ef4444 45%, var(--line));
+}
+
+.admin-automation-run header,
+.admin-automation-run header > div,
+.admin-automation-run__metrics {
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-automation-run header {
+  justify-content: space-between;
+}
+
+.admin-automation-run header > div > span:not(.admin-status),
+.admin-automation-run time,
+.admin-automation-run small {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+
+.admin-automation-run__metrics span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 9px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+
+.admin-automation-run__metrics strong {
+  color: var(--text);
+}
+
+.admin-automation-run__error {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: color-mix(in srgb, #ef4444 10%, var(--surface));
+  color: #ef4444;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 900px) {
+  .driver-notification-summary,
+  .driver-notification-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .driver-notification-summary__numbers {
+    justify-content: flex-start;
+  }
+
+  .driver-notification-toolbar__actions .button {
+    flex: 1 1 190px;
+  }
+
+  .admin-automation-control {
+    position: static;
+  }
+}
+
+@media (max-width: 640px) {
+  .driver-notification-center,
+  .driver-notification-preferences {
+    gap: 14px;
+    padding: 15px;
+    border-radius: 20px;
+  }
+
+  .driver-automation-safety-note {
+    padding: 15px;
+  }
+
+  .driver-notification-summary > div:first-child,
+  .driver-notification-preferences__heading {
+    display: grid;
+    grid-template-columns: 42px minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .driver-notification-summary__icon,
+  .driver-notification-preferences__heading > span {
+    width: 42px;
+    height: 42px;
+    border-radius: 13px;
+  }
+
+  .driver-notification-filters,
+  .driver-notification-toolbar__actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .driver-notification-filters label,
+  .driver-notification-filters select,
+  .driver-notification-toolbar__actions .button {
+    width: 100%;
+  }
+
+  .driver-notification-card {
+    gap: 9px;
+    padding: 15px;
+    border-radius: 17px;
+  }
+
+  .driver-notification-card__topline,
+  .driver-notification-card footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .driver-notification-card__topline time {
+    white-space: normal;
+  }
+
+  .driver-notification-card__actions,
+  .driver-notification-card__actions .button {
+    width: 100%;
+  }
+
+  .driver-notification-card__actions .button {
+    justify-content: center;
+  }
+
+  .driver-notification-preferences__categories,
+  .driver-notification-windows > div,
+  .admin-automation-status-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .driver-notification-preference {
+    padding: 12px;
+  }
+
+  .admin-automation-run header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
