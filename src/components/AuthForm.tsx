@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
-import { KeyRound, LoaderCircle, LogIn, Mail, UserRound } from "lucide-react";
+import { useActionState, useState } from "react";
+import { Car, KeyRound, LoaderCircle, LogIn, Mail, Phone, UserRound } from "lucide-react";
 import {
   loginAction,
   requestPasswordResetAction,
@@ -26,21 +26,25 @@ export function AuthForm({ mode, next = "/membros" }: { mode: AuthMode; next?: s
           : loginAction;
 
   const [state, formAction, pending] = useActionState(action, initialState);
+  const [professionalDriver, setProfessionalDriver] = useState(false);
   const isLogin = mode === "login";
   const isSignup = mode === "signup";
   const isReset = mode === "reset";
   const isUpdate = mode === "update-password";
+  const loginHref = `/entrar?next=${encodeURIComponent(next)}`;
+  const signupHref = `/cadastro?next=${encodeURIComponent(next)}`;
 
   return (
     <form className="auth-form" action={formAction}>
-      {isLogin ? <input type="hidden" name="next" value={next} /> : null}
+      {isLogin || isSignup ? <input type="hidden" name="next" value={next} /> : null}
+      {isSignup ? <input type="hidden" name="professionalDriver" value={professionalDriver ? "yes" : "no"} /> : null}
 
       {isSignup ? (
         <label className="auth-field">
           <span>Seu nome</span>
           <div>
             <UserRound size={18} />
-            <input name="fullName" type="text" autoComplete="name" required placeholder="Como devemos chamar você?" />
+            <input name="fullName" type="text" autoComplete="name" maxLength={80} required placeholder="Como devemos chamar você?" />
           </div>
         </label>
       ) : null}
@@ -52,6 +56,17 @@ export function AuthForm({ mode, next = "/membros" }: { mode: AuthMode; next?: s
             <Mail size={18} />
             <input name="email" type="email" autoComplete="email" required placeholder="voce@exemplo.com" />
           </div>
+        </label>
+      ) : null}
+
+      {isSignup ? (
+        <label className="auth-field">
+          <span>WhatsApp com DDD</span>
+          <div>
+            <Phone size={18} />
+            <input name="phone" type="tel" inputMode="tel" autoComplete="tel" maxLength={20} required placeholder="(51) 99999-9999" />
+          </div>
+          <small>Usaremos somente para sua conta e solicitações de viagem.</small>
         </label>
       ) : null}
 
@@ -72,7 +87,7 @@ export function AuthForm({ mode, next = "/membros" }: { mode: AuthMode; next?: s
         </label>
       ) : null}
 
-      {isSignup || isUpdate ? (
+      {isUpdate ? (
         <label className="auth-field">
           <span>Confirmar senha</span>
           <div>
@@ -87,6 +102,38 @@ export function AuthForm({ mode, next = "/membros" }: { mode: AuthMode; next?: s
             />
           </div>
         </label>
+      ) : null}
+
+      {isSignup ? (
+        <fieldset className="auth-driver-choice">
+          <legend>Você é motorista profissional?</legend>
+          <p>Essa escolha só organiza seu primeiro acesso. Pode ser alterada depois.</p>
+          <div>
+            <button type="button" className={!professionalDriver ? "is-selected" : ""} onClick={() => setProfessionalDriver(false)}>
+              <UserRound size={20} /><span><strong>Não</strong><small>Quero usar como passageiro ou membro</small></span>
+            </button>
+            <button type="button" className={professionalDriver ? "is-selected" : ""} onClick={() => setProfessionalDriver(true)}>
+              <Car size={20} /><span><strong>Sim</strong><small>Quero criar meu perfil profissional</small></span>
+            </button>
+          </div>
+        </fieldset>
+      ) : null}
+
+      {isSignup && professionalDriver ? (
+        <div className="auth-driver-fields">
+          <p><Car size={18} /> Dados essenciais do motorista</p>
+          <div className="auth-driver-fields__grid">
+            <label className="auth-field">
+              <span>Modelo do veículo</span>
+              <div><Car size={18} /><input name="vehicleModel" type="text" maxLength={100} required placeholder="Ex.: BYD Dolphin Plus" /></div>
+            </label>
+            <label className="auth-field">
+              <span>Placa</span>
+              <div><Car size={18} /><input name="vehiclePlate" type="text" maxLength={10} required autoCapitalize="characters" placeholder="ABC1D23" /></div>
+            </label>
+          </div>
+          <small>O cartão profissional será criado como rascunho. A placa não será exibida ao passageiro.</small>
+        </div>
       ) : null}
 
       {isSignup ? (
@@ -117,13 +164,13 @@ export function AuthForm({ mode, next = "/membros" }: { mode: AuthMode; next?: s
       {isLogin ? (
         <div className="auth-links">
           <Link href="/recuperar-senha">Esqueci minha senha</Link>
-          <Link href="/cadastro">Criar uma conta</Link>
+          <Link href={signupHref}>Criar uma conta</Link>
         </div>
       ) : null}
 
       {isSignup || isReset || isUpdate ? (
         <div className="auth-links auth-links--center">
-          <Link href="/entrar">Voltar para o login</Link>
+          <Link href={isSignup ? loginHref : "/entrar"}>Voltar para o login</Link>
         </div>
       ) : null}
     </form>

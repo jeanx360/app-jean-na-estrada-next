@@ -1,6 +1,7 @@
 import type { EmailOtpType } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { bootstrapSignupProfile } from "@/lib/signup-profile";
 
 function safeNext(value: string | null) {
   return value?.startsWith("/") && !value.startsWith("//") ? value : "/membros";
@@ -27,6 +28,11 @@ export async function GET(request: Request) {
   }
 
   if (!error) {
+    try {
+      await bootstrapSignupProfile(supabase);
+    } catch (bootstrapError) {
+      console.warn("Não foi possível preparar o perfil inicial:", bootstrapError);
+    }
     return NextResponse.redirect(new URL(next, url.origin));
   }
 

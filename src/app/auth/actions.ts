@@ -5,6 +5,8 @@ import { redirect, RedirectType } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import type { AuthActionState } from "@/types/auth";
+import { normalizeWhatsAppPhone } from "@/lib/driver-public";
+import { bootstrapSignupProfile } from "@/lib/signup-profile";
 
 function readText(formData: FormData, key: string) {
   const value = formData.get(key);
@@ -63,32 +65,51 @@ export async function signupAction(
 ): Promise<AuthActionState> {
   const fullName = readText(formData, "fullName");
   const email = readText(formData, "email");
+  const phone = normalizeWhatsAppPhone(readText(formData, "phone"));
   const password = readText(formData, "password");
-  const passwordConfirmation = readText(formData, "passwordConfirmation");
+  const professionalDriver = readText(formData, "professionalDriver") === "yes";
+  const vehicleModel = readText(formData, "vehicleModel");
+  const vehiclePlate = readText(formData, "vehiclePlate").toUpperCase().replace(/[^A-Z0-9-]/g, "").slice(0, 10);
   const legalAcknowledgement = formData.get("legalAcknowledgement") === "on";
+  const next = safeNext(readText(formData, "next"), "/comecar");
 
-  if (!fullName || !email || !password) {
-    return { error: "Preencha nome, e-mail e senha." };
+  if (!fullName || !email || !phone || !password) {
+    return { error: "Preencha nome, WhatsApp, e-mail e senha." };
+  }
+  if (fullName.length < 2 || fullName.length > 80) {
+    return { error: "O nome precisa ter entre 2 e 80 caracteres." };
+  }
+  if (phone.length < 10 || phone.length > 15) {
+    return { error: "Informe um WhatsApp válido com DDD." };
   }
   if (password.length < 8) {
     return { error: "A senha precisa ter pelo menos 8 caracteres." };
   }
-
-  if (password !== passwordConfirmation) {
-    return { error: "As senhas informadas não são iguais." };
+  if (professionalDriver && vehicleModel.length < 2) {
+    return { error: "Informe o modelo do veículo." };
+  }
+  if (professionalDriver && vehiclePlate.length < 6) {
+    return { error: "Informe uma placa válida." };
   }
   if (!legalAcknowledgement) {
     return { error: "Leia e confirme os Termos de Uso e a Política de Privacidade." };
   }
 
   const origin = await getOrigin();
+  const legalNext = `/aceite?next=${encodeURIComponent(next)}`;
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
-      data: { full_name: fullName },
-      emailRedirectTo: `${origin}/auth/confirm?next=${encodeURIComponent("/aceite?next=/comecar")}`,
+      data: {
+        full_name: fullName,
+        phone,
+        is_professional_driver: professionalDriver,
+        vehicle_model: professionalDriver ? vehicleModel : null,
+        vehicle_plate: professionalDriver ? vehiclePlate : null,
+      },
+      emailRedirectTo: `${origin}/auth/confirm?next=${encodeURIComponent(legalNext)}`,
     },
   });
   if (error) {
@@ -101,8 +122,14 @@ export async function signupAction(
     };
   }
 
+  try {
+    await bootstrapSignupProfile(supabase);
+  } catch (bootstrapError) {
+    console.warn("Não foi possível preparar o perfil inicial:", bootstrapError);
+  }
+
   revalidatePath("/", "layout");
-  redirect("/aceite?next=/comecar", RedirectType.replace);
+  redirect(legalNext, RedirectType.replace);
 }
 
 export async function requestPasswordResetAction(

@@ -19,6 +19,11 @@ export default async function ProfilePage() {
   if (!profile) redirect("/membros");
 
   const legal = await getLegalAcceptanceStatus(supabase, userId);
+  const { data: authData } = await supabase.auth.getUser();
+  const metadata = authData.user?.user_metadata ?? {};
+  const initialPhone = typeof metadata.phone === "string" ? metadata.phone : "";
+  const initialVehicleModel = typeof metadata.vehicle_model === "string" ? metadata.vehicle_model : "";
+  const initialVehiclePlate = typeof metadata.vehicle_plate === "string" ? metadata.vehicle_plate : "";
 
   return (
     <div className="page-stack">
@@ -33,7 +38,13 @@ export default async function ProfilePage() {
         <div className="member-warning"><ShieldAlert size={20} /><div><strong>Conta bloqueada</strong><p>Algumas alterações podem ficar indisponíveis.</p></div></div>
       ) : null}
 
-      <ProfileEditor profile={profile} email={email} />
+      <ProfileEditor
+        profile={profile}
+        email={email}
+        initialPhone={initialPhone}
+        initialVehicleModel={initialVehicleModel}
+        initialVehiclePlate={initialVehiclePlate}
+      />
 
       <section className="profile-security-grid">
         <article><LockKeyhole size={22} /><h2>Senha e acesso</h2><p>Atualize sua senha caso suspeite de acesso indevido.</p><Link className="button button--secondary" href="/atualizar-senha">Alterar senha</Link></article>

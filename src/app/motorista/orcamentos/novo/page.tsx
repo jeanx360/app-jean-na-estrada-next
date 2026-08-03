@@ -14,6 +14,25 @@ export const dynamic = "force-dynamic";
 
 type Props = { searchParams: Promise<{ customer?: string; reservation?: string }> };
 
+const ROUTE_ESTIMATE_PATTERN = /Estimativa automática do Google Maps:\s*([\d.,]+)\s*km,\s*(\d+)\s*min\.\s*/i;
+
+function routeEstimateFromNotes(notes: string | null | undefined) {
+  const text = notes || "";
+  const match = text.match(ROUTE_ESTIMATE_PATTERN);
+  if (!match) return { distancePerLegKm: undefined, durationPerLegMinutes: undefined, notes: text };
+  const rawDistance = match[1];
+  const normalizedDistance = rawDistance.includes(",")
+    ? rawDistance.replace(/\./g, "").replace(",", ".")
+    : rawDistance;
+  const distancePerLegKm = Number(normalizedDistance);
+  const durationPerLegMinutes = Number(match[2]);
+  return {
+    distancePerLegKm: Number.isFinite(distancePerLegKm) ? distancePerLegKm : undefined,
+    durationPerLegMinutes: Number.isFinite(durationPerLegMinutes) ? durationPerLegMinutes : undefined,
+    notes: text.replace(ROUTE_ESTIMATE_PATTERN, "").trim(),
+  };
+}
+
 export default async function NewDriverQuotePage({ searchParams }: Props) {
   const query = await searchParams;
   const { supabase, userId } = await requireDriverFeature("quotes", "/motorista/orcamentos/novo");
@@ -34,6 +53,7 @@ export default async function NewDriverQuotePage({ searchParams }: Props) {
   }));
   const selectedCustomer = ((customerData ?? []) as DriverCustomer[]).find((customer) => customer.id === query.customer) ?? null;
   const reservation = reservationData as DriverReservation | null;
+  const routeEstimate = routeEstimateFromNotes(reservation?.notes);
 
   return (
     <div className="page-stack driver-page">
@@ -52,7 +72,9 @@ export default async function NewDriverQuotePage({ searchParams }: Props) {
           travelDate: reservation?.travel_date || "",
           travelTime: reservation?.travel_time || "",
           tripType: reservation?.trip_type || "outbound",
-          notes: reservation?.notes || "",
+          distancePerLegKm: routeEstimate.distancePerLegKm,
+          durationPerLegMinutes: routeEstimate.durationPerLegMinutes,
+          notes: routeEstimate.notes,
         }}
       />
     </div>

@@ -16,7 +16,7 @@ function safeNext(value: string | undefined) {
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ next?: string; erro?: string }>;
+  searchParams: Promise<{ next?: string; erro?: string; motivo?: string }>;
 }) {
   const params = await searchParams;
   const next = safeNext(params.next);
@@ -30,7 +30,7 @@ export default async function LoginPage({
     <AuthCard
       eyebrow="CONTA JNE"
       title="Entre na sua conta"
-      description="Acesse seu perfil, recados e os conteúdos liberados para sua categoria de membro."
+      description={params.motivo === "cadastro" ? "Crie ou acesse sua conta gratuita para continuar exatamente de onde parou." : "Acesse seu perfil, recados e os conteúdos liberados para sua categoria de membro."}
     >
       {params.erro === "link-invalido" ? (
         <p className="auth-message auth-message--error">O link expirou ou já foi utilizado. Tente novamente.</p>

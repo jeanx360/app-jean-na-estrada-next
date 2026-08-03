@@ -520,3 +520,98 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* JNE App 2.0.2 — cadastro inicial simplificado */
+.auth-field > small,
+.auth-driver-fields > small {
+  color: var(--text-muted);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.auth-driver-choice {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: rgb(var(--accent-rgb) / .045);
+}
+
+.auth-driver-choice legend {
+  padding: 0 4px;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.auth-driver-choice > p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.auth-driver-choice > div {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.auth-driver-choice button {
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 13px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  color: var(--text-soft);
+  background: var(--input-bg);
+  text-align: left;
+  cursor: pointer;
+}
+
+.auth-driver-choice button > svg {
+  flex: 0 0 auto;
+  color: var(--text-muted);
+}
+
+.auth-driver-choice button span {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.auth-driver-choice button strong { color: var(--text); }
+.auth-driver-choice button small { color: var(--text-muted); line-height: 1.35; }
+.auth-driver-choice button.is-selected { border-color: rgb(var(--accent-rgb) / .7); background: rgb(var(--accent-rgb) / .12); box-shadow: 0 0 0 3px rgb(var(--accent-rgb) / .07); }
+.auth-driver-choice button.is-selected > svg { color: var(--accent-secondary); }
+
+.auth-driver-fields {
+  display: grid;
+  gap: 13px;
+  padding: 16px;
+  border: 1px solid rgb(var(--accent-rgb) / .28);
+  border-radius: 16px;
+  background: rgb(var(--accent-rgb) / .065);
+}
+
+.auth-driver-fields > p {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.auth-driver-fields > p svg { color: var(--accent-secondary); }
+.auth-driver-fields__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; }
+
+@media (max-width: 560px) {
+  .auth-driver-choice > div,
+  .auth-driver-fields__grid { grid-template-columns: 1fr; }
+}

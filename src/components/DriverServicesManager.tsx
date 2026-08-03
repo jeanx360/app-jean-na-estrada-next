@@ -67,7 +67,7 @@ export function DriverServicesManager({ userId, initialItems }: Props) {
   async function save() {
     const title = form.title.trim();
     if (title.length < 2) {
-      setMessage({ type: "error", text: "Dê um nome curto para o serviço." });
+      setMessage({ type: "error", text: "Dê um nome curto para a rota ou serviço." });
       return;
     }
     const price = form.pricingType === "consult" ? null : Number(form.price.replace(",", "."));
@@ -99,13 +99,13 @@ export function DriverServicesManager({ userId, initialItems }: Props) {
     const { data, error } = await query;
 
     if (error || !data) {
-      setMessage({ type: "error", text: error?.message ?? "Não foi possível salvar o serviço." });
+      setMessage({ type: "error", text: error?.message ?? "Não foi possível salvar a rota ou serviço." });
     } else {
       const saved = data as DriverServicePackage;
       setItems((current) => form.id ? current.map((item) => item.id === saved.id ? saved : item) : [...current, saved]);
       setForm(emptyForm);
       setOpen(false);
-      setMessage({ type: "success", text: "Serviço salvo." });
+      setMessage({ type: "success", text: "Rota ou serviço salvo." });
       router.refresh();
     }
     setSaving(false);
@@ -118,7 +118,7 @@ export function DriverServicesManager({ userId, initialItems }: Props) {
     if (error) setMessage({ type: "error", text: error.message });
     else {
       setItems((current) => current.filter((value) => value.id !== item.id));
-      setMessage({ type: "success", text: "Serviço removido." });
+      setMessage({ type: "success", text: "Rota ou serviço removido." });
       router.refresh();
     }
   }
@@ -126,24 +126,33 @@ export function DriverServicesManager({ userId, initialItems }: Props) {
   return (
     <div className="driver-services-manager">
       <div className="driver-services-manager__heading">
-        <div><span className="eyebrow">SERVIÇOS E PACOTES</span><h2>O que o passageiro pode reservar</h2><p>Cadastre opções claras. O preço pode ser fixo, “a partir de”, por hora ou sob consulta.</p></div>
-        {!open ? <button className="button button--primary" type="button" onClick={startCreate}><Plus size={18} /> Novo serviço</button> : null}
+        <div><span className="eyebrow">ROTAS E SERVIÇOS FREQUENTES</span><h2>O que o passageiro pode solicitar</h2><p>Cadastre trajetos comuns, aeroporto, eventos ou outros serviços. O preço pode ser fixo, “a partir de”, por hora ou sob consulta.</p></div>
+        {!open ? <button className="button button--primary" type="button" onClick={startCreate}><Plus size={18} /> Nova rota ou serviço</button> : null}
       </div>
 
       {open ? (
         <section className="driver-service-editor">
-          <div className="driver-service-editor__header"><strong>{form.id ? "Editar serviço" : "Novo serviço"}</strong><button className="icon-button" type="button" onClick={() => { setOpen(false); setForm(emptyForm); }} aria-label="Fechar"><X size={18} /></button></div>
+          <div className="driver-service-editor__header"><strong>{form.id ? "Editar rota ou serviço" : "Nova rota ou serviço"}</strong><button className="icon-button" type="button" onClick={() => { setOpen(false); setForm(emptyForm); }} aria-label="Fechar"><X size={18} /></button></div>
           <div className="driver-field-grid">
-            <label className="driver-field-grid__full"><span>Nome do serviço</span><input maxLength={80} value={form.title} onChange={(event) => update("title", event.target.value)} placeholder="Ex.: Aeroporto com horário marcado" /></label>
-            <label className="driver-field-grid__full"><span>Descrição</span><textarea rows={3} maxLength={320} value={form.description} onChange={(event) => update("description", event.target.value)} placeholder="Explique em uma frase para quem esse serviço é ideal." /></label>
+            <label className="driver-field-grid__full"><span>Nome curto</span><input maxLength={80} value={form.title} onChange={(event) => update("title", event.target.value)} placeholder="Ex.: Porto Alegre → Gramado" /></label>
+            <label className="driver-field-grid__full"><span>Rota ou região</span><input maxLength={140} value={form.routeSummary} onChange={(event) => update("routeSummary", event.target.value)} placeholder="Ex.: Porto Alegre → Gramado" /></label>
             <label><span>Como mostrar o preço</span><select value={form.pricingType} onChange={(event) => update("pricingType", event.target.value as DriverPricingType)}>{Object.entries(DRIVER_PRICING_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
-            {form.pricingType !== "consult" ? <label><span>Preço</span><input inputMode="decimal" value={form.price} onChange={(event) => update("price", event.target.value)} placeholder="0,00" /></label> : <div />}
-            <label><span>Rota ou região</span><input maxLength={140} value={form.routeSummary} onChange={(event) => update("routeSummary", event.target.value)} placeholder="Ex.: Porto Alegre → Aeroporto" /></label>
-            <label><span>Duração ou antecedência</span><input maxLength={80} value={form.durationLabel} onChange={(event) => update("durationLabel", event.target.value)} placeholder="Ex.: Até 4 horas" /></label>
-            <label className="driver-field-grid__full"><span>O que está incluído</span><input maxLength={240} value={form.includes} onChange={(event) => update("includes", event.target.value)} placeholder="Ex.: espera de 30 min e pedágio" /></label>
+            {form.pricingType !== "consult" ? <label><span>Preço</span><input inputMode="decimal" value={form.price} onChange={(event) => update("price", event.target.value)} placeholder="0,00" /></label> : <div aria-hidden="true" />}
           </div>
+          <details
+            key={form.id || "new-route"}
+            className="driver-service-editor__optional"
+            defaultOpen={Boolean(form.description || form.durationLabel || form.includes)}
+          >
+            <summary>Adicionar descrição e detalhes (opcional)</summary>
+            <div className="driver-field-grid">
+              <label className="driver-field-grid__full"><span>Descrição</span><textarea rows={3} maxLength={320} value={form.description} onChange={(event) => update("description", event.target.value)} placeholder="Explique em uma frase quando esta opção é indicada." /></label>
+              <label><span>Duração ou antecedência</span><input maxLength={80} value={form.durationLabel} onChange={(event) => update("durationLabel", event.target.value)} placeholder="Ex.: Até 4 horas" /></label>
+              <label><span>O que está incluído</span><input maxLength={240} value={form.includes} onChange={(event) => update("includes", event.target.value)} placeholder="Ex.: espera de 30 min e pedágio" /></label>
+            </div>
+          </details>
           <label className="driver-inline-toggle"><div><strong>Mostrar no cartão</strong><small>Desative temporariamente sem apagar.</small></div><input type="checkbox" checked={form.active} onChange={(event) => update("active", event.target.checked)} /></label>
-          <div className="driver-service-editor__actions"><button className="button button--secondary" type="button" onClick={() => { setOpen(false); setForm(emptyForm); }}>Cancelar</button><button className="button button--primary" type="button" onClick={save} disabled={saving}>{saving ? <LoaderCircle className="auth-spinner" size={18} /> : <Save size={18} />}{saving ? "Salvando..." : "Salvar serviço"}</button></div>
+          <div className="driver-service-editor__actions"><button className="button button--secondary" type="button" onClick={() => { setOpen(false); setForm(emptyForm); }}>Cancelar</button><button className="button button--primary" type="button" onClick={save} disabled={saving}>{saving ? <LoaderCircle className="auth-spinner" size={18} /> : <Save size={18} />}{saving ? "Salvando..." : "Salvar rota ou serviço"}</button></div>
         </section>
       ) : null}
 
@@ -159,7 +168,7 @@ export function DriverServicesManager({ userId, initialItems }: Props) {
             </article>
           ))}
         </div>
-      ) : !open ? <div className="driver-empty-card"><Plus size={28} /><strong>Cadastre seu primeiro serviço</strong><p>Comece com algo simples, como aeroporto, diária, eventos ou viagem sob consulta.</p><button className="button button--primary" type="button" onClick={startCreate}>Criar serviço</button></div> : null}
+      ) : !open ? <div className="driver-empty-card"><Plus size={28} /><strong>Cadastre sua primeira rota ou serviço</strong><p>Comece com um trajeto frequente, aeroporto, diária, evento ou viagem sob consulta.</p><button className="button button--primary" type="button" onClick={startCreate}>Criar rota ou serviço</button></div> : null}
     </div>
   );
 }

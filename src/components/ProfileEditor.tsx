@@ -2,8 +2,9 @@
 
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Camera, Car, Home, LoaderCircle, Save, Trash2 } from "lucide-react";
+import { Camera, Car, Home, LoaderCircle, Phone, Save, Trash2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { normalizeDriverSlug, normalizeWhatsAppPhone } from "@/lib/driver-public";
 import type { MemberProfile, PreferredHome } from "@/types/auth";
 
 const MAX_AVATAR_SIZE = 2 * 1024 * 1024;
@@ -13,11 +14,31 @@ const ALLOWED_TYPES = new Map([
   ["image/webp", "webp"],
 ]);
 
-export function ProfileEditor({ profile, email }: { profile: MemberProfile; email: string | null }) {
+function initialDriverSlug(name: string, userId: string) {
+  const base = normalizeDriverSlug(name).slice(0, 35) || "motorista";
+  return `${base}-${userId.replace(/-/g, "").slice(0, 8)}`.slice(0, 48);
+}
+
+export function ProfileEditor({
+  profile,
+  email,
+  initialPhone = "",
+  initialVehicleModel = "",
+  initialVehiclePlate = "",
+}: {
+  profile: MemberProfile;
+  email: string | null;
+  initialPhone?: string;
+  initialVehicleModel?: string;
+  initialVehiclePlate?: string;
+}) {
   const router = useRouter();
   const fileInput = useRef<HTMLInputElement>(null);
   const [fullName, setFullName] = useState(profile.full_name ?? "");
   const [bio, setBio] = useState(profile.bio ?? "");
+  const [phone, setPhone] = useState(initialPhone);
+  const [vehicleModel, setVehicleModel] = useState(initialVehicleModel);
+  const [vehiclePlate, setVehiclePlate] = useState(initialVehiclePlate);
   const [avatarUrl, setAvatarUrl] = useState(profile.avatar_url);
   const [avatarPath, setAvatarPath] = useState(profile.avatar_path);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -28,12 +49,28 @@ export function ProfileEditor({ profile, email }: { profile: MemberProfile; emai
 
   async function saveProfile() {
     const normalizedName = fullName.trim();
+    const normalizedPhone = normalizeWhatsAppPhone(phone);
+    const normalizedVehicleModel = vehicleModel.trim();
+    const normalizedVehiclePlate = vehiclePlate.toUpperCase().replace(/[^A-Z0-9-]/g, "").slice(0, 10);
+
     if (normalizedName.length < 2 || normalizedName.length > 80) {
       setMessage({ type: "error", text: "O nome precisa ter entre 2 e 80 caracteres." });
       return;
     }
     if (bio.trim().length > 280) {
       setMessage({ type: "error", text: "A apresentação pode ter no máximo 280 caracteres." });
+      return;
+    }
+    if (normalizedPhone.length < 10 || normalizedPhone.length > 15) {
+      setMessage({ type: "error", text: "Informe um WhatsApp válido com DDD." });
+      return;
+    }
+    if (professionalDriver && normalizedVehicleModel.length < 2) {
+      setMessage({ type: "error", text: "Informe o modelo do veículo." });
+      return;
+    }
+    if (professionalDriver && normalizedVehiclePlate.length < 6) {
+      setMessage({ type: "error", text: "Informe uma placa válida." });
       return;
     }
 
@@ -76,14 +113,60 @@ export function ProfileEditor({ profile, email }: { profile: MemberProfile; emai
       });
       if (driverError) throw driverError;
 
-      const { error: publicProfileError } = await supabase
+      const { error: metadataError } = await supabase.auth.updateUser({
+        data: {
+          phone: normalizedPhone,
+          is_professional_driver: professionalDriver,
+          vehicle_model: professionalDriver ? normalizedVehicleModel : null,
+          vehicle_plate: professionalDriver ? normalizedVehiclePlate : null,
+        },
+      });
+      if (metadataError) throw metadataError;
+
+      const { data: existingPublicProfile, error: existingError } = await supabase
         .from("driver_public_profiles")
-        .update({
-          photo_url: nextAvatarUrl,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("user_id", profile.id);
-      if (publicProfileError) throw publicProfileError;
+        .select("user_id")
+        .eq("user_id", profile.id)
+        .maybeSingle();
+      if (existingError) throw existingError;
+
+      if (professionalDriver) {
+        if (existingPublicProfile) {
+          const { error: publicProfileError } = await supabase
+            .from("driver_public_profiles")
+            .update({
+              display_name: normalizedName,
+              photo_url: nextAvatarUrl,
+              whatsapp_phone: normalizedPhone,
+              vehicle_name: normalizedVehicleModel,
+              updated_at: new Date().toISOString(),
+            })
+            .eq("user_id", profile.id);
+          if (publicProfileError) throw publicProfileError;
+        } else {
+          const { error: publicProfileError } = await supabase
+            .from("driver_public_profiles")
+            .insert({
+              user_id: profile.id,
+              slug: initialDriverSlug(normalizedName, profile.id),
+              display_name: normalizedName,
+              headline: "Motorista particular",
+              whatsapp_phone: normalizedPhone,
+              vehicle_name: normalizedVehicleModel,
+              photo_url: nextAvatarUrl,
+              is_published: false,
+              accepts_reservations: true,
+            });
+          if (publicProfileError) throw publicProfileError;
+          await supabase.from("driver_settings").upsert({ user_id: profile.id }, { onConflict: "user_id" });
+        }
+      } else if (existingPublicProfile) {
+        const { error: publicProfileError } = await supabase
+          .from("driver_public_profiles")
+          .update({ display_name: normalizedName, photo_url: nextAvatarUrl, is_published: false, updated_at: new Date().toISOString() })
+          .eq("user_id", profile.id);
+        if (publicProfileError) throw publicProfileError;
+      }
 
       if (uploadedPath && avatarPath && avatarPath !== uploadedPath) {
         await supabase.storage.from("avatars").remove([avatarPath]);
@@ -91,10 +174,13 @@ export function ProfileEditor({ profile, email }: { profile: MemberProfile; emai
 
       setAvatarUrl(nextAvatarUrl);
       setAvatarPath(nextAvatarPath);
+      setPhone(normalizedPhone);
+      setVehicleModel(normalizedVehicleModel);
+      setVehiclePlate(normalizedVehiclePlate);
       setPreferredHome(safePreferredHome);
       setSelectedFile(null);
       if (fileInput.current) fileInput.current.value = "";
-      setMessage({ type: "success", text: "Perfil e preferências atualizados." });
+      setMessage({ type: "success", text: professionalDriver ? "Conta e perfil profissional atualizados." : "Perfil atualizado." });
       router.refresh();
     } catch (error) {
       if (uploadedPath) await supabase.storage.from("avatars").remove([uploadedPath]);
@@ -168,14 +254,15 @@ export function ProfileEditor({ profile, email }: { profile: MemberProfile; emai
       <div className="profile-editor__fields">
         <label><span>Nome</span><input value={fullName} maxLength={80} onChange={(event) => setFullName(event.target.value)} /></label>
         <label><span>E-mail</span><input value={email ?? ""} disabled /></label>
-        <label><span>Sobre você</span><textarea value={bio} maxLength={280} rows={5} onChange={(event) => setBio(event.target.value)} placeholder="Conte brevemente sua relação com carros e tecnologia." /><small>{bio.length}/280</small></label>
+        <label><span><Phone size={15} /> WhatsApp</span><input inputMode="tel" autoComplete="tel" value={phone} maxLength={20} onChange={(event) => setPhone(event.target.value)} placeholder="(51) 99999-9999" /></label>
+        <label><span>Sobre você</span><textarea value={bio} maxLength={280} rows={4} onChange={(event) => setBio(event.target.value)} placeholder="Conte brevemente sua relação com carros e tecnologia." /><small>{bio.length}/280</small></label>
 
         <div className="driver-profile-preferences">
           <div className="driver-profile-preferences__heading">
             <Car size={21} />
             <div>
               <strong>Motorista profissional</strong>
-              <p>Ative para usar orçamento de viagens, histórico e um painel mais rápido ao abrir o app.</p>
+              <p>Ative e informe o veículo aqui. O cartão profissional é preparado sem repetir o cadastro em outra tela.</p>
             </div>
           </div>
 
@@ -193,16 +280,21 @@ export function ProfileEditor({ profile, email }: { profile: MemberProfile; emai
           </label>
 
           {professionalDriver ? (
-            <div className="driver-home-choice">
-              <span><Home size={17} /> Qual tela abrir primeiro?</span>
-              <label>
-                <input type="radio" name="preferred-home" checked={preferredHome === "driver"} onChange={() => setPreferredHome("driver")} />
-                Painel do motorista
-              </label>
-              <label>
-                <input type="radio" name="preferred-home" checked={preferredHome === "standard"} onChange={() => setPreferredHome("standard")} />
-                Conteúdo Jean na Estrada
-              </label>
+            <div className="driver-profile-inline-fields">
+              <label><span>Modelo do veículo</span><input value={vehicleModel} maxLength={100} onChange={(event) => setVehicleModel(event.target.value)} placeholder="Ex.: BYD Dolphin Plus" /></label>
+              <label><span>Placa</span><input value={vehiclePlate} maxLength={10} autoCapitalize="characters" onChange={(event) => setVehiclePlate(event.target.value.toUpperCase())} placeholder="ABC1D23" /></label>
+              <small>A placa fica privada e não aparece no cartão público.</small>
+              <div className="driver-home-choice">
+                <span><Home size={17} /> Qual tela abrir primeiro?</span>
+                <label>
+                  <input type="radio" name="preferred-home" checked={preferredHome === "driver"} onChange={() => setPreferredHome("driver")} />
+                  Painel do motorista
+                </label>
+                <label>
+                  <input type="radio" name="preferred-home" checked={preferredHome === "standard"} onChange={() => setPreferredHome("standard")} />
+                  Conteúdo Jean na Estrada
+                </label>
+              </div>
             </div>
           ) : null}
         </div>

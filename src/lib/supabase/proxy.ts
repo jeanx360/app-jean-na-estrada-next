@@ -3,6 +3,34 @@ import { NextResponse, type NextRequest } from "next/server";
 
 const SESSION_CACHE_CONTROL = "private, no-store, no-cache, max-age=0, must-revalidate";
 
+const PUBLIC_EXACT_PATHS = new Set([
+  "/",
+  "/videos",
+  "/noticias",
+  "/entrar",
+  "/cadastro",
+  "/recuperar-senha",
+  "/atualizar-senha",
+  "/termos",
+  "/privacidade",
+  "/suporte",
+  "/offline.html",
+  "/robots.txt",
+  "/sitemap.xml",
+  "/manifest.webmanifest",
+  "/icon.png",
+  "/apple-icon.png",
+]);
+
+const PUBLIC_PAGE_PREFIXES = ["/auth/"];
+const PUBLIC_API_PREFIXES = [
+  "/api/health",
+  "/api/news",
+  "/api/analytics/page-view",
+  "/api/cron/",
+  "/api/automacoes/run",
+];
+
 function applySessionSafetyHeaders(response: NextResponse) {
   response.headers.set("Cache-Control", SESSION_CACHE_CONTROL);
   response.headers.set("Pragma", "no-cache");
@@ -23,6 +51,20 @@ function applySessionSafetyHeaders(response: NextResponse) {
 
   response.headers.set("Vary", Array.from(varyValues).join(", "));
   return response;
+}
+
+function isPublicPath(pathname: string) {
+  if (PUBLIC_EXACT_PATHS.has(pathname)) return true;
+  return PUBLIC_PAGE_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+}
+
+function isPublicApi(pathname: string) {
+  return PUBLIC_API_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(prefix));
+}
+
+function copyResponseCookies(source: NextResponse, target: NextResponse) {
+  source.cookies.getAll().forEach((cookie) => target.cookies.set(cookie));
+  return target;
 }
 
 export async function updateSession(request: NextRequest) {
@@ -53,10 +95,34 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
-  // Valida ou renova a sessão dentro do contexto de cookies desta requisição.
-  // O cabeçalho no-store impede que respostas com Set-Cookie sejam reutilizadas
-  // pelo CDN para outro navegador ou outra sessão.
-  await supabase.auth.getClaims();
+  const { data } = await supabase.auth.getClaims();
+  const claims = data?.claims as Record<string, unknown> | undefined;
+  const userId = typeof claims?.sub === "string" ? claims.sub : null;
+  const pathname = request.nextUrl.pathname;
+
+  if (!userId && pathname.startsWith("/api/") && !isPublicApi(pathname)) {
+    return applySessionSafetyHeaders(
+      copyResponseCookies(
+        response,
+        NextResponse.json(
+          { ok: false, error: "Faça um cadastro gratuito para continuar." },
+          { status: 401 },
+        ),
+      ),
+    );
+  }
+
+  if (!userId && !pathname.startsWith("/api/") && !isPublicPath(pathname)) {
+    const nextPath = `${pathname}${request.nextUrl.search}`;
+    const loginUrl = request.nextUrl.clone();
+    loginUrl.pathname = "/entrar";
+    loginUrl.search = "";
+    loginUrl.searchParams.set("next", nextPath);
+    loginUrl.searchParams.set("motivo", "cadastro");
+    return applySessionSafetyHeaders(
+      copyResponseCookies(response, NextResponse.redirect(loginUrl)),
+    );
+  }
 
   return applySessionSafetyHeaders(response);
 }

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { BriefcaseBusiness, CalendarDays, Car, CheckCircle2, Luggage, MapPin, MessageCircle, ShieldCheck, Users } from "lucide-react";
 import { notFound } from "next/navigation";
 import { DriverProfileEventTracker } from "@/components/DriverProfileEventTracker";
+import { getAuthContext } from "@/lib/auth";
 import { PassengerQuickActions } from "@/components/PassengerQuickActions";
 import { PublicReservationForm } from "@/components/PublicReservationForm";
 import {
@@ -48,7 +49,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `${result.profile.display_name} — Motorista particular`,
     description: result.profile.headline || result.profile.description || "Solicite uma corrida particular pelo JNE App.",
-    robots: { index: true, follow: true },
+    robots: { index: false, follow: false },
   };
 }
 
@@ -57,6 +58,12 @@ export default async function PublicDriverPage({ params, searchParams }: Props) 
   const query = await searchParams;
   const result = await loadProfile(slug);
   if (!result) return notFound();
+
+  const { supabase: authSupabase, profile: passengerProfile } = await getAuthContext();
+  const { data: authData } = await authSupabase.auth.getUser();
+  const passengerMetadata = authData.user?.user_metadata ?? {};
+  const initialPassengerName = passengerProfile?.full_name || (typeof passengerMetadata.full_name === "string" ? passengerMetadata.full_name : "");
+  const initialPassengerPhone = typeof passengerMetadata.phone === "string" ? passengerMetadata.phone : "";
 
   const { profile, packages } = result;
   const source = normalizeDriverMarketingSource(query.src);
@@ -94,9 +101,9 @@ export default async function PublicDriverPage({ params, searchParams }: Props) 
 
         {profile.vehicle_details || profile.amenities.length ? <section className="public-driver-comfort"><div><span className="eyebrow">VEÍCULO E CONFORTO</span><h2>{profile.vehicle_name || "Atendimento profissional"}</h2>{profile.vehicle_details ? <p>{profile.vehicle_details}</p> : null}</div><div>{profile.amenities.map((item) => <span key={item}><CheckCircle2 size={15} /> {item}</span>)}</div></section> : null}
 
-        {packages.length ? <section className="public-driver-services"><div className="public-section-heading"><div><span className="eyebrow">SERVIÇOS</span><h2>Opções disponíveis</h2><p>Escolha uma opção ou solicite uma rota personalizada.</p></div><BriefcaseBusiness size={28} /></div><div className="public-driver-services__grid">{packages.map((item) => <article key={item.id}><div><h3>{item.title}</h3><p>{item.description || "Serviço particular mediante confirmação."}</p>{item.route_summary ? <span><MapPin size={15} /> {item.route_summary}</span> : null}{item.duration_label ? <span><CalendarDays size={15} /> {item.duration_label}</span> : null}</div><div className="public-driver-services__price"><strong>{formatDriverPackagePrice(item)}</strong>{item.includes ? <small>{item.includes}</small> : null}<Link href={`${driverMarketingRelativeUrl(profile.slug, source, campaignCode, item.id)}#reservar`} className="button button--secondary">Tenho interesse</Link></div></article>)}</div></section> : null}
+        {packages.length ? <section className="public-driver-services"><div className="public-section-heading"><div><span className="eyebrow">ROTAS E SERVIÇOS FREQUENTES</span><h2>Opções que este motorista já oferece</h2><p>Escolha uma rota conhecida ou informe outro trajeto no pedido de orçamento.</p></div><BriefcaseBusiness size={28} /></div><div className="public-driver-services__grid">{packages.map((item) => <article key={item.id}><div><h3>{item.title}</h3><p>{item.description || "Serviço particular mediante confirmação."}</p>{item.route_summary ? <span><MapPin size={15} /> {item.route_summary}</span> : null}{item.duration_label ? <span><CalendarDays size={15} /> {item.duration_label}</span> : null}</div><div className="public-driver-services__price"><strong>{formatDriverPackagePrice(item)}</strong>{item.includes ? <small>{item.includes}</small> : null}<Link href={`${driverMarketingRelativeUrl(profile.slug, source, campaignCode, item.id)}#reservar`} className="button button--secondary">Tenho interesse</Link></div></article>)}</div></section> : null}
 
-        {profile.accepts_reservations ? <PublicReservationForm driverSlug={profile.slug} driverName={profile.display_name} contactUrl={contactUrl} packages={packages} initialPackageId={selectedPackageId} source={source} campaignCode={campaignCode} /> : <section className="public-reservation-disabled"><CalendarDays size={30} /><h2>Reservas pausadas</h2><p>Use o WhatsApp para consultar disponibilidade.</p><a className="button button--primary" href={whatsappUrl} target="_blank" rel="noreferrer" data-driver-event="whatsapp_click"><MessageCircle size={18} /> Falar no WhatsApp</a></section>}
+        {profile.accepts_reservations ? <PublicReservationForm driverSlug={profile.slug} driverName={profile.display_name} contactUrl={contactUrl} packages={packages} initialPackageId={selectedPackageId} initialPassengerName={initialPassengerName} initialPassengerPhone={initialPassengerPhone} source={source} campaignCode={campaignCode} /> : <section className="public-reservation-disabled"><CalendarDays size={30} /><h2>Reservas pausadas</h2><p>Use o WhatsApp para consultar disponibilidade.</p><a className="button button--primary" href={whatsappUrl} target="_blank" rel="noreferrer" data-driver-event="whatsapp_click"><MessageCircle size={18} /> Falar no WhatsApp</a></section>}
 
         <section className="public-driver-trust"><ShieldCheck size={25} /><div><strong>Contato direto entre passageiro e motorista</strong><p>O JNE App organiza a solicitação. Preço, disponibilidade, rota e condições devem ser confirmados diretamente antes da viagem.</p></div></section>
         <footer className="public-driver-footer"><Link href="/">JNE App · Jean na Estrada</Link><span>Cartão profissional digital</span></footer>

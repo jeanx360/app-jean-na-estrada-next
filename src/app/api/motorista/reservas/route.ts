@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { NextResponse } from "next/server";
+import { getAuthContext } from "@/lib/auth";
 import { formatBrazilDate, formatBrazilTime } from "@/lib/date-time";
 import {
   normalizeDriverCampaignCode,
@@ -7,6 +8,7 @@ import {
   type DriverMarketingSource,
 } from "@/lib/driver-marketing";
 import { normalizeWhatsAppPhone } from "@/lib/driver-public";
+import { verifyGoogleRouteToken } from "@/lib/google-maps";
 import { sendPushNotification } from "@/lib/push";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -41,9 +43,18 @@ export async function POST(request: Request) {
     const body = (await request.json()) as Record<string, unknown>;
     if (clean(body.company, 80)) return NextResponse.json({ ok: true });
 
+    const { supabase: authSupabase, userId, profile: passengerProfile } = await getAuthContext();
+    if (!userId || passengerProfile?.is_blocked) {
+      return NextResponse.json({ ok: false, error: "Faça login para solicitar uma corrida." }, { status: 401 });
+    }
+    const { data: authData } = await authSupabase.auth.getUser();
+    const passengerMetadata = authData.user?.user_metadata ?? {};
+    const accountName = passengerProfile?.full_name || (typeof passengerMetadata.full_name === "string" ? passengerMetadata.full_name : "");
+    const accountPhone = typeof passengerMetadata.phone === "string" ? passengerMetadata.phone : "";
+
     const driverSlug = clean(body.driverSlug, 48).toLowerCase();
-    const passengerName = clean(body.passengerName, 80);
-    const passengerPhone = normalizeWhatsAppPhone(clean(body.passengerPhone, 30));
+    const passengerName = clean(body.passengerName, 80) || clean(accountName, 80);
+    const passengerPhone = normalizeWhatsAppPhone(clean(body.passengerPhone, 30) || clean(accountPhone, 30));
     const origin = clean(body.origin, 180);
     const destination = clean(body.destination, 180);
     const travelDate = clean(body.travelDate, 10);
@@ -51,7 +62,8 @@ export async function POST(request: Request) {
     const tripType = ["outbound", "return", "round_trip"].includes(String(body.tripType)) ? String(body.tripType) : "outbound";
     const passengers = Math.min(20, Math.max(1, Number(body.passengers) || 1));
     const luggage = clean(body.luggage, 180);
-    const notes = clean(body.notes, 700);
+    const userNotes = clean(body.notes, 700);
+    const routeEstimateToken = clean(body.routeEstimateToken, 1400);
     const packageId = clean(body.packageId, 64) || null;
     const refererMarketing = marketingFromRequest(request);
     const bodySource = clean(body.source, 30);
@@ -127,12 +139,25 @@ export async function POST(request: Request) {
       selectedPackage = data;
     }
 
+    const verifiedRoute = routeEstimateToken && origin && destination
+      ? verifyGoogleRouteToken(routeEstimateToken, origin, destination)
+      : null;
+    const routeDistanceKm = verifiedRoute ? verifiedRoute.distanceMeters / 1000 : null;
+    const routeDurationMinutes = verifiedRoute ? Math.max(1, Math.round(verifiedRoute.durationSeconds / 60)) : null;
+    const routeEstimateLine = routeDistanceKm && routeDurationMinutes
+      ? `Estimativa automática do Google Maps: ${routeDistanceKm.toLocaleString("pt-BR", { minimumFractionDigits: routeDistanceKm < 10 ? 1 : 0, maximumFractionDigits: 1 })} km, ${routeDurationMinutes} min.`
+      : "";
+    const notes = [routeEstimateLine, userNotes].filter(Boolean).join("\n").slice(0, 700);
+
     const { data: driverSettings } = await supabase
       .from("driver_settings")
       .select("default_reservation_duration_minutes")
       .eq("user_id", profile.user_id)
       .maybeSingle();
-    const durationMinutes = Math.max(15, Math.min(720, Number(driverSettings?.default_reservation_duration_minutes || 60)));
+    const defaultDurationMinutes = Math.max(15, Math.min(720, Number(driverSettings?.default_reservation_duration_minutes || 60)));
+    const durationMinutes = routeDurationMinutes
+      ? Math.max(15, Math.min(720, routeDurationMinutes))
+      : defaultDurationMinutes;
 
     if (travelTime) {
       const { data: conflicts, error: conflictError } = await supabase.rpc("driver_schedule_conflicts", {
