@@ -438,3 +438,56 @@
     justify-self: start;
   }
 }
+
+/* JNE App 2.0 — cadastro comercial e transparência */
+.auth-legal-confirmation {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  padding: 13px 14px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  color: var(--text-soft);
+  background: rgb(var(--accent-rgb) / 0.055);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.auth-legal-confirmation input {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  margin-top: 1px;
+  accent-color: var(--accent);
+}
+
+.auth-legal-confirmation a {
+  color: var(--accent-secondary);
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.auth-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 22px;
+  padding-top: 17px;
+  border-top: 1px solid var(--line);
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.auth-card__footer a {
+  color: var(--accent-secondary);
+  font-weight: 800;
+}
+
+@media (max-width: 460px) {
+  .auth-card__footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

@@ -65,6 +65,7 @@ export async function signupAction(
   const email = readText(formData, "email");
   const password = readText(formData, "password");
   const passwordConfirmation = readText(formData, "passwordConfirmation");
+  const legalAcknowledgement = formData.get("legalAcknowledgement") === "on";
 
   if (!fullName || !email || !password) {
     return { error: "Preencha nome, e-mail e senha." };
@@ -76,6 +77,9 @@ export async function signupAction(
   if (password !== passwordConfirmation) {
     return { error: "As senhas informadas não são iguais." };
   }
+  if (!legalAcknowledgement) {
+    return { error: "Leia e confirme os Termos de Uso e a Política de Privacidade." };
+  }
 
   const origin = await getOrigin();
   const supabase = await createClient();
@@ -84,7 +88,7 @@ export async function signupAction(
     password,
     options: {
       data: { full_name: fullName },
-      emailRedirectTo: `${origin}/auth/confirm?next=/membros`,
+      emailRedirectTo: `${origin}/auth/confirm?next=${encodeURIComponent("/aceite?next=/comecar")}`,
     },
   });
   if (error) {
@@ -98,7 +102,7 @@ export async function signupAction(
   }
 
   revalidatePath("/", "layout");
-  redirect("/membros", RedirectType.replace);
+  redirect("/aceite?next=/comecar", RedirectType.replace);
 }
 
 export async function requestPasswordResetAction(

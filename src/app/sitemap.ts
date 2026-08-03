@@ -1,12 +1,33 @@
 import type { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://app-jean-na-estrada-next.vercel.app";
-  const routes = ["", "/videos", "/noticias", "/tutoriais", "/aplicativos", "/produtos", "/guia", "/calculadora", "/parceiros", "/contato", "/sobre", "/termos", "/privacidade", "/seguranca-apks"];
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://jneapp.app";
+  const routes = [
+    "",
+    "/comecar",
+    "/planos",
+    "/motoristas",
+    "/videos",
+    "/noticias",
+    "/tutoriais",
+    "/aplicativos",
+    "/produtos",
+    "/guia",
+    "/calculadora",
+    "/parceiros",
+    "/instalar",
+    "/suporte",
+    "/contato",
+    "/sobre",
+    "/termos",
+    "/privacidade",
+    "/seguranca-apks",
+  ];
+
   return routes.map((route): MetadataRoute.Sitemap[number] => ({
     url: `${baseUrl}${route}`,
     lastModified: new Date(),
-    changeFrequency: route === "" ? "daily" : "weekly",
-    priority: route === "" ? 1 : 0.7,
+    changeFrequency: route === "" || route === "/noticias" ? "daily" : "weekly",
+    priority: route === "" ? 1 : route === "/comecar" || route === "/planos" ? 0.85 : 0.7,
   }));
 }

@@ -1,4 +1,4 @@
-const CACHE_VERSION = "jne-app-v1.20.0";
+const CACHE_VERSION = "jne-app-v2.0.0";
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const DATA_CACHE = `${CACHE_VERSION}-data`;
 
@@ -33,6 +33,7 @@ const PRIVATE_PREFIXES = [
   "/diagnostico",
   "/notificacoes",
   "/configuracoes",
+  "/comecar",
 ];
 
 self.addEventListener("install", (event) => {

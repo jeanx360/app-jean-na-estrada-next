@@ -1,49 +1,77 @@
-# Checklist de lançamento — JNE App 1.0
+# Checklist de lançamento — JNE App 2.0.0
 
-## Contas e permissões
+## Infraestrutura e domínio
 
-- [ ] Cadastro e confirmação de e-mail
-- [ ] Login, logout e recuperação de senha
-- [ ] Aceite dos três documentos
-- [ ] Perfil, avatar e exclusão de conta comum
-- [ ] Conta comum sem acesso VIP
-- [ ] Convite VIP válido, expirado, revogado e limite de tentativas
-- [ ] Conta bloqueada impedida de acessar áreas privadas
-- [ ] Administrador acessa todas as páginas do painel
+- [ ] `jneapp.app` aponta para o projeto correto da Vercel
+- [ ] `NEXT_PUBLIC_APP_URL=https://jneapp.app`
+- [ ] Supabase URL e publishable key configuradas
+- [ ] chave de service role configurada somente no servidor
+- [ ] VAPID configurado quando Web Push estiver ativo
+- [ ] `CRON_SECRET` configurado
+- [ ] `AUTOMATION_CRON_SECRET` configurado ou coberto por `CRON_SECRET`
+- [ ] Preview validado antes de promover para produção
+- [ ] backup, branch e tag de lançamento criados
 
-## Conteúdo e arquivos
+## Contas e documentos
 
-- [ ] Vídeos e notícias atualizados
-- [ ] Tutoriais, aplicativos, parceiros e produtos publicados
-- [ ] Upload de imagem pública
-- [ ] Upload e download de arquivo VIP
-- [ ] Download registrado nas métricas
-- [ ] Links externos abrem corretamente
+- [ ] cadastro e confirmação de e-mail
+- [ ] checkbox legal obrigatório no cadastro
+- [ ] aceite das versões 2.0.0 de Termos e Privacidade
+- [ ] login, logout e recuperação de senha
+- [ ] perfil, avatar e exclusão de conta comum
+- [ ] conta bloqueada impedida de acessar áreas privadas
+- [ ] administrador acessa todas as páginas administrativas
 
-## Notificações
+## Planos e acesso
 
-- [ ] Ativação e desativação do Web Push
-- [ ] Envio para todos, membros, VIP e administradores
-- [ ] Preferências por categoria
-- [ ] Sino, contador e leitura sincronizados
-- [ ] Clique no push abre a rota configurada
+- [ ] plano Gratuito liberando apenas recursos previstos
+- [ ] plano Profissional liberando CRM, agenda, orçamentos, financeiro e exportações
+- [ ] plano Premium liberando desempenho, campanhas, relatórios, personalização e rede
+- [ ] teste, validade, suspensão e expiração exibidos corretamente
+- [ ] fluxo manual de pagamento conferido
+- [ ] preços e condições comerciais revisados no JNE App e no provedor externo
 
-## Dispositivos
+## Conteúdo, comunidade e motorista
 
-- [ ] Chrome/Edge no computador
-- [ ] Android pelo navegador e PWA instalado
-- [ ] iPhone pelo Safari e PWA na Tela de Início
-- [ ] Navegação mobile sem elementos cortados
-- [ ] Temas escuro, claro, vermelho, verde e azul
-- [ ] Atualização do Service Worker sem conteúdo antigo
+- [ ] vídeos, notícias, tutoriais, aplicativos e manuais atualizados
+- [ ] comunidade, denúncias e moderação testadas
+- [ ] perfil público do motorista sem telefone exposto indevidamente
+- [ ] reserva, CRM, agenda, orçamento, financeiro e recibo testados
+- [ ] rede de motoristas e autorização do passageiro testadas
+- [ ] notificações e automações sem duplicidade
+- [ ] painel executivo e exportação administrativa protegidos
 
-## Segurança e lançamento
+## Onboarding, suporte e PWA
 
-- [ ] RLS habilitado em todas as tabelas privadas
-- [ ] Buckets `vip-files` privado, `public-assets` e `avatars` públicos conforme planejado
-- [ ] `.env.local` fora do Git
-- [ ] Chaves secretas somente na Vercel
-- [ ] Logs administrativos registrando alterações
-- [ ] Termos e privacidade revisados antes da divulgação oficial
-- [ ] Backup/tag da última versão estável
-- [ ] Domínio alterado somente após a bateria de testes
+- [ ] `/comecar` testado com visitante, membro e motorista
+- [ ] `/suporte` revisado
+- [ ] e-mail de suporte funcionando
+- [ ] instalação no Android
+- [ ] instalação no iPhone pelo Safari
+- [ ] instalação no computador
+- [ ] atualização do Service Worker
+- [ ] tela offline
+- [ ] atalhos do manifesto
+
+## Dispositivos e acessibilidade
+
+- [ ] Chrome e Edge no computador
+- [ ] Android em 320 px, 360 px e 412 px
+- [ ] iPhone em largura pequena
+- [ ] menu e rodapé sem overflow
+- [ ] formulários com teclado e foco visível
+- [ ] temas escuro, claro, vermelho, verde e azul
+- [ ] redução de movimento respeitada
+- [ ] textos e botões com contraste aceitável
+
+## Segurança e operação
+
+- [ ] RLS habilitado nas tabelas privadas
+- [ ] buckets privados e públicos conforme planejado
+- [ ] `.env.local` fora do Git e do ZIP
+- [ ] APIs privadas retornando bloqueio sem login
+- [ ] cron rejeitando segredo inválido
+- [ ] logs administrativos registrando ações sensíveis
+- [ ] suporte orientado a nunca pedir senha
+- [ ] revisão profissional dos documentos jurídicos e condições comerciais
+- [ ] plano de reversão para a `release/1.20.0`

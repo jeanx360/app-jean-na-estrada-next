@@ -12,12 +12,21 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 const basePath = process.env.PAGES_BASE_PATH ?? "";
-const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://app-jean-na-estrada-next.vercel.app";
+const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://jneapp.app";
 
 export const metadata: Metadata = {
   metadataBase: new URL(appUrl),
   title: { default: "JNE App | Jean na Estrada", template: "%s | JNE App" },
-  description: "Vídeos, tutoriais, aplicativos automotivos, parceiros, membros VIP e conteúdos do Jean na Estrada em um só lugar.",
+  description: "Conteúdo automotivo, comunidade, ferramentas profissionais para motoristas, parceiros e benefícios do Jean na Estrada em uma plataforma própria.",
+  keywords: [
+    "Jean na Estrada",
+    "JNE App",
+    "carros elétricos",
+    "motorista profissional",
+    "orçamentos de viagem",
+    "gestão de clientes",
+    "mobilidade elétrica",
+  ],
   applicationName: "JNE App",
   manifest: `${basePath}/manifest.webmanifest`,
   openGraph: {
@@ -25,13 +34,13 @@ export const metadata: Metadata = {
     locale: "pt_BR",
     siteName: "JNE App",
     title: "JNE App | Jean na Estrada",
-    description: "Conteúdo automotivo, tecnologia, tutoriais e comunidade em uma plataforma própria.",
+    description: "Conteúdo automotivo, comunidade e ferramentas profissionais para motoristas em uma plataforma própria.",
     images: [{ url: "/icons/app-icon-512.png", width: 512, height: 512, alt: "JNE App" }],
   },
   twitter: {
     card: "summary",
     title: "JNE App | Jean na Estrada",
-    description: "Conteúdo automotivo, tecnologia, tutoriais e comunidade.",
+    description: "Conteúdo automotivo, comunidade e ferramentas profissionais para motoristas.",
     images: ["/icons/app-icon-512.png"],
   },
   icons: {

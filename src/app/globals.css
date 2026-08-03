@@ -16367,3 +16367,672 @@ button {
     width: 100%;
   }
 }
+
+/* JNE App 2.0 — preparação comercial, onboarding, suporte e instalação */
+.commercial-start-section,
+.onboarding-progress-card,
+.onboarding-path-card,
+.onboarding-help-strip,
+.support-faq-section,
+.support-contact-card,
+.support-security-note,
+.install-hero-card,
+.install-device-grid article,
+.install-guidance-grid article,
+.install-help-strip {
+  min-width: 0;
+}
+
+.commercial-start-section {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 24px;
+  padding: clamp(22px, 4vw, 34px);
+  border: 1px solid rgb(var(--accent-rgb) / 0.32);
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(circle at 92% 12%, rgb(var(--accent-secondary-rgb) / 0.12), transparent 18rem),
+    linear-gradient(135deg, rgb(var(--accent-rgb) / 0.12), transparent 55%),
+    var(--card);
+  box-shadow: 0 20px 58px var(--shadow-color);
+}
+
+.commercial-start-section h2,
+.commercial-start-section p {
+  margin: 0;
+}
+
+.commercial-start-section h2 {
+  margin-top: 10px;
+  font-size: clamp(1.45rem, 3vw, 2.25rem);
+  letter-spacing: -0.035em;
+}
+
+.commercial-start-section p {
+  max-width: 760px;
+  margin-top: 9px;
+  color: var(--text-soft);
+  line-height: 1.65;
+}
+
+.commercial-start-section__actions,
+.state-page__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.global-footer > div {
+  display: grid;
+  gap: 4px;
+}
+
+.global-footer strong {
+  color: var(--text-soft);
+  font-size: 0.9rem;
+}
+
+.global-footer > div span {
+  font-size: 0.76rem;
+}
+
+.commercial-onboarding-page,
+.support-page,
+.install-page {
+  max-width: 1180px;
+}
+
+.onboarding-progress-card {
+  display: grid;
+  gap: 20px;
+  padding: clamp(20px, 4vw, 30px);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--card);
+  box-shadow: 0 20px 58px var(--shadow-color);
+}
+
+.onboarding-progress-card > header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.onboarding-progress-card > header span,
+.onboarding-path-card > span,
+.support-contact-card span,
+.install-hero-card span,
+.install-device-grid article > span,
+.install-help-strip span {
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.onboarding-progress-card > header h2 {
+  margin: 6px 0 0;
+  font-size: clamp(1.3rem, 2.8vw, 2rem);
+}
+
+.onboarding-progress-card > header > strong {
+  flex: 0 0 auto;
+  padding: 8px 11px;
+  border: 1px solid rgb(var(--accent-rgb) / 0.3);
+  border-radius: 999px;
+  color: var(--accent-secondary);
+  background: rgb(var(--accent-rgb) / 0.09);
+  font-size: 11px;
+}
+
+.onboarding-progress-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.onboarding-progress-grid article {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  background: var(--surface);
+}
+
+.onboarding-progress-grid article > svg {
+  color: var(--text-muted);
+}
+
+.onboarding-progress-grid article.is-complete {
+  border-color: rgb(57 217 138 / 0.28);
+  background: rgb(57 217 138 / 0.055);
+}
+
+.onboarding-progress-grid article.is-complete > svg {
+  color: var(--green);
+}
+
+.onboarding-progress-grid article > div {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.onboarding-progress-grid strong,
+.onboarding-progress-grid span {
+  overflow-wrap: anywhere;
+}
+
+.onboarding-progress-grid span {
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.onboarding-progress-grid a {
+  grid-column: 1 / -1;
+  color: var(--accent-secondary);
+  font-size: 11px;
+  font-weight: 850;
+}
+
+.onboarding-path-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.onboarding-path-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  overflow: hidden;
+  padding: clamp(22px, 3vw, 30px);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--card);
+}
+
+.onboarding-path-card::after {
+  position: absolute;
+  top: -60px;
+  right: -60px;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  content: "";
+  background: rgb(var(--accent-rgb) / 0.1);
+  pointer-events: none;
+}
+
+.onboarding-path-card > svg {
+  color: var(--accent-secondary);
+}
+
+.onboarding-path-card h2,
+.onboarding-path-card p {
+  margin: 0;
+}
+
+.onboarding-path-card h2 {
+  font-size: clamp(1.35rem, 2.3vw, 1.85rem);
+  letter-spacing: -0.03em;
+}
+
+.onboarding-path-card p {
+  flex: 1;
+  color: var(--text-soft);
+  line-height: 1.65;
+}
+
+.onboarding-path-card > div {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-top: 8px;
+}
+
+.onboarding-path-card--community {
+  border-color: rgb(245 158 11 / 0.24);
+}
+
+.onboarding-path-card--community > svg,
+.onboarding-path-card--community > span {
+  color: #f59e0b;
+}
+
+.onboarding-path-card--driver {
+  border-color: rgb(var(--accent-secondary-rgb) / 0.28);
+}
+
+.onboarding-help-strip,
+.install-help-strip {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 21px 24px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+.onboarding-help-strip > svg {
+  color: var(--accent);
+}
+
+.onboarding-help-strip > div,
+.install-help-strip > div {
+  min-width: 0;
+  flex: 1;
+}
+
+.onboarding-help-strip h2,
+.install-help-strip h2 {
+  margin: 4px 0 0;
+  font-size: 1.05rem;
+}
+
+.support-quick-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.support-quick-grid > a {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--card);
+  transition: 170ms ease;
+}
+
+.support-quick-grid > a:hover {
+  transform: translateY(-2px);
+  border-color: var(--line-strong);
+}
+
+.support-quick-grid svg {
+  color: var(--accent);
+}
+
+.support-quick-grid h2,
+.support-quick-grid p {
+  margin: 0;
+}
+
+.support-quick-grid h2 {
+  font-size: 1rem;
+}
+
+.support-quick-grid p {
+  margin-top: 4px;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.support-faq-section {
+  display: grid;
+  gap: 22px;
+  padding: clamp(22px, 4vw, 34px);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--card);
+}
+
+.support-faq-groups {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.support-faq-groups > article {
+  min-width: 0;
+  display: grid;
+  align-content: start;
+  gap: 12px;
+}
+
+.support-faq-groups h3 {
+  margin: 0;
+  color: var(--accent-secondary);
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.support-faq-groups article > div {
+  display: grid;
+  gap: 8px;
+}
+
+.support-faq-groups details {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+}
+
+.support-faq-groups summary {
+  padding: 15px 42px 15px 15px;
+  color: var(--text-soft);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.support-faq-groups details p {
+  margin: 0;
+  padding: 0 15px 16px;
+  color: var(--text-muted);
+  line-height: 1.65;
+}
+
+.support-contact-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 18px;
+  padding: clamp(22px, 4vw, 32px);
+  border: 1px solid rgb(var(--accent-rgb) / 0.3);
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(135deg, rgb(var(--accent-rgb) / 0.09), transparent 60%),
+    var(--card);
+}
+
+.support-contact-card__icon,
+.install-hero-card__icon {
+  width: 58px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgb(var(--accent-rgb) / 0.3);
+  border-radius: 18px;
+  color: var(--accent-secondary);
+  background: rgb(var(--accent-rgb) / 0.1);
+}
+
+.support-contact-card h2,
+.support-contact-card p,
+.install-hero-card h2,
+.install-hero-card p {
+  margin: 0;
+}
+
+.support-contact-card h2,
+.install-hero-card h2 {
+  margin-top: 5px;
+}
+
+.support-contact-card p,
+.install-hero-card p {
+  margin-top: 6px;
+  color: var(--text-soft);
+  line-height: 1.6;
+}
+
+.support-contact-card__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.support-security-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px 18px;
+  border: 1px solid rgb(57 217 138 / 0.22);
+  border-radius: 15px;
+  color: var(--text-soft);
+  background: rgb(57 217 138 / 0.055);
+}
+
+.support-security-note svg {
+  flex: 0 0 auto;
+  color: var(--green);
+}
+
+.support-security-note p {
+  margin: 0;
+  line-height: 1.55;
+}
+
+.support-security-note span {
+  color: var(--accent-secondary);
+  font-weight: 800;
+}
+
+.install-hero-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 20px;
+  padding: clamp(22px, 4vw, 34px);
+  border: 1px solid rgb(var(--accent-rgb) / 0.3);
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(circle at 95% 0, rgb(var(--accent-secondary-rgb) / 0.11), transparent 20rem),
+    var(--card);
+}
+
+.install-primary-button {
+  white-space: nowrap;
+}
+
+.install-status {
+  max-width: 300px;
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 13px 14px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  color: var(--text-soft);
+  background: var(--surface);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.install-status svg {
+  flex: 0 0 auto;
+  color: var(--accent);
+}
+
+.install-status--success {
+  border-color: rgb(57 217 138 / 0.28);
+  background: rgb(57 217 138 / 0.06);
+}
+
+.install-status--success svg {
+  color: var(--green);
+}
+
+.install-device-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 15px;
+}
+
+.install-device-grid article {
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--card);
+}
+
+.install-device-grid h2 {
+  margin: 8px 0 15px;
+  font-size: 1.25rem;
+}
+
+.install-device-grid ol {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding-left: 21px;
+  color: var(--text-soft);
+  line-height: 1.55;
+}
+
+.install-guidance-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.install-guidance-grid article {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 12px;
+  padding: 19px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+.install-guidance-grid svg {
+  color: var(--accent);
+}
+
+.install-guidance-grid h2,
+.install-guidance-grid p {
+  margin: 0;
+}
+
+.install-guidance-grid h2 {
+  font-size: 1rem;
+}
+
+.install-guidance-grid p {
+  margin-top: 5px;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.install-help-strip {
+  justify-content: space-between;
+}
+
+@media (max-width: 1050px) {
+  .onboarding-progress-grid,
+  .support-quick-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .onboarding-path-grid,
+  .install-device-grid,
+  .install-guidance-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .support-contact-card,
+  .install-hero-card {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .support-contact-card__actions,
+  .install-hero-card > .install-primary-button,
+  .install-hero-card > .install-status {
+    grid-column: 1 / -1;
+  }
+
+  .support-contact-card__actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .install-status {
+    max-width: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .commercial-start-section {
+    grid-template-columns: 1fr;
+  }
+
+  .support-faq-groups {
+    grid-template-columns: 1fr;
+  }
+
+  .onboarding-help-strip,
+  .install-help-strip {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 560px) {
+  .commercial-start-section__actions,
+  .state-page__actions,
+  .onboarding-path-card > div,
+  .support-contact-card__actions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .commercial-start-section__actions .button,
+  .state-page__actions .button,
+  .onboarding-path-card .button,
+  .support-contact-card__actions .button,
+  .install-help-strip .button,
+  .onboarding-help-strip .button,
+  .install-primary-button {
+    width: 100%;
+  }
+
+  .onboarding-progress-card > header {
+    flex-direction: column;
+  }
+
+  .onboarding-progress-grid,
+  .support-quick-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .support-contact-card,
+  .install-hero-card {
+    grid-template-columns: 1fr;
+  }
+
+  .support-contact-card__icon,
+  .install-hero-card__icon {
+    width: 50px;
+    height: 50px;
+  }
+
+  .global-footer nav {
+    gap: 10px 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

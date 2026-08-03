@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { ReactNode } from "react";
 import { ShieldCheck } from "lucide-react";
 
@@ -22,6 +23,10 @@ export function AuthCard({
         <h1>{title}</h1>
         <p className="auth-card__description">{description}</p>
         {children}
+        <footer className="auth-card__footer">
+          <span>Conta protegida pelo servidor</span>
+          <Link href="/suporte">Precisa de ajuda?</Link>
+        </footer>
       </div>
     </section>
   );

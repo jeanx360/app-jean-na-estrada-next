@@ -18,6 +18,10 @@ export async function GET() {
     communityMode: "vip-moderated",
     professionalDriverMode: "public-profile-reservations-quotes-finance-network-internal-automations-and-executive-admin",
     executiveAdminDashboard: true,
+    onboardingCenter: true,
+    supportCenter: true,
+    commercialLaunchCandidate: true,
+    releaseChannel: "commercial-2.0",
     youtubeMembershipAutomation: "removed",
     timestamp: new Date().toISOString(),
   });

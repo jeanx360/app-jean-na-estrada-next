@@ -4,25 +4,86 @@ import { LegalDocument } from "@/components/LegalDocument";
 import { PageHeader } from "@/components/PageHeader";
 import { LEGAL_VERSIONS } from "@/lib/legal";
 
-export const metadata: Metadata = { title: "Política de Privacidade", description: "Como o JNE App trata dados pessoais, pagamentos e informações profissionais." };
+export const metadata: Metadata = {
+  title: "Política de Privacidade",
+  description: "Como o JNE App trata dados de conta, comunidade, motorista e suporte.",
+};
 
 export default function PrivacyPage() {
   return (
     <div className="page-stack legal-page">
-      <PageHeader icon={<ShieldCheck size={24} />} eyebrow="LGPD E TRANSPARÊNCIA" title="Política de Privacidade" description="Informações sobre coleta, uso, armazenamento, compartilhamento e exclusão de dados no JNE App." />
-      <LegalDocument version={LEGAL_VERSIONS.privacy} updatedAt="1º de agosto de 2026" sections={[
-        { title: "1. Controlador e contato", content: <p>O projeto Jean na Estrada é responsável pelas decisões sobre o tratamento dos dados no JNE App. Solicitações podem ser enviadas para contato.jeannaestrada@gmail.com.</p> },
-        { title: "2. Dados tratados", content: <><p>Podemos tratar:</p><ul><li>nome, e-mail, identificador da conta, nível de acesso e avatar;</li><li>cookies e tokens necessários para autenticação e segurança;</li><li>rota acessada, data do acesso e identificador técnico anônimo para estatísticas do aplicativo;</li><li>preferências, notificações, convites, downloads e aceitações legais;</li><li>origem e validade do acesso VIP e registros de pagamento;</li><li>publicações, imagens, comentários, respostas, curtidas, votos, denúncias e moderação;</li><li>preferência de uso como motorista profissional e valores padrão;</li><li>orçamentos, viagens, clientes informados, rotas, datas, distância e tempo trabalhado;</li><li>receitas, despesas, formas de pagamento, valores pendentes e resultados calculados.</li></ul></> },
-        { title: "3. Finalidades", content: <p>Os dados são utilizados para criar e proteger contas, controlar acessos, operar a comunidade, personalizar a tela inicial, calcular orçamentos, oferecer controle financeiro ao motorista e produzir estatísticas agregadas de uso do aplicativo.</p> },
-        { title: "4. Privacidade dos dados profissionais", content: <p>Orçamentos, viagens e lançamentos financeiros são protegidos por políticas de acesso. O motorista acessa os próprios registros, e administradores autorizados podem consultá-los ou excluí-los para suporte, segurança, moderação e gestão da plataforma. Ações administrativas sensíveis são registradas em logs.</p> },
-        { title: "5. Natureza do controle financeiro", content: <p>O módulo é uma ferramenta pessoal de organização. O JNE App não atua como instituição financeira, contador, intermediador de corridas ou processador dos pagamentos registrados pelo motorista.</p> },
-        { title: "6. Pagamentos da assinatura", content: <p>O JNE App não coleta nem armazena números completos de cartão. Pagamentos por link são processados pelo provedor externo. No Pix manual, o usuário pode enviar referência ou comprovante privado para conferência administrativa.</p> },
-        { title: "7. Visibilidade na comunidade", content: <p>Nome, avatar, nível de acesso e conteúdo publicado ficam visíveis aos membros VIP e administradores que possuem acesso à comunidade.</p> },
-        { title: "8. Estatísticas de navegação", content: <p>O JNE App registra a rota acessada, o momento do acesso e um identificador técnico transformado em hash. Não armazenamos o endereço IP bruto nessa tabela. Esses dados são usados para medir visualizações, visitantes aproximados e páginas mais acessadas.</p> },
-        { title: "9. Prestadores e transferências", content: <p>O funcionamento utiliza provedores como Supabase e Vercel e pode redirecionar para serviços de pagamento, YouTube, lojas e parceiros.</p> },
-        { title: "10. Retenção", content: <p>Dados da conta, comprovantes, publicações, orçamentos e registros financeiros são mantidos enquanto estiverem ativos ou enquanto houver fundamento para retenção. A exclusão da conta remove os registros vinculados, ressalvadas obrigações legais e backups temporários.</p> },
-        { title: "11. Direitos e segurança", content: <p>Você pode solicitar acesso, correção, informações, revogação e eliminação quando aplicável. Adotamos autenticação, políticas de acesso no banco, arquivos privados, respostas sem cache de sessão e registros administrativos.</p> },
-      ]} />
+      <PageHeader
+        icon={<ShieldCheck size={24} />}
+        eyebrow="PRIVACIDADE E TRANSPARÊNCIA"
+        title="Política de Privacidade"
+        description="Informações sobre coleta, uso, armazenamento, compartilhamento e exclusão de dados no JNE App."
+      />
+      <LegalDocument
+        version={LEGAL_VERSIONS.privacy}
+        updatedAt="3 de agosto de 2026"
+        sections={[
+          {
+            title: "1. Responsável e canal de contato",
+            content: <p>O projeto Jean na Estrada é responsável pelas decisões de tratamento no JNE App. Solicitações de privacidade e suporte podem ser enviadas para contato.jeannaestrada@gmail.com.</p>,
+          },
+          {
+            title: "2. Dados de conta e autenticação",
+            content: <p>Podemos tratar identificador da conta, nome, e-mail, avatar, biografia, nível de acesso, preferências, situação de bloqueio, datas de criação e atualização, além de cookies e tokens necessários para autenticação e segurança.</p>,
+          },
+          {
+            title: "3. Dados de uso e preferências",
+            content: <p>Podem ser registrados rota acessada, data e hora, identificador técnico transformado em hash, preferências de tema e tela inicial, notificações, instalação PWA, aceitações legais, convites e downloads.</p>,
+          },
+          {
+            title: "4. Comunidade, conteúdo e moderação",
+            content: <p>Publicações, imagens, comentários, respostas, curtidas, votos, denúncias e ações de moderação podem ser armazenados para operar a comunidade, prevenir abuso e manter histórico administrativo.</p>,
+          },
+          {
+            title: "5. Dados profissionais do motorista",
+            content: <><p>Quando o modo motorista é usado, podem ser tratados perfil público, foto, veículo, região, serviços, disponibilidade, QR Codes, campanhas, clientes, notas privadas, reservas, bloqueios de agenda, orçamentos, viagens, recibos, receitas, despesas, metas e resultados calculados.</p><p>Esses registros são protegidos por autenticação e políticas de acesso. Dados públicos aparecem somente conforme a configuração e publicação do próprio motorista.</p></>,
+          },
+          {
+            title: "6. Rede de motoristas e indicações",
+            content: <p>A participação no diretório é opcional. O telefone não é exibido publicamente. Quando uma indicação é criada com autorização do passageiro, os dados necessários podem ser disponibilizados ao motorista destinatário conforme as regras do recurso.</p>,
+          },
+          {
+            title: "7. Notificações e automações",
+            content: <p>Preferências de alertas, notificações lidas ou arquivadas, chaves de prevenção de duplicidade e registros de execução podem ser tratados para gerar lembretes internos e manter a confiabilidade técnica.</p>,
+          },
+          {
+            title: "8. Planos, pagamentos e comprovantes",
+            content: <p>Podemos tratar plano, origem da liberação, teste, validade, situação, histórico administrativo, pedido de assinatura, referência de pagamento e comprovante privado. Dados completos de cartão não são armazenados pelo JNE App.</p>,
+          },
+          {
+            title: "9. Suporte e diagnóstico",
+            content: <p>Mensagens de suporte podem conter e-mail da conta, dispositivo, navegador, rota, descrição do problema e arquivos enviados pelo usuário. Nunca solicitamos senha ou segredo de ambiente.</p>,
+          },
+          {
+            title: "10. Finalidades do tratamento",
+            content: <p>Os dados são usados para criar e proteger contas, fornecer recursos, controlar planos, operar comunidade e ferramentas profissionais, gerar notificações, prestar suporte, moderar conteúdo, investigar falhas, prevenir fraude e produzir estatísticas agregadas.</p>,
+          },
+          {
+            title: "11. Visibilidade e compartilhamento",
+            content: <><p>Nome, avatar e conteúdo publicado podem ficar visíveis conforme a área utilizada. Perfis de motoristas publicados mostram apenas os campos configurados para divulgação.</p><p>O funcionamento utiliza provedores de infraestrutura como Supabase e Vercel e pode direcionar para YouTube, serviços de pagamento, lojas e parceiros, que possuem políticas próprias.</p></>,
+          },
+          {
+            title: "12. Administração e acesso técnico",
+            content: <p>Administradores autorizados podem consultar informações necessárias para suporte, segurança, moderação, planos e operação da plataforma. Ações sensíveis devem permanecer registradas em logs administrativos.</p>,
+          },
+          {
+            title: "13. Retenção e exclusão",
+            content: <p>Dados são mantidos enquanto a conta ou o recurso estiver ativo, enquanto houver necessidade operacional, prevenção de fraude, segurança ou outra justificativa aplicável. A exclusão da conta remove registros vinculados conforme a estrutura do sistema, ressalvados logs, obrigações e backups temporários.</p>,
+          },
+          {
+            title: "14. Direitos e escolhas do usuário",
+            content: <p>O usuário pode atualizar dados do perfil, controlar preferências, deixar de publicar o perfil profissional, desativar categorias de notificações e solicitar informações, correção ou exclusão quando aplicável.</p>,
+          },
+          {
+            title: "15. Segurança e atualizações desta política",
+            content: <p>O JNE App utiliza autenticação, políticas de acesso no banco, arquivos privados, respostas sem cache para áreas de sessão, segredos no servidor e registros administrativos. Nenhum sistema é imune a falhas; mudanças relevantes nesta política exigirão novo aceite.</p>,
+          },
+        ]}
+      />
     </div>
   );
 }

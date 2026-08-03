@@ -1,19 +1,27 @@
-# DocumentaÃ§Ã£o do JNE App
+# Documentação do JNE App
 
-A documentaÃ§Ã£o histÃ³rica foi retirada da raiz para manter o projeto legÃ­vel.
+A documentação histórica fica fora da raiz para manter o projeto legível e facilitar a operação de cada release.
 
 ## Estrutura
 
-- `releases/`: alteraÃ§Ãµes, instalaÃ§Ã£o, testes e manifestos por versÃ£o.
-- `recovery/`: instruÃ§Ãµes e artefatos de recuperaÃ§Ã£o antigos.
-- `operations/`: checklists e documentaÃ§Ã£o operacional.
-- `audits/`: auditorias administrativas e tÃ©cnicas.
+- `releases/`: alterações, instalação e testes por versão;
+- `recovery/`: instruções e artefatos antigos de recuperação;
+- `operations/`: checklists, suporte e procedimentos de lançamento;
+- `audits/`: auditorias administrativas e técnicas.
 
 ## Regras
 
-- Novas releases devem usar `docs/releases/<versÃ£o>/`.
-- Arquivos temporÃ¡rios, logs, ZIPs e builds nÃ£o devem ser versionados.
-- Migrations continuam em `supabase/migrations/`.
-- CÃ³digo da aplicaÃ§Ã£o continua em `src/`.
+- novas releases devem usar `docs/releases/<versão>/`;
+- arquivos temporários, logs, ZIPs e builds não devem ser versionados;
+- migrations continuam em `supabase/migrations/`;
+- código da aplicação continua em `src/`;
+- segredos e arquivos `.env` nunca devem entrar nos pacotes.
 
+## Releases recentes
+
+- [2.0.0 — Preparação comercial e lançamento](./releases/2.0.0/ALTERACOES.md)
+- [1.20.0 — Painel executivo e administração](./releases/1.20.0/ALTERACOES.md)
+- [1.19.0 — Automações e notificações](./releases/1.19.0/ALTERACOES.md)
+- [1.18.0 — Rede de motoristas e indicações](./releases/1.18.0/ALTERACOES.md)
+- [1.17.0 — Planos e monetização](./releases/1.17.0/ALTERACOES.md)
 - [1.10.0 — Inteligência do motorista](./releases/1.10.0/ALTERACOES.md)

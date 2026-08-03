@@ -89,6 +89,15 @@ export function AuthForm({ mode, next = "/membros" }: { mode: AuthMode; next?: s
         </label>
       ) : null}
 
+      {isSignup ? (
+        <label className="auth-legal-confirmation">
+          <input name="legalAcknowledgement" type="checkbox" required />
+          <span>
+            Li e concordo com os <Link href="/termos" target="_blank">Termos de Uso</Link> e a <Link href="/privacidade" target="_blank">Política de Privacidade</Link>. O aceite oficial será registrado no primeiro acesso.
+          </span>
+        </label>
+      ) : null}
+
       {state.error ? <p className="auth-message auth-message--error">{state.error}</p> : null}
       {state.success ? <p className="auth-message auth-message--success">{state.success}</p> : null}
 

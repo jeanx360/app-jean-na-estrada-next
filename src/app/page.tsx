@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, BatteryCharging, Calculator, Route } from "lucide-react";
+import { ArrowRight, BatteryCharging, Calculator, CheckCircle2, Route } from "lucide-react";
 import { redirect } from "next/navigation";
 import { HomeCarousel } from "@/components/HomeCarousel";
 import { LiveVideoGrid } from "@/components/LiveVideoGrid";
@@ -32,6 +32,18 @@ export default async function Home({ searchParams }: Props) {
   return (
     <div className="page-stack">
       <HomeCarousel slides={carouselSlides} />
+
+      <section className="commercial-start-section">
+        <div>
+          <span className="eyebrow"><CheckCircle2 size={15} /> JNE APP 2.0</span>
+          <h2>Escolha seu caminho e comece sem complicação.</h2>
+          <p>Use o aplicativo para acompanhar o conteúdo, participar da comunidade ou organizar sua operação como motorista profissional.</p>
+        </div>
+        <div className="commercial-start-section__actions">
+          <Link className="button button--primary" href="/comecar">Ver primeiros passos <ArrowRight size={17} /></Link>
+          <Link className="button button--secondary" href="/planos">Comparar planos</Link>
+        </div>
+      </section>
 
       <section className="home-utility-section">
         <div className="home-utility-grid">

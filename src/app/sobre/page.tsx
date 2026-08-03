@@ -27,12 +27,12 @@ export default function AboutPage() {
         description="A plataforma oficial criada para organizar conteúdo, comunidade, parceiros e benefícios do projeto Jean na Estrada."
       />
       <section className="about-hero">
-        <span>VERSÃO 1.0</span>
-        <h2>Um ativo próprio para a comunidade crescer junto com o canal.</h2>
-        <p>O JNE App nasceu para reduzir a dependência de plataformas externas e oferecer uma experiência organizada, instalável e segura.</p>
+        <span>VERSÃO 2.0</span>
+        <h2>Conteúdo, comunidade e operação profissional em uma plataforma própria.</h2>
+        <p>O JNE App reúne a experiência do Jean na Estrada, benefícios para a comunidade e ferramentas para motoristas organizarem clientes, reservas, orçamentos, financeiro e indicações.</p>
         <div>
-          <Link className="button button--primary" href="/cadastro">Criar conta</Link>
-          <Link className="button button--secondary" href="/contato">Fale com o Jean</Link>
+          <Link className="button button--primary" href="/comecar">Começar agora</Link>
+          <Link className="button button--secondary" href="/planos">Conhecer os planos</Link>
         </div>
       </section>
       <section className="about-grid">

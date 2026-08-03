@@ -12,7 +12,7 @@ export default function CadastroPage() {
     <AuthCard
       eyebrow="NOVO MEMBRO"
       title="Crie sua conta"
-      description="O cadastro básico é gratuito. Benefícios VIP serão liberados somente para usuários autorizados."
+      description="O cadastro é gratuito. Depois da confirmação, o JNE App orienta os primeiros passos e libera os recursos do seu plano."
     >
       <AuthForm mode="signup" />
     </AuthCard>

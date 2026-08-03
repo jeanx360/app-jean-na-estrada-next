@@ -29,8 +29,8 @@ export default async function LegalAcceptancePage({
     <div className="page-stack legal-page">
       <PageHeader
         icon={<FileCheck2 size={24} />}
-        eyebrow="PRIMEIRO ACESSO"
-        title="Leia e confirme antes de continuar"
+        eyebrow="DOCUMENTOS ATUALIZADOS"
+        title="Revise e confirme antes de continuar"
         description="Esses documentos explicam as regras de uso, o tratamento dos dados e os cuidados necessários com APKs e modificações em veículos."
       />
       <section className="legal-acceptance-card">
@@ -38,7 +38,7 @@ export default async function LegalAcceptancePage({
         <p>Abra cada documento, leia com atenção e marque as três confirmações.</p>
         {status.error ? (
           <p className="auth-message auth-message--error">
-            A estrutura de aceite ainda não está disponível. Execute a migração 1.0.0 no Supabase.
+            A estrutura de aceite ainda não está disponível. Confira as migrations já aplicadas no Supabase.
           </p>
         ) : null}
         <LegalAcceptanceForm next={next} />
