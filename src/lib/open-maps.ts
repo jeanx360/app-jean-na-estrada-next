@@ -269,7 +269,7 @@ export async function computeOpenDrivingRoute(originInput: OpenRoutePoint, desti
         [originLongitude, originLatitude],
         [destinationLongitude, destinationLatitude],
       ],
-      language: "pt-br",
+      language: "pt",
       instructions: false,
     }),
   });
