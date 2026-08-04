@@ -17885,3 +17885,94 @@ button {
   .driver-profile-preview__vehicle { width: calc(100% + 36px); margin-right: -18px; margin-left: -18px; }
   .public-driver-hero__content.has-vehicle-banner { align-items: flex-start; }
 }
+
+/* JNE App 2.2.0 — passageiro sem login e fluxo unificado */
+.onboarding-path-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.onboarding-path-card--passenger {
+  border-color: color-mix(in srgb, #22c55e 30%, var(--line));
+  background: linear-gradient(145deg, color-mix(in srgb, #22c55e 8%, var(--card)), var(--card));
+}
+.onboarding-path-card--passenger > svg,
+.onboarding-path-card--passenger > span { color: #22c55e; }
+
+.public-driver-services__catalog {
+  margin-top: 18px;
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / .1);
+  border-radius: 17px;
+  background: rgb(255 255 255 / .035);
+}
+.public-driver-services__catalog > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  min-height: 66px;
+  padding: 14px 16px;
+  color: #f8fafc;
+  cursor: pointer;
+  list-style: none;
+}
+.public-driver-services__catalog > summary::-webkit-details-marker { display: none; }
+.public-driver-services__catalog > summary span { display: grid; gap: 3px; }
+.public-driver-services__catalog > summary small { color: #94a3b8; font-size: .75rem; font-weight: 650; }
+.public-driver-services__catalog > summary svg { color: #60a5fa; transition: transform 160ms ease; }
+.public-driver-services__catalog[open] > summary { border-bottom: 1px solid rgb(255 255 255 / .08); }
+.public-driver-services__catalog[open] > summary svg { transform: rotate(180deg); }
+.public-driver-services__catalog .public-driver-services__grid { margin-top: 0; padding: 12px; }
+
+.public-guest-flow-note {
+  display: block;
+  padding: 11px 13px;
+  border: 1px solid color-mix(in srgb, #22c55e 28%, var(--line));
+  border-radius: 13px;
+  color: var(--text-soft);
+  background: color-mix(in srgb, #22c55e 7%, var(--surface));
+  line-height: 1.5;
+}
+
+.public-reservation-profile-completion {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  width: min(100%, 620px);
+  margin-top: 4px;
+  padding: 14px;
+  border: 1px solid rgb(167 139 250 / .28);
+  border-radius: 15px;
+  background: rgb(139 92 246 / .08);
+  text-align: left;
+}
+.public-reservation-profile-completion > svg { color: #c4b5fd; }
+.public-reservation-profile-completion > div { display: grid; gap: 3px; }
+.public-reservation-profile-completion strong { color: #ede9fe; }
+.public-reservation-profile-completion span { color: #a8a8b3; font-size: .78rem; line-height: 1.45; }
+
+.driver-inline-toggle--prominent {
+  margin-top: 14px;
+  border-color: color-mix(in srgb, var(--accent) 32%, var(--line));
+  background: color-mix(in srgb, var(--accent) 7%, var(--surface));
+}
+.driver-inline-toggle--prominent strong { color: var(--text); }
+
+.driver-route-manual-adjustment {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  border: 1px dashed var(--line);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+}
+.driver-route-manual-adjustment > span { color: var(--text); font-weight: 850; }
+.driver-route-manual-adjustment > small { color: var(--text-muted); line-height: 1.5; }
+
+@media (max-width: 1050px) {
+  .onboarding-path-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 680px) {
+  .public-reservation-profile-completion { grid-template-columns: auto 1fr; }
+  .public-reservation-profile-completion .button { grid-column: 1 / -1; width: 100%; }
+  .driver-inline-toggle--prominent { align-items: flex-start; }
+}

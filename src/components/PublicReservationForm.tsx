@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowLeft,
@@ -35,6 +36,7 @@ type Props = {
   initialPassengerPhone?: string;
   source?: DriverMarketingSource;
   campaignCode?: string;
+  guestAccessToken?: string;
 };
 
 type FormState = {
@@ -75,6 +77,7 @@ type RouteEstimate = {
 };
 
 const STEP_TITLES = ["Seus dados", "Destino", "Saída", "Quando", "Detalhes", "Conferir"];
+const PASSENGER_CONTACT_KEY = "jne-passenger-contact-v1";
 
 function emptyPoint(): RoutePoint {
   return { label: "", placeId: null, latitude: null, longitude: null };
@@ -93,7 +96,7 @@ function packagePoint(item: DriverServicePackage, kind: "origin" | "destination"
   };
 }
 
-function usePlaceSuggestions(query: string, enabled: boolean) {
+function usePlaceSuggestions(query: string, enabled: boolean, guestAccessToken = "") {
   const [items, setItems] = useState<PlaceSuggestion[]>([]);
   const [loading, setLoading] = useState(false);
   const [configured, setConfigured] = useState<boolean | null>(null);
@@ -112,6 +115,7 @@ function usePlaceSuggestions(query: string, enabled: boolean) {
         const response = await fetch(`/api/maps/autocomplete?input=${encodeURIComponent(input)}`, {
           signal: controller.signal,
           cache: "no-store",
+          headers: guestAccessToken ? { "x-jne-guest-access": guestAccessToken } : undefined,
         });
         const data = (await response.json()) as { configured?: boolean; items?: PlaceSuggestion[] };
         setConfigured(data.configured !== false);
@@ -126,7 +130,7 @@ function usePlaceSuggestions(query: string, enabled: boolean) {
       window.clearTimeout(timer);
       controller.abort();
     };
-  }, [enabled, query]);
+  }, [enabled, guestAccessToken, query]);
 
   return { items, setItems, loading, configured };
 }
@@ -155,6 +159,7 @@ export function PublicReservationForm({
   initialPassengerPhone = "",
   source = "profile",
   campaignCode = "",
+  guestAccessToken = "",
 }: Props) {
   const initialForm = useMemo<FormState>(() => ({
     packageId: initialPackageId,
@@ -191,8 +196,8 @@ export function PublicReservationForm({
   const started = useRef(false);
   const lastAutomaticRoute = useRef("");
 
-  const originSearch = usePlaceSuggestions(origin.label, originFocused && !pointSelected(origin));
-  const destinationSearch = usePlaceSuggestions(destination.label, destinationFocused && !pointSelected(destination));
+  const originSearch = usePlaceSuggestions(origin.label, originFocused && !pointSelected(origin), guestAccessToken);
+  const destinationSearch = usePlaceSuggestions(destination.label, destinationFocused && !pointSelected(destination), guestAccessToken);
   const selectedPackage = packages.find((item) => item.id === form.packageId) || null;
 
   useEffect(() => {
@@ -206,6 +211,21 @@ export function PublicReservationForm({
       window.setTimeout(() => document.getElementById("reservar")?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
     }
   }, []);
+
+  useEffect(() => {
+    if (initialPassengerName || initialPassengerPhone) return;
+    try {
+      const saved = JSON.parse(window.localStorage.getItem(PASSENGER_CONTACT_KEY) || "null") as { name?: string; phone?: string } | null;
+      if (!saved) return;
+      setForm((current) => ({
+        ...current,
+        passengerName: current.passengerName || String(saved.name || "").slice(0, 80),
+        passengerPhone: current.passengerPhone || String(saved.phone || "").slice(0, 20),
+      }));
+    } catch {
+      // O fluxo continua normalmente quando o armazenamento local estiver indisponível.
+    }
+  }, [initialPassengerName, initialPassengerPhone]);
 
   useEffect(() => {
     if (!initialPackageId) return;
@@ -256,12 +276,23 @@ export function PublicReservationForm({
       : null);
   }
 
+  function rememberPassengerContact() {
+    try {
+      window.localStorage.setItem(PASSENGER_CONTACT_KEY, JSON.stringify({
+        name: form.passengerName.trim(),
+        phone: form.passengerPhone.trim(),
+      }));
+    } catch {
+      // Salvar localmente é apenas uma conveniência, nunca bloqueia a solicitação.
+    }
+  }
+
   function trackStarted() {
     if (started.current) return;
     started.current = true;
     void fetch("/api/motorista/perfil-evento", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...(guestAccessToken ? { "x-jne-guest-access": guestAccessToken } : {}) },
       body: JSON.stringify({ driverSlug, eventType: "reservation_started", source, campaignCode, packageId: form.packageId || null }),
       keepalive: true,
     });
@@ -277,7 +308,7 @@ export function PublicReservationForm({
     try {
       const response = await fetch("/api/maps/route", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...(guestAccessToken ? { "x-jne-guest-access": guestAccessToken } : {}) },
         body: JSON.stringify({ origin, destination }),
       });
       const data = (await response.json()) as {
@@ -312,7 +343,7 @@ export function PublicReservationForm({
     } finally {
       setCalculatingRoute(false);
     }
-  }, [destination, origin]);
+  }, [destination, guestAccessToken, origin]);
 
   useEffect(() => {
     if (!pointSelected(origin) || !pointSelected(destination) || calculatingRoute) return;
@@ -337,7 +368,7 @@ export function PublicReservationForm({
         try {
           const response = await fetch("/api/maps/reverse", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json", ...(guestAccessToken ? { "x-jne-guest-access": guestAccessToken } : {}) },
             body: JSON.stringify({ latitude, longitude }),
           });
           const data = (await response.json()) as { configured?: boolean; error?: string; point?: RoutePoint };
@@ -395,6 +426,7 @@ export function PublicReservationForm({
       setMessage(error);
       return;
     }
+    if (step === 0) rememberPassengerContact();
     setMessage(null);
     setStep((current) => Math.min(STEP_TITLES.length - 1, current + 1));
   }
@@ -411,7 +443,7 @@ export function PublicReservationForm({
     try {
       const response = await fetch("/api/motorista/reservas", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...(guestAccessToken ? { "x-jne-guest-access": guestAccessToken } : {}) },
         body: JSON.stringify({
           driverSlug,
           source,
@@ -431,9 +463,10 @@ export function PublicReservationForm({
       });
       const data = (await response.json()) as { ok?: boolean; error?: string };
       if (!response.ok || !data.ok) throw new Error(data.error || "Não foi possível enviar a solicitação.");
+      rememberPassengerContact();
       setSuccess(true);
       setStep(0);
-      setForm(initialForm);
+      setForm({ ...initialForm, passengerName: form.passengerName, passengerPhone: form.passengerPhone });
       setOrigin(emptyPoint());
       setDestination(emptyPoint());
       setRouteEstimate(null);
@@ -452,6 +485,11 @@ export function PublicReservationForm({
         <h2>{driverName} já foi avisado</h2>
         <p>O passageiro foi registrado no CRM, a solicitação entrou na agenda e o motorista recebeu uma notificação privada.</p>
         <div className="public-reservation-success__save"><strong>Não perca este contato</strong><span>Salve o motorista para suas próximas viagens.</span></div>
+        <div className="public-reservation-profile-completion">
+          <Sparkles size={22} />
+          <div><strong>Complete seu cadastro quando quiser</strong><span>Adicionar e-mail e foto facilita os próximos pedidos, mas não é obrigatório.</span></div>
+          <Link className="button button--secondary button--compact" href={`/cadastro?next=${encodeURIComponent(`/m/${driverSlug}`)}`}>Completar cadastro</Link>
+        </div>
         <div className="public-reservation-success__actions">
           <a className="button button--primary" href={contactUrl} data-driver-event="contact_save"><ContactRound size={18} /> Salvar motorista</a>
           <button className="button button--secondary" type="button" onClick={() => { setSuccess(false); setOpen(false); }}>Fechar</button>
@@ -486,6 +524,7 @@ export function PublicReservationForm({
             <div className="public-reservation-step__icon"><ContactRound size={28} /></div>
             <h3>Como o motorista pode falar com você?</h3>
             <p>Esses dados ficam no CRM particular deste motorista para organizar o atendimento.</p>
+            <small className="public-guest-flow-note">Você pode pedir a corrida sem login. Nome e telefone servem apenas para este atendimento e os próximos contatos com este motorista.</small>
             <label><span>Seu nome</span><input autoFocus maxLength={80} autoComplete="name" value={form.passengerName} onChange={(event) => update("passengerName", event.target.value)} placeholder="Nome completo" /></label>
             <label><span>WhatsApp</span><input inputMode="tel" autoComplete="tel" maxLength={20} value={form.passengerPhone} onChange={(event) => update("passengerPhone", event.target.value)} placeholder="DDD + número" /></label>
           </div>

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { readPublicGuestAccessToken, verifyPublicGuestAccessToken } from "@/lib/public-guest-access";
 import { computeOpenDrivingRoute, openMapsConfigured, type OpenRoutePoint } from "@/lib/open-maps";
 
 export const dynamic = "force-dynamic";
@@ -9,8 +10,9 @@ export async function POST(request: Request) {
   const { data: claimsData } = await supabase.auth.getClaims();
   const claims = claimsData?.claims as Record<string, unknown> | undefined;
   const userId = typeof claims?.sub === "string" ? claims.sub : null;
-  if (!userId) {
-    return NextResponse.json({ ok: false, error: "Faça login para calcular a rota." }, { status: 401 });
+  const guestAccess = verifyPublicGuestAccessToken(readPublicGuestAccessToken(request));
+  if (!userId && !guestAccess) {
+    return NextResponse.json({ ok: false, error: "Acesso público inválido ou expirado." }, { status: 401, headers: { "Cache-Control": "no-store" } });
   }
   if (!openMapsConfigured()) {
     return NextResponse.json({ ok: false, configured: false, error: "Mapas abertos não configurados." }, { status: 503 });

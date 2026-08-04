@@ -6,6 +6,7 @@ import {
   normalizeDriverMarketingSource,
 } from "@/lib/driver-marketing";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { readPublicGuestAccessToken, verifyPublicGuestAccessToken } from "@/lib/public-guest-access";
 
 export const dynamic = "force-dynamic";
 
@@ -31,6 +32,8 @@ export async function POST(request: Request) {
     let source = normalizeDriverMarketingSource(body.source);
     const campaignCode = normalizeDriverCampaignCode(body.campaignCode);
     if (!slug || !allowedEvents.has(eventType)) return NextResponse.json({ ok: false }, { status: 400 });
+    const guestAccess = verifyPublicGuestAccessToken(readPublicGuestAccessToken(request), slug);
+    if (!guestAccess) return NextResponse.json({ ok: false }, { status: 401, headers: { "Cache-Control": "no-store" } });
 
     const supabase = createAdminClient();
     const { data: profile } = await supabase

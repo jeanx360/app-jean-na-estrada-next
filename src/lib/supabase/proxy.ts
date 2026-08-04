@@ -9,6 +9,8 @@ const PUBLIC_EXACT_PATHS = new Set([
   "/noticias",
   "/entrar",
   "/cadastro",
+  "/comecar",
+  "/motoristas",
   "/recuperar-senha",
   "/atualizar-senha",
   "/termos",
@@ -22,11 +24,18 @@ const PUBLIC_EXACT_PATHS = new Set([
   "/apple-icon.png",
 ]);
 
-const PUBLIC_PAGE_PREFIXES = ["/auth/"];
+const PUBLIC_PAGE_PREFIXES = ["/auth/", "/m/"];
+const PUBLIC_API_EXACT_PATHS = new Set([
+  "/api/motorista/perfil-evento",
+  "/api/motorista/reservas",
+]);
+
 const PUBLIC_API_PREFIXES = [
   "/api/health",
   "/api/news",
   "/api/analytics/page-view",
+  "/api/maps/",
+  "/api/motorista/contato/",
   "/api/cron/",
   "/api/automacoes/run",
 ];
@@ -59,6 +68,7 @@ function isPublicPath(pathname: string) {
 }
 
 function isPublicApi(pathname: string) {
+  if (PUBLIC_API_EXACT_PATHS.has(pathname)) return true;
   return PUBLIC_API_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(prefix));
 }
 

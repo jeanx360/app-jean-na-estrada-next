@@ -14,6 +14,7 @@ type Props = {
   source: DriverMarketingSource;
   campaignCode: string;
   acceptsReservations: boolean;
+  guestAccessToken?: string;
 };
 
 async function copyText(value: string) {
@@ -41,6 +42,7 @@ export function PassengerQuickActions({
   source,
   campaignCode,
   acceptsReservations,
+  guestAccessToken = "",
 }: Props) {
   const [shareMessage, setShareMessage] = useState("");
 
@@ -57,7 +59,7 @@ export function PassengerQuickActions({
         await copyText(shareUrl);
         setShareMessage("Link copiado");
       }
-      trackDriverPublicEvent(driverSlug, "profile_share", source, campaignCode);
+      trackDriverPublicEvent(driverSlug, "profile_share", source, campaignCode, null, guestAccessToken);
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") return;
       setShareMessage("Não foi possível compartilhar");

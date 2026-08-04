@@ -11,6 +11,7 @@ import { normalizeWhatsAppPhone } from "@/lib/driver-public";
 import { verifyOpenRouteToken } from "@/lib/open-maps";
 import { sendPushNotification } from "@/lib/push";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { readPublicGuestAccessToken, verifyPublicGuestAccessToken } from "@/lib/public-guest-access";
 
 export const dynamic = "force-dynamic";
 
@@ -105,15 +106,19 @@ export async function POST(request: Request) {
     if (clean(body.company, 80)) return NextResponse.json({ ok: true });
 
     const { supabase: authSupabase, userId, profile: passengerProfile } = await getAuthContext();
-    if (!userId || passengerProfile?.is_blocked) {
-      return NextResponse.json({ ok: false, error: "Faça login para solicitar uma corrida." }, { status: 401 });
+    if (userId && passengerProfile?.is_blocked) {
+      return NextResponse.json({ ok: false, error: "Esta conta não pode criar solicitações agora." }, { status: 403 });
     }
-    const { data: authData } = await authSupabase.auth.getUser();
+    const authData = userId ? (await authSupabase.auth.getUser()).data : { user: null };
     const passengerMetadata = authData.user?.user_metadata ?? {};
     const accountName = passengerProfile?.full_name || (typeof passengerMetadata.full_name === "string" ? passengerMetadata.full_name : "");
     const accountPhone = typeof passengerMetadata.phone === "string" ? passengerMetadata.phone : "";
 
     const driverSlug = clean(body.driverSlug, 48).toLowerCase();
+    const guestAccess = userId ? null : verifyPublicGuestAccessToken(readPublicGuestAccessToken(request), driverSlug);
+    if (!userId && !guestAccess) {
+      return NextResponse.json({ ok: false, error: "A sessão pública expirou. Reabra o perfil do motorista e tente novamente." }, { status: 401, headers: { "Cache-Control": "no-store" } });
+    }
     const passengerName = clean(body.passengerName, 80) || clean(accountName, 80);
     const passengerPhone = normalizeWhatsAppPhone(clean(body.passengerPhone, 30) || clean(accountPhone, 30));
     const origin = clean(body.origin, 180);
@@ -300,11 +305,22 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false, error: "Muitas solicitações em pouco tempo. Aguarde alguns minutos." }, { status: 429 });
     }
 
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+    const { count: phoneCount } = await supabase
+      .from("driver_reservations")
+      .select("id", { count: "exact", head: true })
+      .eq("driver_user_id", profile.user_id)
+      .eq("passenger_phone", passengerPhone)
+      .gte("created_at", oneHourAgo);
+    if ((phoneCount ?? 0) >= 5) {
+      return NextResponse.json({ ok: false, error: "Este telefone já enviou várias solicitações. Aguarde antes de tentar novamente." }, { status: 429 });
+    }
+
     const { data: reservation, error: insertError } = await supabase
       .from("driver_reservations")
       .insert({
         driver_user_id: profile.user_id,
-        passenger_user_id: userId,
+        passenger_user_id: userId || null,
         package_id: selectedPackage?.id ?? null,
         campaign_id: campaignId,
         passenger_name: passengerName,
@@ -413,7 +429,7 @@ export async function POST(request: Request) {
       visitor_hash: requestHash,
     });
 
-    return NextResponse.json({ ok: true, reservationId: reservation.id }, { headers: { "Cache-Control": "no-store" } });
+    return NextResponse.json({ ok: true, reservationId: reservation.id, guest: !userId }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     console.error("Falha ao criar reserva:", error);
     return NextResponse.json({ ok: false, error: "Não foi possível enviar a solicitação agora." }, { status: 500 });

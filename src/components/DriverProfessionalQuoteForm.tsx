@@ -2,8 +2,9 @@
 
 import { useMemo, useState } from "react";
 import { CalendarClock, Calculator, FileCheck2, Save, Send, UserRound } from "lucide-react";
+import { DriverRoutePlanner, type DriverRouteDraft } from "@/components/DriverRoutePlanner";
 import { saveProfessionalQuoteAction } from "@/app/motorista/orcamentos/actions";
-import { asNumber, formatCurrency, TRIP_TYPE_LABELS, type DriverSettings, type DriverTripType } from "@/lib/driver";
+import { asNumber, formatCurrency, type DriverSettings, type DriverTripType } from "@/lib/driver";
 
 type CustomerOption = { id: string; name: string; phone: string };
 
@@ -94,7 +95,7 @@ export function DriverProfessionalQuoteForm({ settings, customers, initial, quot
     destination: initial?.destination || "",
     travelDate: initial?.travelDate || "",
     travelTime: initial?.travelTime?.slice(0, 5) || "",
-    tripType: initial?.tripType || "outbound",
+    tripType: initial?.tripType === "round_trip" ? "round_trip" : "outbound",
     distancePerLegKm: fieldValue(initial?.distancePerLegKm),
     durationHours: String(Math.floor(initialDuration / 60)),
     durationMinutes: String(initialDuration % 60),
@@ -118,9 +119,35 @@ export function DriverProfessionalQuoteForm({ settings, customers, initial, quot
     notes: initial?.notes || "",
     conditions: initial?.conditions || "O valor considera a rota e as condições descritas. Alterações de itinerário, tempo de espera ou despesas não previstas poderão exigir revisão do orçamento.",
   });
+  const [route, setRoute] = useState<DriverRouteDraft>({
+    origin: { label: initial?.origin || "", placeId: null, latitude: null, longitude: null },
+    destination: { label: initial?.destination || "", placeId: null, latitude: null, longitude: null },
+    distanceMeters: initial?.distancePerLegKm ? Math.round(initial.distancePerLegKm * 1000) : null,
+    durationSeconds: initial?.durationPerLegMinutes ? Math.round(initial.durationPerLegMinutes * 60) : null,
+  });
 
   function set<K extends keyof FormState>(key: K, value: FormState[K]) {
     setState((current) => ({ ...current, [key]: value }));
+  }
+
+  function updateRoute(nextRoute: DriverRouteDraft) {
+    setRoute(nextRoute);
+    setState((current) => {
+      const next = {
+        ...current,
+        origin: nextRoute.origin.label,
+        destination: nextRoute.destination.label,
+      };
+      if (nextRoute.distanceMeters) {
+        next.distancePerLegKm = String(Math.round(nextRoute.distanceMeters / 100) / 10).replace(".", ",");
+      }
+      if (nextRoute.durationSeconds) {
+        const totalMinutes = Math.max(1, Math.round(nextRoute.durationSeconds / 60));
+        next.durationHours = String(Math.floor(totalMinutes / 60));
+        next.durationMinutes = String(totalMinutes % 60);
+      }
+      return next;
+    });
   }
 
   function selectCustomer(customerId: string) {
@@ -172,20 +199,27 @@ export function DriverProfessionalQuoteForm({ settings, customers, initial, quot
 
         <section className="driver-professional-section">
           <div className="driver-professional-section__heading"><CalendarClock size={21} /><div><span className="eyebrow">SERVIÇO</span><h2>Rota, data e duração</h2></div></div>
+          <input type="hidden" name="origin" value={state.origin} />
+          <input type="hidden" name="destination" value={state.destination} />
+          <input type="hidden" name="tripType" value={state.tripType} />
+          <DriverRoutePlanner value={route} onChange={updateRoute} />
           <div className="driver-field-grid driver-field-grid--wide">
-            <label><span>Origem</span><input name="origin" maxLength={180} value={state.origin} onChange={(event) => set("origin", event.target.value)} /></label>
-            <label><span>Destino</span><input name="destination" maxLength={180} value={state.destination} onChange={(event) => set("destination", event.target.value)} /></label>
             <label><span>Data da viagem</span><input name="travelDate" type="date" value={state.travelDate} onChange={(event) => set("travelDate", event.target.value)} /></label>
             <label><span>Horário</span><input name="travelTime" type="time" value={state.travelTime} onChange={(event) => set("travelTime", event.target.value)} /></label>
           </div>
-          <div className="driver-trip-type" role="radiogroup" aria-label="Tipo de viagem">
-            {(Object.keys(TRIP_TYPE_LABELS) as DriverTripType[]).map((type) => <label key={type} className={state.tripType === type ? "is-active" : ""}><input type="radio" name="tripType" value={type} checked={state.tripType === type} onChange={() => set("tripType", type)} />{TRIP_TYPE_LABELS[type]}</label>)}
-          </div>
-          <div className="driver-field-grid">
-            <label><span>Distância do trecho (km)</span><input name="distancePerLegKm" inputMode="decimal" value={state.distancePerLegKm} onChange={(event) => set("distancePerLegKm", event.target.value)} /></label>
-            <label><span>Horas do trecho</span><input name="durationHours" inputMode="numeric" value={state.durationHours} onChange={(event) => set("durationHours", event.target.value)} /></label>
-            <label><span>Minutos adicionais</span><input name="durationMinutes" inputMode="numeric" value={state.durationMinutes} onChange={(event) => set("durationMinutes", event.target.value)} /></label>
-            <label><span>Espera prevista (min)</span><input name="waitingMinutes" inputMode="numeric" value={state.waitingMinutes} onChange={(event) => set("waitingMinutes", event.target.value)} /></label>
+          <label className="driver-inline-toggle driver-inline-toggle--prominent">
+            <div><strong>Também haverá retorno</strong><small>Ative quando o orçamento incluir a volta. Distância e tempo serão considerados nos dois trechos.</small></div>
+            <input type="checkbox" checked={state.tripType === "round_trip"} onChange={(event) => set("tripType", event.target.checked ? "round_trip" : "outbound")} />
+          </label>
+          <div className="driver-route-manual-adjustment">
+            <span>Ajuste manual da estimativa</span>
+            <small>O mapa preenche automaticamente. O motorista continua livre para corrigir distância, duração e espera.</small>
+            <div className="driver-field-grid">
+              <label><span>Distância do trecho (km)</span><input name="distancePerLegKm" inputMode="decimal" value={state.distancePerLegKm} onChange={(event) => set("distancePerLegKm", event.target.value)} /></label>
+              <label><span>Horas do trecho</span><input name="durationHours" inputMode="numeric" value={state.durationHours} onChange={(event) => set("durationHours", event.target.value)} /></label>
+              <label><span>Minutos adicionais</span><input name="durationMinutes" inputMode="numeric" value={state.durationMinutes} onChange={(event) => set("durationMinutes", event.target.value)} /></label>
+              <label><span>Espera prevista (min)</span><input name="waitingMinutes" inputMode="numeric" value={state.waitingMinutes} onChange={(event) => set("waitingMinutes", event.target.value)} /></label>
+            </div>
           </div>
         </section>
 

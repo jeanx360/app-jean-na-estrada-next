@@ -19,10 +19,11 @@ export function trackDriverPublicEvent(
   source: DriverMarketingSource,
   campaignCode: string,
   packageId?: string | null,
+  guestAccessToken = "",
 ) {
   void fetch("/api/motorista/perfil-evento", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...(guestAccessToken ? { "x-jne-guest-access": guestAccessToken } : {}) },
     body: JSON.stringify({ driverSlug, eventType, source, campaignCode, packageId: packageId || null }),
     keepalive: true,
   });
@@ -32,10 +33,12 @@ export function DriverProfileEventTracker({
   driverSlug,
   source = "profile",
   campaignCode = "",
+  guestAccessToken = "",
 }: {
   driverSlug: string;
   source?: DriverMarketingSource;
   campaignCode?: string;
+  guestAccessToken?: string;
 }) {
   useEffect(() => {
     try {
@@ -43,10 +46,10 @@ export function DriverProfileEventTracker({
       const key = `jne-profile-view-${driverSlug}-${source}-${campaignCode || "none"}-${day}`;
       if (!sessionStorage.getItem(key)) {
         sessionStorage.setItem(key, "1");
-        trackDriverPublicEvent(driverSlug, "profile_view", source, campaignCode);
+        trackDriverPublicEvent(driverSlug, "profile_view", source, campaignCode, null, guestAccessToken);
       }
     } catch {
-      trackDriverPublicEvent(driverSlug, "profile_view", source, campaignCode);
+      trackDriverPublicEvent(driverSlug, "profile_view", source, campaignCode, null, guestAccessToken);
     }
 
     const onClick = (event: MouseEvent) => {
@@ -55,13 +58,13 @@ export function DriverProfileEventTracker({
         : null;
       const eventType = target?.dataset.driverEvent as DriverPublicEventType | undefined;
       if (eventType && clickableEvents.has(eventType) && DRIVER_PUBLIC_EVENT_TYPES.includes(eventType)) {
-        trackDriverPublicEvent(driverSlug, eventType, source, campaignCode);
+        trackDriverPublicEvent(driverSlug, eventType, source, campaignCode, null, guestAccessToken);
       }
     };
 
     document.addEventListener("click", onClick);
     return () => document.removeEventListener("click", onClick);
-  }, [campaignCode, driverSlug, source]);
+  }, [campaignCode, driverSlug, guestAccessToken, source]);
 
   return null;
 }
