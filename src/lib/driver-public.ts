@@ -30,6 +30,9 @@ export type DriverPublicProfile = {
   amenities: string[];
   availability_note: string | null;
   photo_url: string | null;
+  vehicle_banner_url: string | null;
+  vehicle_banner_path: string | null;
+  show_vehicle_banner: boolean;
   theme: DriverProfileTheme;
   is_published: boolean;
   accepts_reservations: boolean;

@@ -17824,3 +17824,64 @@ button {
     min-height: 230px;
   }
 }
+
+/* JNE App 2.1.2 — perfil com veículo, preto real e administração visual */
+.driver-theme-picker button.theme-dark span { background: #050505; }
+.driver-theme-picker > small { color: var(--text-muted); font-size: .75rem; }
+
+.driver-vehicle-banner-editor { display: grid; gap: 12px; padding: 16px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); }
+.driver-vehicle-banner-editor__heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.driver-vehicle-banner-editor__heading > div { display: grid; gap: 3px; }
+.driver-vehicle-banner-editor__heading small { color: var(--text-muted); }
+.driver-vehicle-banner-editor__heading > svg { color: var(--accent); }
+.driver-vehicle-banner-editor > img,
+.driver-vehicle-banner-editor__empty { width: 100%; aspect-ratio: 16 / 7; border-radius: 13px; }
+.driver-vehicle-banner-editor > img { object-fit: cover; background: #050505; }
+.driver-vehicle-banner-editor__empty { display: grid; place-items: center; align-content: center; gap: 8px; border: 1px dashed var(--line); color: var(--text-muted); background: rgb(var(--accent-rgb) / .035); }
+.driver-vehicle-banner-editor__actions { display: flex; flex-wrap: wrap; gap: 9px; }
+.driver-vehicle-banner-editor__actions label { cursor: pointer; }
+.driver-vehicle-banner-editor__actions input[type="file"] { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+
+.driver-profile-preview--dark { background: linear-gradient(160deg, #0b0b0b, #000); }
+.driver-profile-preview__vehicle { z-index: 1; width: calc(100% + 48px); margin: -5px -24px -54px; aspect-ratio: 16 / 7; overflow: hidden; background: #050505; }
+.driver-profile-preview__vehicle img { width: 100%; height: 100%; object-fit: cover; }
+.driver-profile-preview__avatar.has-banner { border-color: rgb(255 255 255 / .85); box-shadow: 0 12px 30px rgb(0 0 0 / .42); }
+
+.public-driver-page--dark { background: radial-gradient(circle at 75% 0%, rgb(255 255 255 / .065), transparent 32rem), #000; }
+.public-driver-vehicle-banner { position: relative; overflow: hidden; width: 100%; aspect-ratio: 16 / 6.3; border: 1px solid rgb(255 255 255 / .11); border-radius: 24px; background: #050505; box-shadow: 0 28px 70px rgb(0 0 0 / .42); }
+.public-driver-vehicle-banner::after { position: absolute; inset: 40% 0 0; background: linear-gradient(transparent, rgb(0 0 0 / .78)); content: ""; }
+.public-driver-vehicle-banner img { width: 100%; height: 100%; object-fit: cover; }
+.public-driver-vehicle-banner > span { position: absolute; right: 16px; bottom: 14px; z-index: 1; display: flex; align-items: center; gap: 7px; max-width: calc(100% - 32px); padding: 8px 11px; border: 1px solid rgb(255 255 255 / .18); border-radius: 999px; background: rgb(0 0 0 / .62); color: white; font-size: .78rem; font-weight: 850; backdrop-filter: blur(10px); }
+.public-driver-hero__content.has-vehicle-banner { margin-top: -72px; padding: 0 22px; position: relative; z-index: 2; }
+.public-driver-hero__content.has-vehicle-banner .public-driver-avatar { border-color: rgb(255 255 255 / .88); box-shadow: 0 16px 38px rgb(0 0 0 / .48); }
+.public-driver-page--dark .passenger-quick-actions { background: linear-gradient(135deg, rgb(255 255 255 / .08), rgb(0 0 0 / .9)); }
+
+.admin-driver-appearance { border: 1px solid var(--line); border-radius: 15px; background: var(--surface-soft); }
+.admin-driver-appearance > summary { display: flex; align-items: center; gap: 8px; padding: 13px 15px; cursor: pointer; font-weight: 850; }
+.admin-driver-appearance > form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; padding: 0 15px 15px; }
+.admin-driver-appearance label { display: grid; gap: 6px; }
+.admin-driver-appearance label > span { font-size: .78rem; font-weight: 800; }
+.admin-driver-appearance label > small { color: var(--muted); font-size: .7rem; }
+.admin-driver-appearance select,
+.admin-driver-appearance input[type="file"] { width: 100%; min-height: 44px; padding: 9px 11px; border: 1px solid var(--line); border-radius: 11px; background: var(--input-bg); color: var(--text); }
+.admin-driver-appearance__preview { grid-column: 1 / -1; display: grid; width: 100%; aspect-ratio: 16 / 5; overflow: hidden; place-items: center; border: 1px dashed var(--line); border-radius: 13px; background: var(--surface); color: var(--muted); }
+.admin-driver-appearance__preview img { width: 100%; height: 100%; object-fit: cover; }
+.admin-driver-appearance__preview span { display: flex; align-items: center; gap: 8px; }
+.admin-driver-appearance__toggle { display: flex !important; grid-template-columns: auto 1fr; align-items: center; gap: 9px !important; }
+.admin-driver-appearance__toggle input { width: 18px; height: 18px; accent-color: var(--accent); }
+.admin-driver-appearance .button { align-self: end; }
+
+@media (max-width: 760px) {
+  .public-driver-vehicle-banner { border-radius: 18px; aspect-ratio: 16 / 8; }
+  .public-driver-hero__content.has-vehicle-banner { margin-top: -52px; padding: 0 12px; }
+  .public-driver-hero__content.has-vehicle-banner .public-driver-identity { padding-left: 4px; }
+  .admin-driver-appearance > form { grid-template-columns: 1fr; }
+  .admin-driver-appearance__preview { grid-column: auto; aspect-ratio: 16 / 7; }
+}
+
+@media (max-width: 520px) {
+  .driver-vehicle-banner-editor__actions { display: grid; grid-template-columns: 1fr; }
+  .driver-vehicle-banner-editor__actions .button { width: 100%; }
+  .driver-profile-preview__vehicle { width: calc(100% + 36px); margin-right: -18px; margin-left: -18px; }
+  .public-driver-hero__content.has-vehicle-banner { align-items: flex-start; }
+}

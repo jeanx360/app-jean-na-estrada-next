@@ -176,3 +176,87 @@ export async function deleteDriverRecordAdminAction(formData: FormData) {
   revalidateDriverAdmin();
   revalidatePath("/admin/logs");
 }
+
+const DRIVER_PROFILE_ASSET_BUCKET = "driver-profile-assets";
+const DRIVER_PROFILE_THEMES = new Set(["dark", "blue", "green"]);
+const DRIVER_BANNER_TYPES = new Map([
+  ["image/jpeg", "jpg"],
+  ["image/png", "png"],
+  ["image/webp", "webp"],
+]);
+
+export async function updateDriverPublicProfileAppearanceAction(formData: FormData) {
+  const { userId: actorUserId } = await requireAdmin();
+  if (!actorUserId) throw new Error("Sessão administrativa inválida.");
+
+  const targetUserId = readText(formData, "userId");
+  const theme = readText(formData, "theme");
+  const showVehicleBanner = readText(formData, "showVehicleBanner") === "true";
+  const removeVehicleBanner = readText(formData, "removeVehicleBanner") === "true";
+  const uploadedFile = formData.get("vehicleBanner");
+
+  if (!targetUserId) throw new Error("Motorista inválido.");
+  if (!DRIVER_PROFILE_THEMES.has(theme)) throw new Error("Tema inválido.");
+
+  const admin = createAdminClient();
+  const { data: oldProfile, error: readError } = await admin
+    .from("driver_public_profiles")
+    .select("user_id,slug,theme,vehicle_banner_url,vehicle_banner_path,show_vehicle_banner")
+    .eq("user_id", targetUserId)
+    .maybeSingle();
+
+  if (readError) throw new Error(readError.message);
+  if (!oldProfile) throw new Error("Este motorista ainda não criou um perfil público.");
+
+  let nextBannerUrl = removeVehicleBanner ? null : oldProfile.vehicle_banner_url;
+  let nextBannerPath = removeVehicleBanner ? null : oldProfile.vehicle_banner_path;
+  let newUploadPath: string | null = null;
+
+  if (uploadedFile instanceof File && uploadedFile.size > 0) {
+    const extension = DRIVER_BANNER_TYPES.get(uploadedFile.type);
+    if (!extension) throw new Error("Use uma imagem JPG, PNG ou WebP.");
+    if (uploadedFile.size > 6 * 1024 * 1024) throw new Error("A foto do carro pode ter no máximo 6 MB.");
+
+    newUploadPath = `${targetUserId}/admin-vehicle-${Date.now()}.${extension}`;
+    const bytes = Buffer.from(await uploadedFile.arrayBuffer());
+    const { error: uploadError } = await admin.storage
+      .from(DRIVER_PROFILE_ASSET_BUCKET)
+      .upload(newUploadPath, bytes, {
+        cacheControl: "3600",
+        contentType: uploadedFile.type,
+        upsert: false,
+      });
+
+    if (uploadError) throw new Error(uploadError.message);
+    const { data: publicData } = admin.storage.from(DRIVER_PROFILE_ASSET_BUCKET).getPublicUrl(newUploadPath);
+    nextBannerUrl = publicData.publicUrl;
+    nextBannerPath = newUploadPath;
+  }
+
+  const payload = {
+    theme,
+    vehicle_banner_url: nextBannerUrl,
+    vehicle_banner_path: nextBannerPath,
+    show_vehicle_banner: showVehicleBanner && Boolean(nextBannerUrl),
+    updated_at: new Date().toISOString(),
+  };
+
+  const { error: updateError } = await admin
+    .from("driver_public_profiles")
+    .update(payload)
+    .eq("user_id", targetUserId);
+
+  if (updateError) {
+    if (newUploadPath) await admin.storage.from(DRIVER_PROFILE_ASSET_BUCKET).remove([newUploadPath]);
+    throw new Error(updateError.message);
+  }
+
+  const oldPath = oldProfile.vehicle_banner_path as string | null;
+  if (oldPath && oldPath !== nextBannerPath) {
+    await admin.storage.from(DRIVER_PROFILE_ASSET_BUCKET).remove([oldPath]);
+  }
+
+  await audit(actorUserId, "UPDATE_DRIVER_PROFILE_APPEARANCE", "driver_public_profiles", targetUserId, oldProfile, payload);
+  revalidateDriverAdmin();
+  revalidatePath(`/m/${oldProfile.slug}`);
+}

@@ -3,6 +3,7 @@ import { BellRing } from "lucide-react";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { PageHeader } from "@/components/PageHeader";
 import { getAuthContext } from "@/lib/auth";
+import { isNotificationVisibleToUser, notificationVisibilityFilter } from "@/lib/notification-visibility";
 import type { NotificationRow } from "@/types/notification";
 import { formatBrazilDateTime } from "@/lib/date-time";
 
@@ -18,14 +19,17 @@ export default async function NotificationsPage() {
   const { data, error } = await supabase
     .from("notifications")
     .select(
-      "id, title, message, audience, category, action_url, image_url, is_published, is_featured, published_at, push_requested, push_sent_at, push_success_count, push_failure_count, source_key, created_at, updated_at",
+      "id, title, message, audience, category, priority, action_url, image_url, is_published, is_featured, published_at, push_requested, push_sent_at, push_success_count, push_failure_count, source_key, target_user_id, automation_type, source_entity_type, source_entity_id, expires_at, created_at, updated_at",
     )
     .eq("is_published", true)
     .lte("published_at", new Date().toISOString())
+    .or(notificationVisibilityFilter(userId))
     .order("published_at", { ascending: false })
     .limit(100);
 
-  const items = ((data ?? []) as NotificationRow[]).map((item) => ({
+  const items = ((data ?? []) as NotificationRow[])
+    .filter((item) => isNotificationVisibleToUser(item, userId))
+    .map((item) => ({
     ...item,
     publishedLabel: formatBrazilDateTime(item.published_at),
   }));

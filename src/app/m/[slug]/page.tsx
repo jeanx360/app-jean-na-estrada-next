@@ -81,7 +81,13 @@ export default async function PublicDriverPage({ params, searchParams }: Props) 
       {trackPublicAccess ? <DriverProfileEventTracker driverSlug={profile.slug} source={source} campaignCode={campaignCode} /> : null}
       <header className="public-driver-hero">
         <div className="public-driver-hero__brand"><span>JNE</span><small>Cartão profissional digital</small></div>
-        <div className="public-driver-hero__content">
+        {profile.show_vehicle_banner && profile.vehicle_banner_url ? (
+          <div className="public-driver-vehicle-banner">
+            <img src={profile.vehicle_banner_url} alt={`Veículo de ${profile.display_name}`} />
+            <span><Car size={16} /> {profile.vehicle_name || "Veículo do motorista"}</span>
+          </div>
+        ) : null}
+        <div className={`public-driver-hero__content${profile.show_vehicle_banner && profile.vehicle_banner_url ? " has-vehicle-banner" : ""}`}>
           <div className="public-driver-avatar">{profile.photo_url ? <img src={profile.photo_url} alt={`Foto de ${profile.display_name}`} /> : <span>{profile.display_name.slice(0, 2).toUpperCase()}</span>}</div>
           <div className="public-driver-identity"><span className="public-driver-verified"><CheckCircle2 size={16} /> Perfil profissional</span><h1>{profile.display_name}</h1><p>{profile.headline || "Motorista particular"}</p><div><span><MapPin size={16} /> {profile.city || "Região não informada"}</span><span><Car size={16} /> {profile.vehicle_name || "Veículo informado na reserva"}</span></div></div>
         </div>

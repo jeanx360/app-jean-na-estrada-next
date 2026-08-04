@@ -10,7 +10,9 @@ import {
   EyeOff,
   FileText,
   Filter,
+  ImagePlus,
   MessageCircle,
+  Palette,
   ReceiptText,
   RotateCcw,
   ShieldCheck,
@@ -27,6 +29,7 @@ import {
   setDriverNetworkVerificationAction,
   setDriverProfessionalStatusAction,
   setDriverPublicProfilePublishedAction,
+  updateDriverPublicProfileAppearanceAction,
 } from "@/app/admin/motoristas/actions";
 import { ConfirmSubmitButton } from "@/components/ConfirmSubmitButton";
 import { requireAdmin } from "@/lib/admin";
@@ -206,6 +209,23 @@ export default async function AdminDriversPage({ searchParams }: Props) {
                   ) : <div><strong>Perfil público não criado</strong><small>O motorista ainda não configurou o cartão profissional.</small></div>}
                   {publicProfile?.is_published ? <Link className="button button--secondary button--compact" href={`/m/${publicProfile.slug}?preview=admin`} target="_blank" rel="noreferrer"><Eye size={16} /> Abrir página</Link> : null}
                 </div>
+
+                {publicProfile ? (
+                  <details className="admin-driver-appearance">
+                    <summary><Palette size={17} /> Aparência do perfil público</summary>
+                    <form action={updateDriverPublicProfileAppearanceAction}>
+                      <input type="hidden" name="userId" value={id} />
+                      <div className="admin-driver-appearance__preview">
+                        {publicProfile.vehicle_banner_url ? <img src={publicProfile.vehicle_banner_url} alt={`Veículo de ${publicProfile.display_name}`} /> : <span><ImagePlus size={24} /> Sem foto do carro</span>}
+                      </div>
+                      <label><span>Tema do cartão</span><select name="theme" defaultValue={publicProfile.theme}><option value="dark">Preto</option><option value="blue">Azul</option><option value="green">Verde</option></select></label>
+                      <label><span>Trocar foto do carro</span><input type="file" name="vehicleBanner" accept="image/jpeg,image/png,image/webp" /><small>JPG, PNG ou WebP, até 6 MB.</small></label>
+                      <label className="admin-driver-appearance__toggle"><input type="checkbox" name="showVehicleBanner" value="true" defaultChecked={publicProfile.show_vehicle_banner} /><span>Exibir banner no perfil público</span></label>
+                      {publicProfile.vehicle_banner_url ? <label className="admin-driver-appearance__toggle"><input type="checkbox" name="removeVehicleBanner" value="true" /><span>Remover a foto atual ao salvar</span></label> : null}
+                      <button className="button button--primary button--compact" type="submit"><Palette size={16} /> Salvar aparência</button>
+                    </form>
+                  </details>
+                ) : null}
 
                 {network ? (
                   <div className={`admin-driver-network admin-driver-network--${network.verification_status}`}>

@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
 import { getAuthContext } from "@/lib/auth";
+import {
+  isNotificationVisibleToUser,
+  notificationVisibilityFilter,
+} from "@/lib/notification-visibility";
 
 export const dynamic = "force-dynamic";
 
@@ -12,9 +16,10 @@ export async function GET(request: Request) {
 
   const { data, error } = await supabase
     .from("notifications")
-    .select("id, title, message, category, priority, action_url, published_at, expires_at")
+    .select("id, title, message, category, priority, action_url, published_at, expires_at, target_user_id")
     .eq("is_published", true)
     .lte("published_at", now.toISOString())
+    .or(notificationVisibilityFilter(userId))
     .order("published_at", { ascending: false })
     .limit(limit + 50);
 
@@ -22,16 +27,18 @@ export async function GET(request: Request) {
     return NextResponse.json({ ok: false, error: error.message }, { status: 400 });
   }
 
-  const rows = (data ?? []).filter((item) => {
-    if (!item.expires_at) return true;
-    const expiresAt = Date.parse(item.expires_at as string);
-    return !Number.isFinite(expiresAt) || expiresAt > now.getTime();
-  });
+  const rows = (data ?? [])
+    .filter((item) => isNotificationVisibleToUser(item, userId))
+    .filter((item) => {
+      if (!item.expires_at) return true;
+      const expiresAt = Date.parse(item.expires_at as string);
+      return !Number.isFinite(expiresAt) || expiresAt > now.getTime();
+    });
 
   if (!userId || !rows.length) {
     return NextResponse.json(
       { ok: true, authenticated: Boolean(userId), items: rows.slice(0, limit) },
-      { headers: { "Cache-Control": "no-store, max-age=0" } },
+      { headers: { "Cache-Control": "private, no-store, max-age=0" } },
     );
   }
 
@@ -58,6 +65,6 @@ export async function GET(request: Request) {
       authenticated: true,
       items: rows.filter((item) => !hiddenIds.has(item.id as string)).slice(0, limit),
     },
-    { headers: { "Cache-Control": "no-store, max-age=0" } },
+    { headers: { "Cache-Control": "private, no-store, max-age=0" } },
   );
 }
