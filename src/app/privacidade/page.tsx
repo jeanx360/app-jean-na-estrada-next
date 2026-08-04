@@ -83,8 +83,8 @@ export default function PrivacyPage() {
             content: <p>O JNE App utiliza autenticação, políticas de acesso no banco, arquivos privados, respostas sem cache para áreas de sessão, segredos no servidor e registros administrativos. Nenhum sistema é imune a falhas; mudanças relevantes nesta política exigirão novo aceite.</p>,
           },
           {
-            title: "16. Localização, endereços e Google Maps",
-            content: <><p>Quando solicitado pelo usuário, o navegador pode fornecer latitude e longitude para identificar o endereço de saída. Endereços digitados ou escolhidos, coordenadas necessárias, distância e duração estimada podem ser enviados à Plataforma Google Maps para completar endereços e calcular a rota.</p><p>Esses dados são usados para preparar a solicitação e o orçamento da viagem. O usuário pode negar a localização e informar os endereços manualmente. O tratamento realizado pelo Google segue a <a href="https://policies.google.com/privacy" target="_blank" rel="noreferrer">Política de Privacidade do Google</a> e os <a href="https://cloud.google.com/maps-platform/terms" target="_blank" rel="noreferrer">Termos da Plataforma Google Maps</a>.</p></>,
+            title: "16. Localização, endereços e mapas abertos",
+            content: <><p>Quando solicitado pelo usuário, o navegador pode fornecer latitude e longitude para identificar o endereço de saída. Endereços digitados ou escolhidos, coordenadas necessárias, distância e duração estimada podem ser processados no servidor do JNE App e enviados aos serviços de geocodificação e rotas da HeiGIT, que utilizam dados abertos do OpenStreetMap.</p><p>Esses dados são usados para preparar a solicitação e o orçamento da viagem. O usuário pode negar a localização e informar os endereços manualmente. A chave do provedor permanece no servidor e não é enviada ao navegador. Google Maps e Waze somente são abertos externamente após uma ação do motorista.</p></>,
           },
         ]}
       />

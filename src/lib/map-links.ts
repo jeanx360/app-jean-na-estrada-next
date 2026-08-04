@@ -53,23 +53,3 @@ export function wazeNavigationUrl(destination: NavigationPoint) {
   if (destinationValue) params.set("q", destinationValue);
   return `https://waze.com/ul?${params.toString()}`;
 }
-
-export function googleMapsEmbedDirectionsUrl(
-  apiKey: string,
-  origin: NavigationPoint,
-  destination: NavigationPoint,
-) {
-  if (!apiKey.trim()) return "";
-  const originValue = coordinateValue(origin);
-  const destinationValue = coordinateValue(destination);
-  if (!originValue || !destinationValue) return "";
-  const params = new URLSearchParams({
-    key: apiKey,
-    origin: originValue,
-    destination: destinationValue,
-    mode: "driving",
-    language: "pt-BR",
-    region: "BR",
-  });
-  return `https://www.google.com/maps/embed/v1/directions?${params.toString()}`;
-}

@@ -79,8 +79,8 @@ export default function TermsPage() {
             content: <><p>O suporte é prestado pelos canais oficiais e pode solicitar informações técnicas, sem nunca pedir a senha do usuário.</p><p>Contas comuns podem solicitar exclusão pelo próprio perfil, observadas retenções necessárias para segurança, prevenção de fraude, obrigações e backups temporários. Contato: contato.jeannaestrada@gmail.com.</p></>,
           },
           {
-            title: "15. Endereços, localização e Google Maps",
-            content: <><p>Quando o usuário escolhe buscar um endereço, calcular uma rota ou usar a localização atual, o JNE App pode utilizar serviços da Plataforma Google Maps. A localização somente é solicitada após uma ação do usuário e também é possível digitar os endereços manualmente.</p><p>Ao usar esses recursos, o usuário concorda com os <a href="https://cloud.google.com/maps-platform/terms" target="_blank" rel="noreferrer">Termos de Serviço da Plataforma Google Maps</a>. Distância, duração e trajeto são estimativas e devem ser confirmados antes da viagem.</p></>,
+            title: "15. Endereços, localização e mapas abertos",
+            content: <><p>Quando o usuário escolhe buscar um endereço, calcular uma rota ou usar a localização atual, o JNE App pode utilizar dados do OpenStreetMap e serviços de geocodificação e rotas mantidos pela HeiGIT. A localização somente é solicitada após uma ação do usuário e também é possível digitar os endereços manualmente.</p><p>Distância, duração e trajeto são estimativas e devem ser confirmados antes da viagem. Os mapas exibem a atribuição obrigatória ao OpenStreetMap. Os botões para Google Maps ou Waze apenas abrem aplicativos externos escolhidos pelo usuário.</p></>,
           },
         ]}
       />

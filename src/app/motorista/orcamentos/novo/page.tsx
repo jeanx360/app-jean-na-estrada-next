@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
 
 type Props = { searchParams: Promise<{ customer?: string; reservation?: string }> };
 
-const ROUTE_ESTIMATE_PATTERN = /(?:Estimativa automática do Google Maps|Rota estimada):\s*([\d.,]+)\s*km,\s*(\d+)\s*min(?:\s*na ida)?\.\s*/i;
+const ROUTE_ESTIMATE_PATTERN = /(?:Estimativa automática do Google Maps|Estimativa automática de mapas abertos|Rota estimada):\s*([\d.,]+)\s*km,\s*(\d+)\s*min(?:\s*na ida)?\.\s*/i;
 
 function routeEstimateFromNotes(notes: string | null | undefined) {
   const text = notes || "";

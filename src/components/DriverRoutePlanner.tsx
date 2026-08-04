@@ -2,10 +2,11 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Clock3, LoaderCircle, LocateFixed, MapPin, Route } from "lucide-react";
+import { OpenStreetMapRoute } from "@/components/OpenStreetMapRoute";
+import type { RouteCoordinate } from "@/lib/open-maps";
 import {
   formatRouteDistance,
   formatRouteDuration,
-  googleMapsEmbedDirectionsUrl,
 } from "@/lib/map-links";
 
 export type DriverRoutePoint = {
@@ -22,12 +23,16 @@ export type DriverRouteDraft = {
   durationSeconds: number | null;
 };
 
-type PlaceSuggestion = { placeId: string; label: string };
+type PlaceSuggestion = {
+  placeId: string;
+  label: string;
+  latitude: number;
+  longitude: number;
+};
 
 type Props = {
   value: DriverRouteDraft;
   onChange: (value: DriverRouteDraft) => void;
-  mapsEmbedKey?: string;
 };
 
 function selected(point: DriverRoutePoint) {
@@ -71,23 +76,26 @@ function useSuggestions(query: string, enabled: boolean) {
   return { items, setItems, loading, configured };
 }
 
-export function DriverRoutePlanner({ value, onChange, mapsEmbedKey = "" }: Props) {
+export function DriverRoutePlanner({ value, onChange }: Props) {
   const [originFocused, setOriginFocused] = useState(false);
   const [destinationFocused, setDestinationFocused] = useState(false);
   const [locating, setLocating] = useState(false);
   const [calculating, setCalculating] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [geometry, setGeometry] = useState<RouteCoordinate[]>([]);
   const lastAutomaticRoute = useRef("");
   const originSearch = useSuggestions(value.origin.label, originFocused && !selected(value.origin));
   const destinationSearch = useSuggestions(value.destination.label, destinationFocused && !selected(value.destination));
 
   function setOrigin(origin: DriverRoutePoint) {
     onChange({ ...value, origin, distanceMeters: null, durationSeconds: null });
+    setGeometry([]);
     lastAutomaticRoute.current = "";
   }
 
   function setDestination(destination: DriverRoutePoint) {
     onChange({ ...value, destination, distanceMeters: null, durationSeconds: null });
+    setGeometry([]);
     lastAutomaticRoute.current = "";
   }
 
@@ -109,9 +117,12 @@ export function DriverRoutePlanner({ value, onChange, mapsEmbedKey = "" }: Props
         error?: string;
         distanceMeters?: number;
         durationSeconds?: number;
+        geometry?: RouteCoordinate[];
+        origin?: DriverRoutePoint;
+        destination?: DriverRoutePoint;
       };
       if (data.configured === false) {
-        if (!automatic) setMessage("Configure a chave do Google Maps para calcular a rota automaticamente.");
+        if (!automatic) setMessage("Configure a chave gratuita do openrouteservice para calcular a rota automaticamente.");
         return;
       }
       if (!response.ok || !data.distanceMeters || !data.durationSeconds) {
@@ -119,9 +130,12 @@ export function DriverRoutePlanner({ value, onChange, mapsEmbedKey = "" }: Props
       }
       onChange({
         ...value,
+        origin: data.origin || value.origin,
+        destination: data.destination || value.destination,
         distanceMeters: data.distanceMeters,
         durationSeconds: data.durationSeconds,
       });
+      setGeometry(Array.isArray(data.geometry) ? data.geometry : []);
     } catch (error) {
       if (!automatic) setMessage(error instanceof Error ? error.message : "Não foi possível calcular a rota.");
     } finally {
@@ -158,7 +172,7 @@ export function DriverRoutePlanner({ value, onChange, mapsEmbedKey = "" }: Props
           const data = (await response.json()) as { configured?: boolean; point?: DriverRoutePoint; error?: string };
           if (data.configured === false) {
             setOrigin({ label: `Localização atual (${latitude.toFixed(6)}, ${longitude.toFixed(6)})`, placeId: null, latitude, longitude });
-            setMessage("Localização capturada. Configure o Google Maps para identificar o endereço.");
+            setMessage("Localização capturada. Configure o openrouteservice para identificar o endereço.");
           } else if (!response.ok || !data.point) {
             throw new Error(data.error || "Não foi possível identificar o endereço.");
           } else {
@@ -178,7 +192,6 @@ export function DriverRoutePlanner({ value, onChange, mapsEmbedKey = "" }: Props
     );
   }
 
-  const mapUrl = googleMapsEmbedDirectionsUrl(mapsEmbedKey, value.origin, value.destination);
   const mapsUnavailable = originSearch.configured === false || destinationSearch.configured === false;
 
   return (
@@ -209,7 +222,7 @@ export function DriverRoutePlanner({ value, onChange, mapsEmbedKey = "" }: Props
             <div className="public-address-suggestions" role="listbox">
               {originSearch.items.map((item) => (
                 <button key={item.placeId} type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => {
-                  setOrigin({ label: item.label, placeId: item.placeId, latitude: null, longitude: null });
+                  setOrigin({ label: item.label, placeId: item.placeId, latitude: item.latitude, longitude: item.longitude });
                   originSearch.setItems([]);
                   setOriginFocused(false);
                 }}><MapPin size={15} /><span>{item.label}</span></button>
@@ -239,7 +252,7 @@ export function DriverRoutePlanner({ value, onChange, mapsEmbedKey = "" }: Props
             <div className="public-address-suggestions" role="listbox">
               {destinationSearch.items.map((item) => (
                 <button key={item.placeId} type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => {
-                  setDestination({ label: item.label, placeId: item.placeId, latitude: null, longitude: null });
+                  setDestination({ label: item.label, placeId: item.placeId, latitude: item.latitude, longitude: item.longitude });
                   destinationSearch.setItems([]);
                   setDestinationFocused(false);
                 }}><MapPin size={15} /><span>{item.label}</span></button>
@@ -262,7 +275,14 @@ export function DriverRoutePlanner({ value, onChange, mapsEmbedKey = "" }: Props
         {message ? <p className="public-route-message">{message}</p> : null}
       </div>
 
-      {mapUrl ? <iframe className="driver-route-planner__map" title="Prévia da rota" src={mapUrl} loading="lazy" referrerPolicy="no-referrer-when-downgrade" /> : null}
+      <OpenStreetMapRoute
+        className="driver-route-planner__map"
+        title="Prévia da rota"
+        origin={value.origin}
+        destination={value.destination}
+        geometry={geometry}
+      />
+      <small className="driver-route-planner__provider">Mapa © OpenStreetMap · rotas por HeiGIT openrouteservice</small>
     </div>
   );
 }

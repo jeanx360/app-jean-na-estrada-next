@@ -17707,3 +17707,120 @@ button {
     width: 100%;
   }
 }
+
+
+/* JNE App 2.1.1 — prévia leve com OpenStreetMap e rotas abertas */
+.open-route-map {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  aspect-ratio: 16 / 9;
+  min-height: 280px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: #dbe5ec;
+}
+
+.open-route-map__tiles,
+.open-route-map__overlay {
+  position: absolute;
+  inset: 0;
+}
+
+.open-route-map__tiles img {
+  position: absolute;
+  max-width: none;
+  user-select: none;
+  pointer-events: none;
+}
+
+.open-route-map__overlay {
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+}
+
+.open-route-map__line-shadow,
+.open-route-map__line {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.open-route-map__line-shadow {
+  stroke: rgb(255 255 255 / .92);
+  stroke-width: 10;
+}
+
+.open-route-map__line {
+  stroke: #2563eb;
+  stroke-width: 6;
+}
+
+.open-route-map__marker {
+  stroke: #fff;
+  stroke-width: 5;
+  vector-effect: non-scaling-stroke;
+}
+
+.open-route-map__marker--origin { fill: #16a34a; }
+.open-route-map__marker--destination { fill: #dc2626; }
+
+.open-route-map__labels {
+  position: absolute;
+  z-index: 3;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  gap: 8px;
+}
+
+.open-route-map__labels span {
+  padding: 5px 8px;
+  border-radius: 999px;
+  color: #0f172a;
+  background: rgb(255 255 255 / .92);
+  box-shadow: 0 3px 12px rgb(15 23 42 / .18);
+  font-size: .68rem;
+  font-weight: 850;
+}
+
+.open-route-map__labels span:first-child::before,
+.open-route-map__labels span:last-child::before {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 5px;
+  border-radius: 50%;
+  content: "";
+}
+
+.open-route-map__labels span:first-child::before { background: #16a34a; }
+.open-route-map__labels span:last-child::before { background: #dc2626; }
+
+.open-route-map__attribution {
+  position: absolute;
+  z-index: 4;
+  right: 0;
+  bottom: 0;
+  padding: 3px 6px;
+  color: #334155;
+  background: rgb(255 255 255 / .88);
+  font-size: .58rem;
+  text-decoration: none;
+}
+
+.driver-route-planner__provider {
+  color: var(--muted);
+  font-size: .68rem;
+  line-height: 1.4;
+}
+
+@media (max-width: 560px) {
+  .open-route-map,
+  .public-reservation-review__map,
+  .driver-route-planner__map {
+    min-height: 230px;
+  }
+}

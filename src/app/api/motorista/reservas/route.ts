@@ -8,7 +8,7 @@ import {
   type DriverMarketingSource,
 } from "@/lib/driver-marketing";
 import { normalizeWhatsAppPhone } from "@/lib/driver-public";
-import { verifyGoogleRouteToken } from "@/lib/google-maps";
+import { verifyOpenRouteToken } from "@/lib/open-maps";
 import { sendPushNotification } from "@/lib/push";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -220,7 +220,7 @@ export async function POST(request: Request) {
       }
     }
 
-    const verifiedRoute = routeEstimateToken ? verifyGoogleRouteToken(routeEstimateToken, origin, destination) : null;
+    const verifiedRoute = routeEstimateToken ? verifyOpenRouteToken(routeEstimateToken, origin, destination) : null;
     const catalogRouteMatches = Boolean(
       selectedPackage?.origin_label
       && selectedPackage.destination_label

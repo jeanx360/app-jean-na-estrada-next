@@ -40,10 +40,9 @@ type FormState = typeof emptyForm;
 type Props = {
   userId: string;
   initialItems: DriverServicePackage[];
-  mapsEmbedKey?: string;
 };
 
-export function DriverServicesManager({ userId, initialItems, mapsEmbedKey = "" }: Props) {
+export function DriverServicesManager({ userId, initialItems }: Props) {
   const router = useRouter();
   const [items, setItems] = useState(initialItems);
   const [form, setForm] = useState<FormState>(emptyForm);
@@ -194,7 +193,7 @@ export function DriverServicesManager({ userId, initialItems, mapsEmbedKey = "" 
             <label className="driver-field-grid__full"><span>Nome curto</span><input maxLength={80} value={form.title} onChange={(event) => update("title", event.target.value)} placeholder="Ex.: Porto Alegre → Gramado" /></label>
           </div>
 
-          <DriverRoutePlanner value={route} onChange={setRoute} mapsEmbedKey={mapsEmbedKey} />
+          <DriverRoutePlanner value={route} onChange={setRoute} />
 
           <div className="driver-field-grid">
             <label><span>Como mostrar o preço</span><select value={form.pricingType} onChange={(event) => update("pricingType", event.target.value as DriverPricingType)}>{Object.entries(DRIVER_PRICING_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>

@@ -18,10 +18,11 @@ import {
 } from "lucide-react";
 import type { DriverMarketingSource } from "@/lib/driver-marketing";
 import type { DriverServicePackage } from "@/lib/driver-public";
+import { OpenStreetMapRoute } from "@/components/OpenStreetMapRoute";
+import type { RouteCoordinate } from "@/lib/open-maps";
 import {
   formatRouteDistance,
   formatRouteDuration,
-  googleMapsEmbedDirectionsUrl,
 } from "@/lib/map-links";
 
 type Props = {
@@ -34,7 +35,6 @@ type Props = {
   initialPassengerPhone?: string;
   source?: DriverMarketingSource;
   campaignCode?: string;
-  mapsEmbedKey?: string;
 };
 
 type FormState = {
@@ -61,8 +61,18 @@ type RoutePoint = {
   longitude: number | null;
 };
 
-type PlaceSuggestion = { placeId: string; label: string };
-type RouteEstimate = { distanceMeters: number; durationSeconds: number; token: string };
+type PlaceSuggestion = {
+  placeId: string;
+  label: string;
+  latitude: number;
+  longitude: number;
+};
+type RouteEstimate = {
+  distanceMeters: number;
+  durationSeconds: number;
+  token: string;
+  geometry: RouteCoordinate[];
+};
 
 const STEP_TITLES = ["Seus dados", "Destino", "Saída", "Quando", "Detalhes", "Conferir"];
 
@@ -145,7 +155,6 @@ export function PublicReservationForm({
   initialPassengerPhone = "",
   source = "profile",
   campaignCode = "",
-  mapsEmbedKey = "",
 }: Props) {
   const initialForm = useMemo<FormState>(() => ({
     packageId: initialPackageId,
@@ -205,7 +214,7 @@ export function PublicReservationForm({
     setOrigin(packagePoint(item, "origin"));
     setDestination(packagePoint(item, "destination"));
     if (item.route_distance_meters && item.route_duration_seconds) {
-      setRouteEstimate({ distanceMeters: item.route_distance_meters, durationSeconds: item.route_duration_seconds, token: "" });
+      setRouteEstimate({ distanceMeters: item.route_distance_meters, durationSeconds: item.route_duration_seconds, token: "", geometry: [] });
     }
     setForm((current) => ({
       ...current,
@@ -243,7 +252,7 @@ export function PublicReservationForm({
       returnTime: item.allows_return ? current.returnTime : "",
     }));
     setRouteEstimate(item.route_distance_meters && item.route_duration_seconds
-      ? { distanceMeters: item.route_distance_meters, durationSeconds: item.route_duration_seconds, token: "" }
+      ? { distanceMeters: item.route_distance_meters, durationSeconds: item.route_duration_seconds, token: "", geometry: [] }
       : null);
   }
 
@@ -277,6 +286,9 @@ export function PublicReservationForm({
         distanceMeters?: number;
         durationSeconds?: number;
         token?: string;
+        geometry?: RouteCoordinate[];
+        origin?: RoutePoint;
+        destination?: RoutePoint;
       };
       if (data.configured === false) {
         setMapsConfigured(false);
@@ -287,7 +299,14 @@ export function PublicReservationForm({
       if (!response.ok || !data.distanceMeters || !data.durationSeconds || !data.token) {
         throw new Error(data.error || "Não foi possível calcular a rota agora.");
       }
-      setRouteEstimate({ distanceMeters: data.distanceMeters, durationSeconds: data.durationSeconds, token: data.token });
+      if (data.origin) setOrigin(data.origin);
+      if (data.destination) setDestination(data.destination);
+      setRouteEstimate({
+        distanceMeters: data.distanceMeters,
+        durationSeconds: data.durationSeconds,
+        token: data.token,
+        geometry: Array.isArray(data.geometry) ? data.geometry : [],
+      });
     } catch (error) {
       if (!automatic) setRouteMessage(error instanceof Error ? error.message : "Não foi possível calcular a rota agora.");
     } finally {
@@ -450,7 +469,6 @@ export function PublicReservationForm({
     );
   }
 
-  const mapUrl = googleMapsEmbedDirectionsUrl(mapsEmbedKey, origin, destination);
 
   return (
     <section className="public-reservation-wizard" id="reservar">
@@ -494,7 +512,7 @@ export function PublicReservationForm({
             ) : null}
             <div className="public-address-field">
               <label><span>Destino</span><div className="public-address-input"><MapPin size={18} /><input autoFocus maxLength={180} autoComplete="off" value={destination.label} onFocus={() => setDestinationFocused(true)} onBlur={() => window.setTimeout(() => setDestinationFocused(false), 180)} onChange={(event) => { setDestination({ label: event.target.value, placeId: null, latitude: null, longitude: null }); update("packageId", ""); resetRouteEstimate(); }} placeholder="Comece a digitar o endereço" />{destinationSearch.loading ? <LoaderCircle className="auth-spinner" size={17} /> : null}</div></label>
-              {destinationFocused && destinationSearch.items.length ? <div className="public-address-suggestions" role="listbox">{destinationSearch.items.map((item) => <button type="button" key={item.placeId} onMouseDown={(event) => event.preventDefault()} onClick={() => { setDestination({ label: item.label, placeId: item.placeId, latitude: null, longitude: null }); destinationSearch.setItems([]); setDestinationFocused(false); resetRouteEstimate(); }}><MapPin size={15} /><span>{item.label}</span></button>)}</div> : null}
+              {destinationFocused && destinationSearch.items.length ? <div className="public-address-suggestions" role="listbox">{destinationSearch.items.map((item) => <button type="button" key={item.placeId} onMouseDown={(event) => event.preventDefault()} onClick={() => { setDestination({ label: item.label, placeId: item.placeId, latitude: item.latitude, longitude: item.longitude }); destinationSearch.setItems([]); setDestinationFocused(false); resetRouteEstimate(); }}><MapPin size={15} /><span>{item.label}</span></button>)}</div> : null}
             </div>
           </div>
         ) : null}
@@ -506,7 +524,7 @@ export function PublicReservationForm({
             <button className="public-location-button public-location-button--large" type="button" onClick={useCurrentLocation} disabled={locating}>{locating ? <LoaderCircle className="auth-spinner" size={18} /> : <LocateFixed size={18} />}{locating ? "Localizando..." : "Usar minha localização atual"}</button>
             <div className="public-address-field">
               <label><span>Ou digite o endereço de saída</span><div className="public-address-input"><MapPin size={18} /><input autoFocus maxLength={180} autoComplete="off" value={origin.label} onFocus={() => setOriginFocused(true)} onBlur={() => window.setTimeout(() => setOriginFocused(false), 180)} onChange={(event) => { setOrigin({ label: event.target.value, placeId: null, latitude: null, longitude: null }); update("packageId", ""); resetRouteEstimate(); }} placeholder="Rua, número, bairro ou local" />{originSearch.loading ? <LoaderCircle className="auth-spinner" size={17} /> : null}</div></label>
-              {originFocused && originSearch.items.length ? <div className="public-address-suggestions" role="listbox">{originSearch.items.map((item) => <button type="button" key={item.placeId} onMouseDown={(event) => event.preventDefault()} onClick={() => { setOrigin({ label: item.label, placeId: item.placeId, latitude: null, longitude: null }); originSearch.setItems([]); setOriginFocused(false); resetRouteEstimate(); }}><MapPin size={15} /><span>{item.label}</span></button>)}</div> : null}
+              {originFocused && originSearch.items.length ? <div className="public-address-suggestions" role="listbox">{originSearch.items.map((item) => <button type="button" key={item.placeId} onMouseDown={(event) => event.preventDefault()} onClick={() => { setOrigin({ label: item.label, placeId: item.placeId, latitude: item.latitude, longitude: item.longitude }); originSearch.setItems([]); setOriginFocused(false); resetRouteEstimate(); }}><MapPin size={15} /><span>{item.label}</span></button>)}</div> : null}
             </div>
             {routeMessage ? <p className="public-route-message">{routeMessage}</p> : null}
           </div>
@@ -543,7 +561,13 @@ export function PublicReservationForm({
             <div className="public-reservation-step__icon"><Sparkles size={28} /></div>
             <h3>Confira antes de enviar</h3>
             {routeEstimate ? <div className="public-route-estimate__result"><Route size={22} /><div><strong>{formatRouteDistance(routeEstimate.distanceMeters)}</strong><span><Clock3 size={15} /> cerca de {formatRouteDuration(routeEstimate.durationSeconds)} na ida</span></div></div> : <button className="button button--secondary" type="button" onClick={() => void calculateRoute(false)} disabled={calculatingRoute}>{calculatingRoute ? <LoaderCircle className="auth-spinner" size={18} /> : <Route size={18} />}{calculatingRoute ? "Calculando..." : "Calcular distância e tempo"}</button>}
-            {mapUrl ? <iframe className="public-reservation-review__map" title="Mapa da rota" src={mapUrl} loading="lazy" referrerPolicy="no-referrer-when-downgrade" /> : null}
+            <OpenStreetMapRoute
+              className="public-reservation-review__map"
+              title="Mapa da rota"
+              origin={origin}
+              destination={destination}
+              geometry={routeEstimate?.geometry}
+            />
             <dl className="public-reservation-review__summary">
               <div><dt>Passageiro</dt><dd>{form.passengerName} · {form.passengerPhone}</dd></div>
               <div><dt>Rota</dt><dd>{origin.label} → {destination.label}</dd></div>
@@ -553,7 +577,7 @@ export function PublicReservationForm({
               <div><dt>Passageiros</dt><dd>{form.passengers}</dd></div>
               {form.luggage ? <div><dt>Bagagens</dt><dd>{form.luggage}</dd></div> : null}
             </dl>
-            {mapsConfigured === true ? <small className="public-google-attribution">Endereços e rota com <span translate="no">Google Maps</span></small> : null}
+            {mapsConfigured === true ? <small className="public-google-attribution">Endereços e rota com dados abertos de <span translate="no">OpenStreetMap</span> e <span translate="no">HeiGIT openrouteservice</span>.</small> : null}
             {mapsConfigured === false ? <small>A rota será enviada com os endereços, mesmo sem cálculo automático.</small> : null}
           </div>
         ) : null}

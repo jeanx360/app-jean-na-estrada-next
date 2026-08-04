@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { googleMapsConfigured, reverseGoogleGeocode } from "@/lib/google-maps";
+import { openMapsConfigured, reverseOpenGeocode } from "@/lib/open-maps";
 
 export const dynamic = "force-dynamic";
 
@@ -12,14 +12,14 @@ export async function POST(request: Request) {
   if (!userId) {
     return NextResponse.json({ ok: false, error: "Faça login para usar a localização atual." }, { status: 401 });
   }
-  if (!googleMapsConfigured()) {
-    return NextResponse.json({ ok: false, configured: false, error: "Mapas não configurados." }, { status: 503 });
+  if (!openMapsConfigured()) {
+    return NextResponse.json({ ok: false, configured: false, error: "Mapas abertos não configurados." }, { status: 503 });
   }
 
   try {
     const body = (await request.json()) as { latitude?: number; longitude?: number };
-    const point = await reverseGoogleGeocode(body.latitude, body.longitude);
-    return NextResponse.json({ ok: true, configured: true, point }, { headers: { "Cache-Control": "private, no-store" } });
+    const point = await reverseOpenGeocode(body.latitude, body.longitude);
+    return NextResponse.json({ ok: true, configured: true, provider: "heigit-openrouteservice", point }, { headers: { "Cache-Control": "private, no-store" } });
   } catch (error) {
     console.warn("Falha na geocodificação reversa:", error);
     return NextResponse.json({ ok: false, configured: true, error: "Não foi possível identificar este endereço." }, { status: 502 });
