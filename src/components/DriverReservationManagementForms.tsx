@@ -32,6 +32,7 @@ export function DriverReservationManagementForms({ reservation, compact = false 
               <span>Novo horário (24h)</span>
               <input type="time" name="travelTime" lang="pt-BR" defaultValue={reservation.travel_time?.slice(0, 5) ?? ""} />
             </label>
+            {reservation.has_return ? <><label><span>Nova data da volta</span><input type="date" name="returnDate" lang="pt-BR" defaultValue={reservation.return_date ?? ""} required /></label><label><span>Novo horário da volta</span><input type="time" name="returnTime" lang="pt-BR" defaultValue={reservation.return_time?.slice(0, 5) ?? ""} required /></label></> : null}
             <label>
               <span>Duração prevista (min)</span>
               <input type="number" name="durationMinutes" min={15} max={720} step={15} defaultValue={reservation.duration_minutes || 60} required />

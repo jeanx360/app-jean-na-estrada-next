@@ -160,7 +160,8 @@ export default async function DriverReservationsPage({ searchParams }: Props) {
                 <h2>{item.passenger_name}</h2>
                 <p className="driver-reservation-route"><MapPin size={17} /> {route}</p>
                 <div className="driver-reservation-facts">
-                  <span><CalendarDays size={16} /> {item.travel_date ? formatBrazilDate(item.travel_date) : "Data a combinar"}{item.travel_time ? ` às ${formatBrazilTime(item.travel_time)}` : ""}</span>
+                  <span><CalendarDays size={16} /> Ida: {item.travel_date ? formatBrazilDate(item.travel_date) : "a combinar"}{item.travel_time ? ` às ${formatBrazilTime(item.travel_time)}` : ""}</span>
+                  {item.has_return ? <span><CalendarDays size={16} /> Volta: {item.return_date ? formatBrazilDate(item.return_date) : "a combinar"}{item.return_time ? ` às ${formatBrazilTime(item.return_time)}` : ""}</span> : null}
                   <span><Users size={16} /> {item.passengers} passageiro(s)</span>
                 </div>
                 {item.cancellation_reason ? <p className="driver-reservation-card__reason"><strong>Motivo:</strong> {item.cancellation_reason}</p> : null}

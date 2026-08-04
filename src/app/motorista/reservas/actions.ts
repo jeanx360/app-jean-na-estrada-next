@@ -57,6 +57,8 @@ export async function rescheduleDriverReservationAction(formData: FormData) {
   const reservationId = readText(formData, "reservationId");
   const travelDate = readText(formData, "travelDate");
   const travelTime = readText(formData, "travelTime");
+  const returnDate = readText(formData, "returnDate");
+  const returnTime = readText(formData, "returnTime");
   const durationMinutes = Math.max(15, Math.min(720, Number(readText(formData, "durationMinutes")) || 60));
 
   if (!reservationId) throw new Error("Reserva inválida.");
@@ -66,6 +68,14 @@ export async function rescheduleDriverReservationAction(formData: FormData) {
   const { supabase, userId, reservation } = await requireOwnedReservation(reservationId);
   if (["completed", "cancelled", "declined"].includes(reservation.status)) {
     throw new Error("Uma reserva encerrada não pode ser remarcada.");
+  }
+  if (reservation.has_return) {
+    if (!validDateInput(returnDate) || !validTimeInput(returnTime) || !returnTime) {
+      throw new Error("Informe data e horário válidos para a volta.");
+    }
+    if (`${returnDate}T${returnTime}` <= `${travelDate}T${travelTime || "00:00"}`) {
+      throw new Error("A volta precisa acontecer depois da ida.");
+    }
   }
 
   const admin = createAdminClient();
@@ -79,7 +89,20 @@ export async function rescheduleDriverReservationAction(formData: FormData) {
     });
     if (conflictError) throw new Error(conflictError.message);
     const conflict = Array.isArray(conflicts) ? conflicts[0] as { conflict_label?: string } | undefined : undefined;
-    if (conflict) throw new Error(`Este horario conflita com ${conflict.conflict_label || "outro compromisso"}. Escolha outro horario.`);
+    if (conflict) throw new Error(`O horário da ida conflita com ${conflict.conflict_label || "outro compromisso"}.`);
+  }
+  if (reservation.has_return && returnTime) {
+    const returnDuration = Math.max(15, Math.min(720, reservation.route_duration_seconds ? Math.ceil(reservation.route_duration_seconds / 60) : durationMinutes));
+    const { data: conflicts, error: conflictError } = await admin.rpc("driver_schedule_conflicts", {
+      p_driver_user_id: userId,
+      p_travel_date: returnDate,
+      p_travel_time: returnTime,
+      p_duration_minutes: returnDuration,
+      p_exclude_reservation_id: reservationId,
+    });
+    if (conflictError) throw new Error(conflictError.message);
+    const conflict = Array.isArray(conflicts) ? conflicts[0] as { conflict_label?: string } | undefined : undefined;
+    if (conflict) throw new Error(`O horário da volta conflita com ${conflict.conflict_label || "outro compromisso"}.`);
   }
 
   const { error } = await supabase
@@ -87,6 +110,8 @@ export async function rescheduleDriverReservationAction(formData: FormData) {
     .update({
       travel_date: travelDate,
       travel_time: travelTime || null,
+      return_date: reservation.has_return ? returnDate : null,
+      return_time: reservation.has_return ? returnTime : null,
       duration_minutes: durationMinutes,
       updated_at: new Date().toISOString(),
     })
@@ -179,15 +204,29 @@ export async function duplicateDriverReservationAction(formData: FormData) {
     .from("driver_reservations")
     .insert({
       driver_user_id: userId,
+      passenger_user_id: reservation.passenger_user_id,
       package_id: reservation.package_id,
       campaign_id: reservation.campaign_id,
       passenger_name: reservation.passenger_name,
       passenger_phone: reservation.passenger_phone,
       origin: reservation.origin,
       destination: reservation.destination,
+      origin_place_id: reservation.origin_place_id,
+      origin_latitude: reservation.origin_latitude,
+      origin_longitude: reservation.origin_longitude,
+      destination_place_id: reservation.destination_place_id,
+      destination_latitude: reservation.destination_latitude,
+      destination_longitude: reservation.destination_longitude,
+      route_distance_meters: reservation.route_distance_meters,
+      route_duration_seconds: reservation.route_duration_seconds,
       travel_date: null,
       travel_time: null,
       trip_type: reservation.trip_type,
+      has_return: false,
+      return_date: null,
+      return_time: null,
+      wait_at_destination: reservation.wait_at_destination,
+      wait_minutes: reservation.wait_minutes,
       passengers: reservation.passengers,
       luggage: reservation.luggage,
       notes: reservation.notes,

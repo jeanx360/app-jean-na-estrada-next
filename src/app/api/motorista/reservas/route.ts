@@ -18,6 +18,20 @@ function clean(value: unknown, max: number) {
   return typeof value === "string" ? value.trim().slice(0, max) : "";
 }
 
+function coordinate(value: unknown, min: number, max: number) {
+  if (value === null || value === undefined || value === "") return null;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed >= min && parsed <= max ? parsed : null;
+}
+
+function truthy(value: unknown) {
+  return value === true || value === "true" || value === 1 || value === "1";
+}
+
+function normalizeRouteLabel(value: string) {
+  return value.trim().replace(/\s+/g, " ").toLocaleLowerCase("pt-BR");
+}
+
 function fingerprint(request: Request, driverUserId: string) {
   const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
   const agent = request.headers.get("user-agent") || "unknown";
@@ -38,6 +52,53 @@ function marketingFromRequest(request: Request): { source: DriverMarketingSource
   }
 }
 
+function validDate(value: string) {
+  return /^\d{4}-\d{2}-\d{2}$/.test(value);
+}
+
+function validTime(value: string) {
+  return /^([01]\d|2[0-3]):[0-5]\d$/.test(value);
+}
+
+function scheduleTimestamp(date: string, time: string) {
+  return new Date(`${date}T${time}:00-03:00`).getTime();
+}
+
+async function hasScheduleConflict(
+  supabase: ReturnType<typeof createAdminClient>,
+  driverUserId: string,
+  date: string,
+  time: string,
+  durationMinutes: number,
+) {
+  const { data, error } = await supabase.rpc("driver_schedule_conflicts", {
+    p_driver_user_id: driverUserId,
+    p_travel_date: date,
+    p_travel_time: time,
+    p_duration_minutes: durationMinutes,
+    p_exclude_reservation_id: null,
+  });
+  if (error) throw new Error(`SCHEDULE_CHECK:${error.message}`);
+  return Array.isArray(data) && data.length > 0;
+}
+
+type SelectedPackage = {
+  id: string;
+  title: string;
+  origin_label: string | null;
+  origin_place_id: string | null;
+  origin_latitude: number | null;
+  origin_longitude: number | null;
+  destination_label: string | null;
+  destination_place_id: string | null;
+  destination_latitude: number | null;
+  destination_longitude: number | null;
+  route_distance_meters: number | null;
+  route_duration_seconds: number | null;
+  default_wait_minutes: number;
+  allows_return: boolean;
+};
+
 export async function POST(request: Request) {
   try {
     const body = (await request.json()) as Record<string, unknown>;
@@ -57,9 +118,20 @@ export async function POST(request: Request) {
     const passengerPhone = normalizeWhatsAppPhone(clean(body.passengerPhone, 30) || clean(accountPhone, 30));
     const origin = clean(body.origin, 180);
     const destination = clean(body.destination, 180);
+    const originPlaceId = clean(body.originPlaceId, 255) || null;
+    const destinationPlaceId = clean(body.destinationPlaceId, 255) || null;
+    const originLatitude = coordinate(body.originLatitude, -90, 90);
+    const originLongitude = coordinate(body.originLongitude, -180, 180);
+    const destinationLatitude = coordinate(body.destinationLatitude, -90, 90);
+    const destinationLongitude = coordinate(body.destinationLongitude, -180, 180);
     const travelDate = clean(body.travelDate, 10);
     const travelTime = clean(body.travelTime, 5);
-    const tripType = ["outbound", "return", "round_trip"].includes(String(body.tripType)) ? String(body.tripType) : "outbound";
+    const hasReturn = truthy(body.hasReturn);
+    const returnDate = hasReturn ? clean(body.returnDate, 10) : "";
+    const returnTime = hasReturn ? clean(body.returnTime, 5) : "";
+    const waitAtDestination = truthy(body.waitAtDestination);
+    const waitMinutes = waitAtDestination ? Math.max(15, Math.min(1440, Number(body.waitMinutes) || 0)) : 0;
+    const tripType = hasReturn ? "round_trip" : "outbound";
     const passengers = Math.min(20, Math.max(1, Number(body.passengers) || 1));
     const luggage = clean(body.luggage, 180);
     const userNotes = clean(body.notes, 700);
@@ -70,24 +142,30 @@ export async function POST(request: Request) {
     let reservationSource = bodySource ? normalizeDriverMarketingSource(bodySource) : refererMarketing.source;
     const campaignCode = normalizeDriverCampaignCode(clean(body.campaignCode, 48) || refererMarketing.campaignCode);
 
-    if (!driverSlug || passengerName.length < 2 || passengerPhone.length < 10 || !travelDate) {
-      return NextResponse.json({ ok: false, error: "Confira nome, WhatsApp e data da viagem." }, { status: 400 });
+    if (!driverSlug || passengerName.length < 2 || passengerPhone.length < 10) {
+      return NextResponse.json({ ok: false, error: "Confira seu nome e WhatsApp." }, { status: 400 });
     }
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(travelDate) || (travelTime && !/^([01]\d|2[0-3]):[0-5]\d$/.test(travelTime))) {
-      return NextResponse.json({ ok: false, error: "Informe uma data e um horário válidos." }, { status: 400 });
+    if (!origin || !destination) {
+      return NextResponse.json({ ok: false, error: "Informe a origem e o destino." }, { status: 400 });
     }
-    const requestedDay = new Date(`${travelDate}T12:00:00`);
+    if (!validDate(travelDate) || !validTime(travelTime)) {
+      return NextResponse.json({ ok: false, error: "Informe data e horário válidos para a ida." }, { status: 400 });
+    }
+    if (hasReturn && (!validDate(returnDate) || !validTime(returnTime))) {
+      return NextResponse.json({ ok: false, error: "Informe data e horário válidos para a volta." }, { status: 400 });
+    }
+
     const todayInSaoPaulo = new Intl.DateTimeFormat("en-CA", {
       timeZone: "America/Sao_Paulo",
       year: "numeric",
       month: "2-digit",
       day: "2-digit",
     }).format(new Date());
-    if (!Number.isFinite(requestedDay.getTime()) || travelDate < todayInSaoPaulo) {
+    if (travelDate < todayInSaoPaulo) {
       return NextResponse.json({ ok: false, error: "Escolha uma data de hoje em diante." }, { status: 400 });
     }
-    if (!origin && !destination && !packageId) {
-      return NextResponse.json({ ok: false, error: "Escolha um serviço ou informe origem e destino." }, { status: 400 });
+    if (hasReturn && scheduleTimestamp(returnDate, returnTime) <= scheduleTimestamp(travelDate, travelTime)) {
+      return NextResponse.json({ ok: false, error: "A volta precisa acontecer depois da ida." }, { status: 400 });
     }
 
     const supabase = createAdminClient();
@@ -126,28 +204,54 @@ export async function POST(request: Request) {
       }
     }
 
-    let selectedPackage: { id: string; title: string } | null = null;
+    let selectedPackage: SelectedPackage | null = null;
     if (packageId) {
       const { data } = await supabase
         .from("driver_service_packages")
-        .select("id, title")
+        .select("id,title,origin_label,origin_place_id,origin_latitude,origin_longitude,destination_label,destination_place_id,destination_latitude,destination_longitude,route_distance_meters,route_duration_seconds,default_wait_minutes,allows_return")
         .eq("id", packageId)
         .eq("user_id", profile.user_id)
         .eq("is_active", true)
         .maybeSingle();
-      if (!data) return NextResponse.json({ ok: false, error: "O serviço escolhido não está mais disponível." }, { status: 400 });
-      selectedPackage = data;
+      if (!data) return NextResponse.json({ ok: false, error: "A rota escolhida não está mais disponível." }, { status: 400 });
+      selectedPackage = data as SelectedPackage;
+      if (hasReturn && !selectedPackage.allows_return) {
+        return NextResponse.json({ ok: false, error: "Esta rota não está configurada para pedidos de volta." }, { status: 400 });
+      }
     }
 
-    const verifiedRoute = routeEstimateToken && origin && destination
-      ? verifyGoogleRouteToken(routeEstimateToken, origin, destination)
-      : null;
-    const routeDistanceKm = verifiedRoute ? verifiedRoute.distanceMeters / 1000 : null;
-    const routeDurationMinutes = verifiedRoute ? Math.max(1, Math.round(verifiedRoute.durationSeconds / 60)) : null;
-    const routeEstimateLine = routeDistanceKm && routeDurationMinutes
-      ? `Estimativa automática do Google Maps: ${routeDistanceKm.toLocaleString("pt-BR", { minimumFractionDigits: routeDistanceKm < 10 ? 1 : 0, maximumFractionDigits: 1 })} km, ${routeDurationMinutes} min.`
+    const verifiedRoute = routeEstimateToken ? verifyGoogleRouteToken(routeEstimateToken, origin, destination) : null;
+    const catalogRouteMatches = Boolean(
+      selectedPackage?.origin_label
+      && selectedPackage.destination_label
+      && normalizeRouteLabel(selectedPackage.origin_label) === normalizeRouteLabel(origin)
+      && normalizeRouteLabel(selectedPackage.destination_label) === normalizeRouteLabel(destination),
+    );
+    const routeDistanceMeters = verifiedRoute?.distanceMeters
+      ?? (catalogRouteMatches ? selectedPackage?.route_distance_meters : null)
+      ?? null;
+    const routeDurationSeconds = verifiedRoute?.durationSeconds
+      ?? (catalogRouteMatches ? selectedPackage?.route_duration_seconds : null)
+      ?? null;
+    const routeDurationMinutes = routeDurationSeconds ? Math.max(1, Math.round(routeDurationSeconds / 60)) : null;
+
+    if (hasReturn && routeDurationMinutes) {
+      const minimumReturnTimestamp = scheduleTimestamp(travelDate, travelTime)
+        + (routeDurationMinutes + (waitAtDestination ? waitMinutes : 0)) * 60_000;
+      if (scheduleTimestamp(returnDate, returnTime) < minimumReturnTimestamp) {
+        return NextResponse.json({
+          ok: false,
+          error: "O horário da volta precisa considerar o trajeto de ida e o tempo de espera.",
+        }, { status: 400 });
+      }
+    }
+
+    const routeEstimateLine = routeDistanceMeters && routeDurationMinutes
+      ? `Rota estimada: ${(routeDistanceMeters / 1000).toLocaleString("pt-BR", { minimumFractionDigits: routeDistanceMeters < 10000 ? 1 : 0, maximumFractionDigits: 1 })} km, ${routeDurationMinutes} min na ida.`
       : "";
-    const notes = [routeEstimateLine, userNotes].filter(Boolean).join("\n").slice(0, 700);
+    const returnLine = hasReturn ? `Volta: ${formatBrazilDate(returnDate)} às ${formatBrazilTime(returnTime)}.` : "";
+    const waitLine = waitAtDestination ? `Espera solicitada no local: ${waitMinutes} min.` : "";
+    const notes = [routeEstimateLine, returnLine, waitLine, userNotes].filter(Boolean).join("\n").slice(0, 700);
 
     const { data: driverSettings } = await supabase
       .from("driver_settings")
@@ -155,25 +259,34 @@ export async function POST(request: Request) {
       .eq("user_id", profile.user_id)
       .maybeSingle();
     const defaultDurationMinutes = Math.max(15, Math.min(720, Number(driverSettings?.default_reservation_duration_minutes || 60)));
-    const durationMinutes = routeDurationMinutes
+    let durationMinutes = routeDurationMinutes
       ? Math.max(15, Math.min(720, routeDurationMinutes))
       : defaultDurationMinutes;
 
-    if (travelTime) {
-      const { data: conflicts, error: conflictError } = await supabase.rpc("driver_schedule_conflicts", {
-        p_driver_user_id: profile.user_id,
-        p_travel_date: travelDate,
-        p_travel_time: travelTime,
-        p_duration_minutes: durationMinutes,
-        p_exclude_reservation_id: null,
-      });
-      if (conflictError) {
-        console.warn("Falha ao validar agenda:", conflictError);
-        return NextResponse.json({ ok: false, error: "Nao foi possivel validar este horario agora." }, { status: 503 });
+    if (waitAtDestination && hasReturn && returnDate === travelDate) {
+      const continuousMinutes = Math.ceil((scheduleTimestamp(returnDate, returnTime) - scheduleTimestamp(travelDate, travelTime)) / 60000)
+        + (routeDurationMinutes || defaultDurationMinutes);
+      durationMinutes = Math.max(durationMinutes, Math.min(720, continuousMinutes));
+    } else if (waitAtDestination) {
+      durationMinutes = Math.min(720, durationMinutes + waitMinutes);
+    }
+
+    try {
+      if (await hasScheduleConflict(supabase, profile.user_id, travelDate, travelTime, durationMinutes)) {
+        return NextResponse.json({ ok: false, error: "O horário da ida não está disponível. Escolha outro." }, { status: 409 });
       }
-      if (Array.isArray(conflicts) && conflicts.length) {
-        return NextResponse.json({ ok: false, error: "Esse horario nao esta disponivel. Escolha outro horario ou envie sem horario definido." }, { status: 409 });
+      if (hasReturn && await hasScheduleConflict(
+        supabase,
+        profile.user_id,
+        returnDate,
+        returnTime,
+        Math.max(15, Math.min(720, routeDurationMinutes || defaultDurationMinutes)),
+      )) {
+        return NextResponse.json({ ok: false, error: "O horário da volta não está disponível. Escolha outro." }, { status: 409 });
       }
+    } catch (error) {
+      console.warn("Falha ao validar agenda:", error);
+      return NextResponse.json({ ok: false, error: "Não foi possível validar os horários agora." }, { status: 503 });
     }
 
     const requestHash = fingerprint(request, profile.user_id);
@@ -191,15 +304,29 @@ export async function POST(request: Request) {
       .from("driver_reservations")
       .insert({
         driver_user_id: profile.user_id,
+        passenger_user_id: userId,
         package_id: selectedPackage?.id ?? null,
         campaign_id: campaignId,
         passenger_name: passengerName,
         passenger_phone: passengerPhone,
-        origin: origin || null,
-        destination: destination || null,
+        origin,
+        destination,
+        origin_place_id: (catalogRouteMatches ? (selectedPackage?.origin_place_id ?? originPlaceId) : originPlaceId) || null,
+        origin_latitude: catalogRouteMatches ? (selectedPackage?.origin_latitude ?? originLatitude) : originLatitude,
+        origin_longitude: catalogRouteMatches ? (selectedPackage?.origin_longitude ?? originLongitude) : originLongitude,
+        destination_place_id: (catalogRouteMatches ? (selectedPackage?.destination_place_id ?? destinationPlaceId) : destinationPlaceId) || null,
+        destination_latitude: catalogRouteMatches ? (selectedPackage?.destination_latitude ?? destinationLatitude) : destinationLatitude,
+        destination_longitude: catalogRouteMatches ? (selectedPackage?.destination_longitude ?? destinationLongitude) : destinationLongitude,
+        route_distance_meters: routeDistanceMeters,
+        route_duration_seconds: routeDurationSeconds,
         travel_date: travelDate,
-        travel_time: travelTime || null,
+        travel_time: travelTime,
         trip_type: tripType,
+        has_return: hasReturn,
+        return_date: hasReturn ? returnDate : null,
+        return_time: hasReturn ? returnTime : null,
+        wait_at_destination: waitAtDestination,
+        wait_minutes: waitMinutes,
         passengers,
         luggage: luggage || null,
         notes: notes || null,
@@ -213,21 +340,36 @@ export async function POST(request: Request) {
 
     if (insertError || !reservation) {
       if (insertError?.message?.includes("AGENDA_CONFLICT")) {
-        return NextResponse.json({ ok: false, error: "Esse horario acabou de ficar indisponivel. Escolha outro horario." }, { status: 409 });
+        return NextResponse.json({ ok: false, error: "Um dos horários acabou de ficar indisponível. Escolha outro." }, { status: 409 });
       }
+      if (insertError?.message?.includes("RETURN_BEFORE_OUTBOUND")) {
+        return NextResponse.json({ ok: false, error: "A volta precisa acontecer depois da ida." }, { status: 400 });
+      }
+      if (insertError?.message?.includes("RETURN_BEFORE_EXPECTED_TIME")) {
+        return NextResponse.json({
+          ok: false,
+          error: "O horário da volta precisa considerar o trajeto de ida e o tempo de espera.",
+        }, { status: 400 });
+      }
+      console.error("Falha ao inserir reserva:", insertError);
       return NextResponse.json({ ok: false, error: "Não foi possível registrar a solicitação." }, { status: 500 });
     }
 
-    const route = [origin, destination].filter(Boolean).join(" → ");
-    const dateLabel = formatBrazilDate(travelDate);
+    const route = `${origin} → ${destination}`;
     const title = "🚨 Nova solicitação de corrida";
-    const message = `${passengerName}${selectedPackage ? ` pediu “${selectedPackage.title}”` : route ? ` pediu ${route}` : " enviou uma reserva"} para ${dateLabel}${travelTime ? ` às ${formatBrazilTime(travelTime)}` : ""}.`;
+    const details = [
+      `${passengerName} pediu ${selectedPackage ? `“${selectedPackage.title}”` : route}`,
+      `para ${formatBrazilDate(travelDate)} às ${formatBrazilTime(travelTime)}`,
+      hasReturn ? `com volta em ${formatBrazilDate(returnDate)} às ${formatBrazilTime(returnTime)}` : "",
+      waitAtDestination ? `e ${waitMinutes} min de espera` : "",
+    ].filter(Boolean).join(" ");
+    const notificationMessage = `${details}.`;
 
     const { data: notification } = await supabase
       .from("notifications")
       .insert({
         title,
-        message,
+        message: notificationMessage,
         audience: "member",
         category: "reservations",
         action_url: `/motorista/reservas/${reservation.id}`,
@@ -246,7 +388,7 @@ export async function POST(request: Request) {
         const pushResult = await sendPushNotification({
           id: notification.id,
           title,
-          message,
+          message: notificationMessage,
           audience: "member",
           category: "reservations",
           actionUrl: `/motorista/reservas/${reservation.id}`,

@@ -1,9 +1,9 @@
 {
   "name": "jne-app-jean-na-estrada",
-  "version": "2.0.2",
+  "version": "2.1.0",
   "private": true,
   "engines": {
-    "node": ">=22.0.0"
+    "node": "22.x"
   },
   "scripts": {
     "dev": "next dev",

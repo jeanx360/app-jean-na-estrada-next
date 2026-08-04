@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
 
 type Props = { searchParams: Promise<{ customer?: string; reservation?: string }> };
 
-const ROUTE_ESTIMATE_PATTERN = /Estimativa automática do Google Maps:\s*([\d.,]+)\s*km,\s*(\d+)\s*min\.\s*/i;
+const ROUTE_ESTIMATE_PATTERN = /(?:Estimativa automática do Google Maps|Rota estimada):\s*([\d.,]+)\s*km,\s*(\d+)\s*min(?:\s*na ida)?\.\s*/i;
 
 function routeEstimateFromNotes(notes: string | null | undefined) {
   const text = notes || "";
@@ -54,6 +54,12 @@ export default async function NewDriverQuotePage({ searchParams }: Props) {
   const selectedCustomer = ((customerData ?? []) as DriverCustomer[]).find((customer) => customer.id === query.customer) ?? null;
   const reservation = reservationData as DriverReservation | null;
   const routeEstimate = routeEstimateFromNotes(reservation?.notes);
+  const structuredDistanceKm = reservation?.route_distance_meters
+    ? reservation.route_distance_meters / 1000
+    : undefined;
+  const structuredDurationMinutes = reservation?.route_duration_seconds
+    ? Math.max(1, Math.round(reservation.route_duration_seconds / 60))
+    : undefined;
 
   return (
     <div className="page-stack driver-page">
@@ -72,8 +78,8 @@ export default async function NewDriverQuotePage({ searchParams }: Props) {
           travelDate: reservation?.travel_date || "",
           travelTime: reservation?.travel_time || "",
           tripType: reservation?.trip_type || "outbound",
-          distancePerLegKm: routeEstimate.distancePerLegKm,
-          durationPerLegMinutes: routeEstimate.durationPerLegMinutes,
+          distancePerLegKm: structuredDistanceKm ?? routeEstimate.distancePerLegKm,
+          durationPerLegMinutes: structuredDurationMinutes ?? routeEstimate.durationPerLegMinutes,
           notes: routeEstimate.notes,
         }}
       />

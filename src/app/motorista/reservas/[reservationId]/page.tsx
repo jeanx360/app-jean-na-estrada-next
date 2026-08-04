@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CalendarDays, ContactRound, FileText, Luggage, MapPin, MessageCircle, Phone, ReceiptText, Timer, Users, WalletCards } from "lucide-react";
+import { AlarmClock, CalendarDays, Clock3, ContactRound, FileText, Luggage, MapPin, MessageCircle, Navigation, Phone, ReceiptText, Route, Timer, Users, WalletCards } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
 import { DriverReservationActions } from "@/components/DriverReservationActions";
 import { DriverReservationProgress } from "@/components/DriverReservationProgress";
@@ -15,6 +15,7 @@ import { DRIVER_RESERVATION_STATUS_LABELS, reservationWhatsAppUrl, type DriverRe
 import { formatBrazilDate, formatBrazilTime } from "@/lib/date-time";
 import { durationLabel } from "@/lib/driver-schedule";
 import type { DriverNetworkMember } from "@/lib/driver-network";
+import { formatRouteDistance, formatRouteDuration, googleMapsDirectionsUrl, googleMapsNavigationUrl, wazeNavigationUrl } from "@/lib/map-links";
 
 export const metadata: Metadata = { title: "Solicitação de corrida" };
 export const dynamic = "force-dynamic";
@@ -42,6 +43,14 @@ export default async function DriverReservationDetailPage({ params }: Props) {
   const networkMembers = ((networkMembersResult.data ?? []) as DriverNetworkMember[])
     .filter((member) => member.accepts_referrals);
   const route = [reservation.origin, reservation.destination].filter(Boolean).join(" → ") || reservation.driver_service_packages?.title || "Solicitação de corrida";
+  const outboundOrigin = { label: reservation.origin, latitude: reservation.origin_latitude, longitude: reservation.origin_longitude };
+  const outboundDestination = { label: reservation.destination, latitude: reservation.destination_latitude, longitude: reservation.destination_longitude };
+  const pickupGoogleMapsUrl = googleMapsNavigationUrl(outboundOrigin);
+  const pickupWazeUrl = wazeNavigationUrl(outboundOrigin);
+  const tripGoogleMapsUrl = googleMapsDirectionsUrl(outboundOrigin, outboundDestination);
+  const returnGoogleMapsUrl = reservation.has_return
+    ? googleMapsDirectionsUrl(outboundDestination, outboundOrigin)
+    : "";
 
   return (
     <div className="page-stack driver-page">
@@ -56,7 +65,10 @@ export default async function DriverReservationDetailPage({ params }: Props) {
             <dl>
               <div><dt><CalendarDays size={17} /> Data e horário</dt><dd>{reservation.travel_date ? formatBrazilDate(reservation.travel_date) : "A combinar"}{reservation.travel_time ? ` às ${formatBrazilTime(reservation.travel_time)}` : ""}</dd></div>
               <div><dt><Users size={17} /> Passageiros</dt><dd>{reservation.passengers}</dd></div>
-              <div><dt><Timer size={17} /> Duração prevista</dt><dd>{durationLabel(reservation.duration_minutes || 60)}</dd></div>
+              <div><dt><Timer size={17} /> Duração prevista</dt><dd>{reservation.route_duration_seconds ? formatRouteDuration(reservation.route_duration_seconds) : durationLabel(reservation.duration_minutes || 60)}</dd></div>
+              {reservation.route_distance_meters ? <div><dt><Route size={17} /> Distância estimada</dt><dd>{formatRouteDistance(reservation.route_distance_meters)}</dd></div> : null}
+              {reservation.has_return ? <div><dt><CalendarDays size={17} /> Volta</dt><dd>{reservation.return_date ? formatBrazilDate(reservation.return_date) : "A combinar"}{reservation.return_time ? ` às ${formatBrazilTime(reservation.return_time)}` : ""}</dd></div> : null}
+              {reservation.wait_at_destination ? <div><dt><Clock3 size={17} /> Espera no local</dt><dd>{durationLabel(reservation.wait_minutes)}</dd></div> : null}
               <div><dt><Phone size={17} /> WhatsApp</dt><dd>{reservation.passenger_phone}</dd></div>
               <div><dt><Luggage size={17} /> Bagagens</dt><dd>{reservation.luggage || "Não informado"}</dd></div>
             </dl>
@@ -66,6 +78,29 @@ export default async function DriverReservationDetailPage({ params }: Props) {
               {reservation.customer_id ? <Link className="button button--secondary" href={`/motorista/clientes/${reservation.customer_id}`}><ContactRound size={18} /> Ver cliente</Link> : null}
               {!quote ? <Link className="button button--primary" href={`/motorista/orcamentos/novo?reservation=${reservation.id}`}><FileText size={18} /> Criar orçamento</Link> : <Link className="button button--primary" href={`/motorista/orcamentos/${quote.id}`}><FileText size={18} /> Abrir orçamento</Link>}
             </div>
+          </section>
+
+          <section className="driver-navigation-card">
+            <div><span className="eyebrow">SAÍDA E LEMBRETE</span><h2>Abra a rota com um toque</h2><p>Use o navegador do celular e adicione um alarme ao calendário para não esquecer a corrida.</p></div>
+            <div className="driver-navigation-card__buttons">
+              <a className="button button--primary" href={pickupGoogleMapsUrl} target="_blank" rel="noreferrer"><Navigation size={18} /> Buscar no Google Maps</a>
+              <a className="button button--secondary" href={pickupWazeUrl} target="_blank" rel="noreferrer"><Navigation size={18} /> Buscar no Waze</a>
+              <a className="button button--secondary" href={tripGoogleMapsUrl} target="_blank" rel="noreferrer"><Route size={18} /> Trajeto da corrida</a>
+              {reservation.has_return ? <a className="button button--secondary" href={returnGoogleMapsUrl} target="_blank" rel="noreferrer"><Route size={18} /> Rota da volta</a> : null}
+            </div>
+            {reservation.travel_date && reservation.travel_time ? (
+              <form className="driver-calendar-alarm-form" method="get" action={`/api/motorista/reservas/${reservation.id}/calendar`}>
+                <label><span>Lembrar antes da ida</span><select name="reminder" defaultValue="60"><option value="15">15 minutos</option><option value="30">30 minutos</option><option value="60">1 hora</option><option value="120">2 horas</option><option value="1440">1 dia</option></select></label>
+                <button className="button button--secondary" type="submit"><AlarmClock size={18} /> Adicionar ao calendário</button>
+              </form>
+            ) : <p className="auth-message auth-message--warning">Defina data e horário para criar o lembrete.</p>}
+            {reservation.has_return && reservation.return_date && reservation.return_time ? (
+              <form className="driver-calendar-alarm-form" method="get" action={`/api/motorista/reservas/${reservation.id}/calendar`}>
+                <input type="hidden" name="leg" value="return" />
+                <label><span>Lembrar antes da volta</span><select name="reminder" defaultValue="60"><option value="15">15 minutos</option><option value="30">30 minutos</option><option value="60">1 hora</option><option value="120">2 horas</option><option value="1440">1 dia</option></select></label>
+                <button className="button button--secondary" type="submit"><AlarmClock size={18} /> Lembrete da volta</button>
+              </form>
+            ) : null}
           </section>
 
           {quote ? (

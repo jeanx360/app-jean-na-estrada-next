@@ -51,8 +51,23 @@ function dayNumber(dateKey: string) {
   return String(Number(dateKey.slice(-2)));
 }
 
-function scheduleTime(item: DriverReservation) {
-  return item.travel_time ? formatBrazilTime(item.travel_time) : "A combinar";
+type ScheduleEntry = {
+  reservation: DriverReservation;
+  leg: "outbound" | "return";
+  date: string;
+  time: string | null;
+  durationMinutes: number;
+};
+
+function scheduleTime(item: ScheduleEntry) {
+  return item.time ? formatBrazilTime(item.time) : "A combinar";
+}
+
+function entryRouteLabel(item: ScheduleEntry) {
+  if (item.leg === "return") {
+    return [item.reservation.destination, item.reservation.origin].filter(Boolean).join(" → ") || "Rota da volta";
+  }
+  return reservationScheduleLabel(item.reservation);
 }
 
 export default async function DriverAgendaPage({ searchParams }: Props) {
@@ -71,8 +86,7 @@ export default async function DriverAgendaPage({ searchParams }: Props) {
       .from("driver_reservations")
       .select("*, driver_service_packages(id,title,pricing_type,price)")
       .eq("driver_user_id", userId)
-      .gte("travel_date", bounds.start)
-      .lte("travel_date", bounds.end)
+      .or(`and(travel_date.gte.${bounds.start},travel_date.lte.${bounds.end}),and(return_date.gte.${bounds.start},return_date.lte.${bounds.end})`)
       .order("travel_date", { ascending: true })
       .order("travel_time", { ascending: true }),
     supabase
@@ -92,18 +106,41 @@ export default async function DriverAgendaPage({ searchParams }: Props) {
 
   const reservations = ((reservationData ?? []) as DriverReservation[]).sort((first, second) => scheduleSortKey(first).localeCompare(scheduleSortKey(second)));
   const blocks = (blockData ?? []) as DriverScheduleBlock[];
-  const dayReservations = reservations.filter((item) => item.travel_date === selectedDay);
+  const entries: ScheduleEntry[] = reservations.flatMap((reservation) => {
+    const result: ScheduleEntry[] = [];
+    if (reservation.travel_date) {
+      result.push({
+        reservation,
+        leg: "outbound",
+        date: reservation.travel_date,
+        time: reservation.travel_time,
+        durationMinutes: reservation.duration_minutes || 60,
+      });
+    }
+    if (reservation.has_return && reservation.return_date) {
+      result.push({
+        reservation,
+        leg: "return",
+        date: reservation.return_date,
+        time: reservation.return_time,
+        durationMinutes: reservation.route_duration_seconds
+          ? Math.max(15, Math.ceil(reservation.route_duration_seconds / 60))
+          : reservation.duration_minutes || 60,
+      });
+    }
+    return result;
+  }).sort((first, second) => `${first.date}T${first.time || "99:99"}`.localeCompare(`${second.date}T${second.time || "99:99"}`));
+  const dayEntries = entries.filter((item) => item.date === selectedDay);
   const dayBlocks = blocks.filter((item) => item.block_date === selectedDay);
   const activeReservations = reservations.filter((item) => !TERMINAL_STATUSES.has(item.status));
   const confirmedCount = activeReservations.filter((item) => ["confirmed", "in_progress"].includes(item.status)).length;
   const pendingCount = activeReservations.filter((item) => ["new", "negotiating", "quoted"].includes(item.status)).length;
   const days = calendarDays(month);
-  const reservationsByDay = new Map<string, DriverReservation[]>();
+  const reservationsByDay = new Map<string, ScheduleEntry[]>();
   const blocksByDay = new Map<string, DriverScheduleBlock[]>();
 
-  for (const reservation of reservations) {
-    if (!reservation.travel_date) continue;
-    reservationsByDay.set(reservation.travel_date, [...(reservationsByDay.get(reservation.travel_date) ?? []), reservation]);
+  for (const entry of entries) {
+    reservationsByDay.set(entry.date, [...(reservationsByDay.get(entry.date) ?? []), entry]);
   }
   for (const block of blocks) {
     blocksByDay.set(block.block_date, [...(blocksByDay.get(block.block_date) ?? []), block]);
@@ -150,7 +187,7 @@ export default async function DriverAgendaPage({ searchParams }: Props) {
           {days.map((dateKey) => {
             const dayItems = reservationsByDay.get(dateKey) ?? [];
             const dayBlockItems = blocksByDay.get(dateKey) ?? [];
-            const activeItems = dayItems.filter((item) => !TERMINAL_STATUSES.has(item.status));
+            const activeItems = dayItems.filter((item) => !TERMINAL_STATUSES.has(item.reservation.status));
             const outside = !dateKey.startsWith(`${month}-`);
             const selected = dateKey === selectedDay;
             const isToday = dateKey === today;
@@ -162,7 +199,7 @@ export default async function DriverAgendaPage({ searchParams }: Props) {
               >
                 <span className="driver-calendar-day__number">{dayNumber(dateKey)}</span>
                 <span className="driver-calendar-day__events">
-                  {activeItems.slice(0, 3).map((item) => <i key={item.id} className={`driver-calendar-dot driver-calendar-dot--${item.status}`} />)}
+                  {activeItems.slice(0, 3).map((item) => <i key={`${item.reservation.id}-${item.leg}`} className={`driver-calendar-dot driver-calendar-dot--${item.reservation.status}`} />)}
                   {dayBlockItems.length ? <i className="driver-calendar-dot driver-calendar-dot--block" /> : null}
                 </span>
                 {activeItems.length || dayBlockItems.length ? <small>{activeItems.length + dayBlockItems.length}</small> : null}
@@ -174,7 +211,7 @@ export default async function DriverAgendaPage({ searchParams }: Props) {
 
       <section className="driver-schedule-day">
         <div className="driver-schedule-day__heading">
-          <div><span className="eyebrow">AGENDA DO DIA</span><h2>{dateLabel(selectedDay)}</h2><p>{dayReservations.length} reserva(s) e {dayBlocks.length} bloqueio(s).</p></div>
+          <div><span className="eyebrow">AGENDA DO DIA</span><h2>{dateLabel(selectedDay)}</h2><p>{dayEntries.length} etapa(s) de corrida e {dayBlocks.length} bloqueio(s).</p></div>
           <Link className="button button--secondary" href={`/motorista/reservas?period=all&q=${encodeURIComponent(selectedDay)}`}>Ver na central <ArrowRight size={17} /></Link>
         </div>
 
@@ -191,20 +228,23 @@ export default async function DriverAgendaPage({ searchParams }: Props) {
               </article>
             ))}
 
-            {dayReservations.map((reservation) => (
-              <Link key={reservation.id} className={`driver-schedule-entry driver-schedule-entry--${reservation.status}`} href={`/motorista/reservas/${reservation.id}`}>
-                <div className="driver-schedule-entry__time"><Clock3 size={18} /><strong>{scheduleTime(reservation)}</strong><small>{durationLabel(reservation.duration_minutes || defaultDuration)}</small></div>
-                <div className="driver-schedule-entry__body">
-                  <span className={`driver-reservation-badge driver-reservation-badge--${reservation.status}`}>{DRIVER_RESERVATION_STATUS_LABELS[reservation.status]}</span>
-                  <h3>{reservation.passenger_name}</h3>
-                  <p><MapPin size={15} /> {reservationScheduleLabel(reservation)}</p>
-                  <small><Users size={14} /> {reservation.passengers} passageiro(s)</small>
-                </div>
-                <ArrowRight size={18} />
-              </Link>
-            ))}
+            {dayEntries.map((entry) => {
+              const reservation = entry.reservation;
+              return (
+                <Link key={`${reservation.id}-${entry.leg}`} className={`driver-schedule-entry driver-schedule-entry--${reservation.status}`} href={`/motorista/reservas/${reservation.id}`}>
+                  <div className="driver-schedule-entry__time"><Clock3 size={18} /><strong>{scheduleTime(entry)}</strong><small>{durationLabel(entry.durationMinutes || defaultDuration)}</small></div>
+                  <div className="driver-schedule-entry__body">
+                    <span className={`driver-reservation-badge driver-reservation-badge--${reservation.status}`}>{entry.leg === "return" ? "VOLTA" : DRIVER_RESERVATION_STATUS_LABELS[reservation.status]}</span>
+                    <h3>{reservation.passenger_name}</h3>
+                    <p><MapPin size={15} /> {entryRouteLabel(entry)}</p>
+                    <small><Users size={14} /> {reservation.passengers} passageiro(s)</small>
+                  </div>
+                  <ArrowRight size={18} />
+                </Link>
+              );
+            })}
 
-            {!dayBlocks.length && !dayReservations.length ? (
+            {!dayBlocks.length && !dayEntries.length ? (
               <div className="driver-schedule-day-empty"><CalendarDays size={30} /><strong>Dia livre</strong><p>Nenhuma reserva ou bloqueio registrado para esta data.</p></div>
             ) : null}
           </div>
