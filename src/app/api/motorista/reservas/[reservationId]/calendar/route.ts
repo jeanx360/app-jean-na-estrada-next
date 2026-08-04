@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAuthContext } from "@/lib/auth";
-import { googleMapsDirectionsUrl, googleMapsNavigationUrl } from "@/lib/map-links";
+import { googleMapsDirectionsUrl, googleMapsNavigationUrl, googleMapsPickupThenDestinationUrl } from "@/lib/map-links";
 import type { DriverReservation } from "@/lib/driver-public";
 
 export const dynamic = "force-dynamic";
@@ -88,14 +88,16 @@ export async function GET(request: Request, { params }: Props) {
   const route = [origin.label, destination.label].filter(Boolean).join(" → ");
   const pickupUrl = googleMapsNavigationUrl(origin);
   const routeUrl = googleMapsDirectionsUrl(origin, destination);
+  const completeRouteUrl = googleMapsPickupThenDestinationUrl(origin, destination);
   const description = [
     route,
     `Passageiro: ${reservation.passenger_name}`,
     `WhatsApp: ${reservation.passenger_phone}`,
     reservation.wait_at_destination ? `Espera prevista: ${reservation.wait_minutes} min` : "",
     reservation.notes || "",
-    `Ir ao ponto de partida: ${pickupUrl}`,
-    `Abrir trajeto completo: ${routeUrl}`,
+    `Abrir rota completa (local atual → passageiro → destino): ${completeRouteUrl}`,
+    `Ir somente ao ponto de partida: ${pickupUrl}`,
+    `Abrir somente o trajeto da corrida: ${routeUrl}`,
   ].filter(Boolean).join("\n");
   const dtStart = `${compactDate(date)}T${compactTime(time)}`;
   const dtEnd = addMinutes(date, time, durationMinutes);
@@ -125,7 +127,7 @@ export async function GET(request: Request, { params }: Props) {
     `SUMMARY:${escapeIcs(summary)}`,
     `LOCATION:${escapeIcs(origin.label || route)}`,
     `DESCRIPTION:${escapeIcs(description)}`,
-    `URL:${pickupUrl}`,
+    `URL:${completeRouteUrl}`,
     "STATUS:CONFIRMED",
     "BEGIN:VALARM",
     `TRIGGER:-PT${reminderMinutes}M`,

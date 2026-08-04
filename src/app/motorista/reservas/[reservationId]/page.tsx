@@ -15,7 +15,7 @@ import { DRIVER_RESERVATION_STATUS_LABELS, reservationWhatsAppUrl, type DriverRe
 import { formatBrazilDate, formatBrazilTime } from "@/lib/date-time";
 import { durationLabel } from "@/lib/driver-schedule";
 import type { DriverNetworkMember } from "@/lib/driver-network";
-import { formatRouteDistance, formatRouteDuration, googleMapsDirectionsUrl, googleMapsNavigationUrl, wazeNavigationUrl } from "@/lib/map-links";
+import { formatRouteDistance, formatRouteDuration, googleMapsDirectionsUrl, googleMapsPickupThenDestinationUrl, wazeNavigationUrl } from "@/lib/map-links";
 
 export const metadata: Metadata = { title: "Solicitação de corrida" };
 export const dynamic = "force-dynamic";
@@ -45,11 +45,12 @@ export default async function DriverReservationDetailPage({ params }: Props) {
   const route = [reservation.origin, reservation.destination].filter(Boolean).join(" → ") || reservation.driver_service_packages?.title || "Solicitação de corrida";
   const outboundOrigin = { label: reservation.origin, latitude: reservation.origin_latitude, longitude: reservation.origin_longitude };
   const outboundDestination = { label: reservation.destination, latitude: reservation.destination_latitude, longitude: reservation.destination_longitude };
-  const pickupGoogleMapsUrl = googleMapsNavigationUrl(outboundOrigin);
+  const completeGoogleMapsUrl = googleMapsPickupThenDestinationUrl(outboundOrigin, outboundDestination);
   const pickupWazeUrl = wazeNavigationUrl(outboundOrigin);
+  const destinationWazeUrl = wazeNavigationUrl(outboundDestination);
   const tripGoogleMapsUrl = googleMapsDirectionsUrl(outboundOrigin, outboundDestination);
   const returnGoogleMapsUrl = reservation.has_return
-    ? googleMapsDirectionsUrl(outboundDestination, outboundOrigin)
+    ? googleMapsPickupThenDestinationUrl(outboundDestination, outboundOrigin)
     : "";
 
   return (
@@ -83,10 +84,11 @@ export default async function DriverReservationDetailPage({ params }: Props) {
           <section className="driver-navigation-card">
             <div><span className="eyebrow">SAÍDA E LEMBRETE</span><h2>Abra a rota com um toque</h2><p>Use o navegador do celular e adicione um alarme ao calendário para não esquecer a corrida.</p></div>
             <div className="driver-navigation-card__buttons">
-              <a className="button button--primary" href={pickupGoogleMapsUrl} target="_blank" rel="noreferrer"><Navigation size={18} /> Buscar no Google Maps</a>
-              <a className="button button--secondary" href={pickupWazeUrl} target="_blank" rel="noreferrer"><Navigation size={18} /> Buscar no Waze</a>
-              <a className="button button--secondary" href={tripGoogleMapsUrl} target="_blank" rel="noreferrer"><Route size={18} /> Trajeto da corrida</a>
-              {reservation.has_return ? <a className="button button--secondary" href={returnGoogleMapsUrl} target="_blank" rel="noreferrer"><Route size={18} /> Rota da volta</a> : null}
+              <a className="button button--primary" href={completeGoogleMapsUrl} target="_blank" rel="noreferrer"><Navigation size={18} /> Maps: buscar e levar</a>
+              <a className="button button--secondary" href={pickupWazeUrl} target="_blank" rel="noreferrer"><Navigation size={18} /> Waze: buscar passageiro</a>
+              <a className="button button--secondary" href={destinationWazeUrl} target="_blank" rel="noreferrer"><Route size={18} /> Waze: seguir ao destino</a>
+              <a className="button button--secondary" href={tripGoogleMapsUrl} target="_blank" rel="noreferrer"><Route size={18} /> Somente trajeto da corrida</a>
+              {reservation.has_return ? <a className="button button--secondary" href={returnGoogleMapsUrl} target="_blank" rel="noreferrer"><Route size={18} /> Maps: buscar para a volta</a> : null}
             </div>
             {reservation.travel_date && reservation.travel_time ? (
               <form className="driver-calendar-alarm-form" method="get" action={`/api/motorista/reservas/${reservation.id}/calendar`}>

@@ -4,12 +4,17 @@ export type NavigationPoint = {
   longitude?: number | null;
 };
 
-function coordinateValue(point: NavigationPoint) {
+function coordinatePair(point: NavigationPoint) {
+  if (point.latitude == null || point.longitude == null) return null;
   const latitude = Number(point.latitude);
   const longitude = Number(point.longitude);
-  if (Number.isFinite(latitude) && Number.isFinite(longitude)) {
-    return `${latitude},${longitude}`;
-  }
+  if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return null;
+  return { latitude, longitude };
+}
+
+function coordinateValue(point: NavigationPoint) {
+  const coordinates = coordinatePair(point);
+  if (coordinates) return `${coordinates.latitude},${coordinates.longitude}`;
   return point.label?.trim() || "";
 }
 
@@ -33,7 +38,7 @@ export function formatRouteDuration(seconds?: number | null) {
 
 export function googleMapsNavigationUrl(destination: NavigationPoint) {
   const destinationValue = coordinateValue(destination);
-  const params = new URLSearchParams({ api: "1", travelmode: "driving" });
+  const params = new URLSearchParams({ api: "1", travelmode: "driving", dir_action: "navigate" });
   if (destinationValue) params.set("destination", destinationValue);
   return `https://www.google.com/maps/dir/?${params.toString()}`;
 }
@@ -47,9 +52,34 @@ export function googleMapsDirectionsUrl(origin: NavigationPoint, destination: Na
   return `https://www.google.com/maps/dir/?${params.toString()}`;
 }
 
-export function wazeNavigationUrl(destination: NavigationPoint) {
+export function googleMapsPickupThenDestinationUrl(
+  pickup: NavigationPoint,
+  destination: NavigationPoint,
+) {
+  const pickupValue = coordinateValue(pickup);
   const destinationValue = coordinateValue(destination);
-  const params = new URLSearchParams({ navigate: "yes" });
-  if (destinationValue) params.set("q", destinationValue);
+  const params = new URLSearchParams({ api: "1", travelmode: "driving", dir_action: "navigate" });
+
+  if (pickupValue && destinationValue) {
+    params.set("waypoints", pickupValue);
+    params.set("destination", destinationValue);
+  } else if (pickupValue) {
+    params.set("destination", pickupValue);
+  } else if (destinationValue) {
+    params.set("destination", destinationValue);
+  }
+
+  return `https://www.google.com/maps/dir/?${params.toString()}`;
+}
+
+export function wazeNavigationUrl(destination: NavigationPoint) {
+  const params = new URLSearchParams({ navigate: "yes", utm_source: "jneapp" });
+  const coordinates = coordinatePair(destination);
+  if (coordinates) {
+    params.set("ll", `${coordinates.latitude},${coordinates.longitude}`);
+  } else {
+    const label = destination.label?.trim();
+    if (label) params.set("q", label);
+  }
   return `https://waze.com/ul?${params.toString()}`;
 }
