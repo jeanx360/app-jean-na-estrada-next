@@ -250,6 +250,29 @@ export function verifyOpenRouteToken(token: string, origin: string, destination:
   }
 }
 
+const ROUTABLE_POINT_RADII_METERS = [1_500, 5_000] as const;
+
+function isRoutablePointError(error: unknown) {
+  return error instanceof Error
+    && /could not find routable point|within a radius of/i.test(error.message);
+}
+
+async function requestOpenDrivingRoute(
+  coordinates: [RouteCoordinate, RouteCoordinate],
+  radiusMeters: number,
+) {
+  return fetchJson(`${apiBase()}/openrouteservice/v2/directions/driving-car/geojson`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      coordinates,
+      radiuses: [radiusMeters, radiusMeters],
+      language: "pt",
+      instructions: false,
+    }),
+  });
+}
+
 export async function computeOpenDrivingRoute(originInput: OpenRoutePoint, destinationInput: OpenRoutePoint): Promise<OpenRouteEstimate> {
   const origin = await resolvePoint(originInput);
   const destination = await resolvePoint(destinationInput);
@@ -261,18 +284,28 @@ export async function computeOpenDrivingRoute(originInput: OpenRoutePoint, desti
     throw new Error("Não foi possível localizar a origem ou o destino.");
   }
 
-  const data = await fetchJson(`${apiBase()}/openrouteservice/v2/directions/driving-car/geojson`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      coordinates: [
-        [originLongitude, originLatitude],
-        [destinationLongitude, destinationLatitude],
-      ],
-      language: "pt",
-      instructions: false,
-    }),
-  });
+  const coordinates: [RouteCoordinate, RouteCoordinate] = [
+    [originLongitude, originLatitude],
+    [destinationLongitude, destinationLatitude],
+  ];
+
+  let data: JsonRecord;
+  try {
+    data = await requestOpenDrivingRoute(coordinates, ROUTABLE_POINT_RADII_METERS[0]);
+  } catch (error) {
+    if (!isRoutablePointError(error)) throw error;
+
+    try {
+      data = await requestOpenDrivingRoute(coordinates, ROUTABLE_POINT_RADII_METERS[1]);
+    } catch (retryError) {
+      if (isRoutablePointError(retryError)) {
+        throw new Error(
+          "Não foi possível ligar a origem ou o destino a uma via para carros. Escolha um endereço mais específico ou um ponto próximo da rua.",
+        );
+      }
+      throw retryError;
+    }
+  }
 
   const firstFeature = Array.isArray(data.features) ? record(data.features[0]) : null;
   const properties = record(firstFeature?.properties);
