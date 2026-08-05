@@ -1,24 +1,43 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Eye, EyeOff, Images, ImageUp, LayoutGrid, Pencil, Trash2 } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  Images,
+  ImageUp,
+  LayoutDashboard,
+  LayoutGrid,
+  Pencil,
+  Trash2,
+} from "lucide-react";
 import {
   deleteHomeSlideAction,
+  deleteHomeVisualBlockAction,
   deleteQuickAccessItemAction,
   toggleHomeSlideAction,
+  toggleHomeVisualBlockAction,
   toggleQuickAccessItemAction,
 } from "@/app/admin/home/actions";
 import { AdminHomeCarouselForm } from "@/components/AdminHomeCarouselForm";
+import { AdminHomeVisualBlockForm } from "@/components/AdminHomeVisualBlockForm";
 import { AdminPublicAssetUploader } from "@/components/AdminPublicAssetUploader";
 import { AdminQuickAccessForm } from "@/components/AdminQuickAccessForm";
 import { ConfirmSubmitButton } from "@/components/ConfirmSubmitButton";
+import { formatBrazilDateTime } from "@/lib/date-time";
 import { requireAdmin } from "@/lib/admin";
 import type { HomeCarouselRow } from "@/types/home-carousel";
 import type { HomeQuickAccessRow } from "@/types/home-quick-access";
-import { formatBrazilDateTime } from "@/lib/date-time";
+import type { HomeVisualBlockRow } from "@/types/home-visual-block";
 
 export const metadata: Metadata = { title: "Personalização da página inicial" };
 
-type Props = { searchParams: Promise<{ edit?: string; quickEdit?: string }> };
+type Props = {
+  searchParams: Promise<{
+    edit?: string;
+    quickEdit?: string;
+    blockEdit?: string;
+  }>;
+};
 
 const sourceLabels = {
   custom: "Personalizado",
@@ -27,10 +46,24 @@ const sourceLabels = {
   public_content: "Publicação",
 } as const;
 
+const blockTypeLabels = {
+  carousel: "Carrossel",
+  cta: "Chamada",
+  utility: "Ferramenta",
+  quick_access: "Acesso rápido",
+  videos: "Vídeos",
+  trust: "Confiança",
+} as const;
+
 export default async function AdminHomePage({ searchParams }: Props) {
-  const { edit, quickEdit } = await searchParams;
+  const { edit, quickEdit, blockEdit } = await searchParams;
   const { supabase } = await requireAdmin();
-  const [quickItemsResult, slidesResult, contentsResult] = await Promise.all([
+  const [visualBlocksResult, quickItemsResult, slidesResult, contentsResult] = await Promise.all([
+    supabase
+      .from("home_visual_blocks")
+      .select("id, block_key, block_type, variant, eyebrow, title, description, action_label, action_url, secondary_action_label, secondary_action_url, icon, accent, metadata, sort_order, is_published, created_at, updated_at")
+      .order("sort_order", { ascending: true })
+      .order("created_at", { ascending: true }),
     supabase
       .from("home_quick_access_items")
       .select("id, title, description, href, icon, accent, sort_order, is_published, created_at, updated_at")
@@ -51,9 +84,11 @@ export default async function AdminHomePage({ searchParams }: Props) {
       .order("title", { ascending: true }),
   ]);
 
+  const visualBlocks = (visualBlocksResult.data ?? []) as HomeVisualBlockRow[];
   const quickItems = (quickItemsResult.data ?? []) as HomeQuickAccessRow[];
   const slides = (slidesResult.data ?? []) as unknown as HomeCarouselRow[];
   const contents = (contentsResult.data ?? []) as Array<{ id: string; title: string; content_type: string }>;
+  const initialVisualBlock = blockEdit ? visualBlocks.find((item) => item.id === blockEdit) ?? null : null;
   const initialQuickItem = quickEdit ? quickItems.find((item) => item.id === quickEdit) ?? null : null;
   const initialSlide = edit ? slides.find((item) => item.id === edit) ?? null : null;
 
@@ -61,11 +96,72 @@ export default async function AdminHomePage({ searchParams }: Props) {
     <div className="admin-content-stack">
       <section className="admin-section">
         <div className="admin-section__heading">
+          <div>
+            <span>{initialVisualBlock ? "EDITAR BLOCO" : "NOVO BLOCO"}</span>
+            <h2><LayoutDashboard size={22} /> Editor visual da home</h2>
+          </div>
+          <strong>{visualBlocks.length}</strong>
+        </div>
+        <p className="admin-section__intro">
+          Os lápis aparecem apenas para administradores logados. Toda alteração salva aqui é publicada no banco e passa a valer para todos os usuários na próxima atualização da página.
+        </p>
+
+        {visualBlocksResult.error ? (
+          <p className="auth-message auth-message--error">
+            A tabela do editor visual ainda não existe. Execute a migração 2.2.1 no Supabase.
+          </p>
+        ) : (
+          <AdminHomeVisualBlockForm initialData={initialVisualBlock} />
+        )}
+
+        <div className="admin-quick-access-list">
+          {visualBlocks.map((block) => (
+            <article key={block.id}>
+              <div>
+                <span className={`admin-status ${block.is_published ? "" : "admin-status--warning"}`}>
+                  {block.is_published ? "Visível" : "Oculto"}
+                </span>
+                <small>
+                  Ordem {block.sort_order} · {blockTypeLabels[block.block_type]} · {block.variant}
+                </small>
+                <h3>{block.title || block.block_key}</h3>
+                <p>{block.description || "Bloco estrutural sem descrição pública."}</p>
+                <code>{block.block_key}</code>
+              </div>
+              <div className="admin-inline-actions">
+                <Link className="button button--secondary" href={`/admin/home?blockEdit=${block.id}#visual-block-form`}>
+                  <Pencil size={16} /> Editar
+                </Link>
+                <form action={toggleHomeVisualBlockAction}>
+                  <input type="hidden" name="blockId" value={block.id} />
+                  <input type="hidden" name="publish" value={block.is_published ? "false" : "true"} />
+                  <button className="button button--secondary" type="submit">
+                    {block.is_published ? <EyeOff size={16} /> : <Eye size={16} />}
+                    {block.is_published ? "Ocultar" : "Exibir"}
+                  </button>
+                </form>
+                <form action={deleteHomeVisualBlockAction}>
+                  <input type="hidden" name="blockId" value={block.id} />
+                  <ConfirmSubmitButton className="button button--danger" message="Excluir este bloco da home para todos os usuários?">
+                    <Trash2 size={16} /> Excluir
+                  </ConfirmSubmitButton>
+                </form>
+              </div>
+            </article>
+          ))}
+          {!visualBlocks.length && !visualBlocksResult.error ? (
+            <p className="admin-empty">Nenhum bloco visual cadastrado.</p>
+          ) : null}
+        </div>
+      </section>
+
+      <section className="admin-section">
+        <div className="admin-section__heading">
           <div><span>{initialQuickItem ? "EDITAR ATALHO" : "NOVO ATALHO"}</span><h2><LayoutGrid size={22} /> Acesso rápido da home</h2></div>
           <strong>{quickItems.length}</strong>
         </div>
         <p className="admin-section__intro">
-          Escolha os cartões que aparecem logo abaixo do carrossel. Você controla título, descrição, ícone, cor, destino, ordem e visibilidade.
+          Escolha os cartões da seção de acesso rápido. Você controla título, descrição, ícone, cor, destino, ordem e visibilidade.
         </p>
 
         {quickItemsResult.error ? (

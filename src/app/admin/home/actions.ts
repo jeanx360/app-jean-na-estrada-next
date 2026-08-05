@@ -8,6 +8,13 @@ import type {
   HomeQuickAccessActionState,
   HomeQuickAccessIcon,
 } from "@/types/home-quick-access";
+import type {
+  HomeVisualBlockAccent,
+  HomeVisualBlockActionState,
+  HomeVisualBlockIcon,
+  HomeVisualBlockType,
+  HomeVisualBlockVariant,
+} from "@/types/home-visual-block";
 
 function readText(formData: FormData, key: string) {
   const value = formData.get(key);
@@ -21,6 +28,102 @@ function optionalDate(value: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) throw new Error("Data ou horário inválido.");
   return date.toISOString();
+}
+
+
+export async function saveHomeVisualBlockAction(
+  _previousState: HomeVisualBlockActionState,
+  formData: FormData,
+): Promise<HomeVisualBlockActionState> {
+  const { supabase, userId } = await requireAdmin();
+  const blockId = readText(formData, "blockId");
+  const blockKey = readText(formData, "blockKey").toLowerCase();
+  const blockType = readText(formData, "blockType") as HomeVisualBlockType;
+  const variant = readText(formData, "variant") as HomeVisualBlockVariant;
+  const icon = readText(formData, "icon") as HomeVisualBlockIcon;
+  const accent = readText(formData, "accent") as HomeVisualBlockAccent;
+  const sortOrder = Number(readText(formData, "sortOrder") || "100");
+
+  const validTypes: HomeVisualBlockType[] = ["carousel", "cta", "utility", "quick_access", "videos", "trust"];
+  const validVariants: HomeVisualBlockVariant[] = ["default", "commercial", "community", "ev", "driver"];
+  const validIcons: HomeVisualBlockIcon[] = ["sparkles", "handshake", "battery", "calculator", "route", "check", "videos", "grid"];
+  const validAccents: HomeVisualBlockAccent[] = ["blue", "cyan", "orange", "violet", "green"];
+
+  if (!/^[a-z0-9_-]{2,80}$/.test(blockKey)) {
+    return { error: "Use de 2 a 80 caracteres no identificador: letras minúsculas, números, hífen ou sublinhado." };
+  }
+  if (!validTypes.includes(blockType)) return { error: "Tipo visual inválido." };
+  if (!validVariants.includes(variant)) return { error: "Variação inválida." };
+  if (!validIcons.includes(icon)) return { error: "Ícone inválido." };
+  if (!validAccents.includes(accent)) return { error: "Cor inválida." };
+  if (!Number.isInteger(sortOrder) || sortOrder < 0 || sortOrder > 100000) {
+    return { error: "A ordem deve ser um número inteiro entre 0 e 100.000." };
+  }
+
+  const title = readText(formData, "title");
+  const description = readText(formData, "description");
+  const actionUrl = readText(formData, "actionUrl");
+  const secondaryActionUrl = readText(formData, "secondaryActionUrl");
+  const isValidUrl = (value: string) => !value || value.startsWith("/") || /^https:\/\//i.test(value);
+
+  if (title.length > 160) return { error: "O título pode ter no máximo 160 caracteres." };
+  if (description.length > 500) return { error: "A descrição pode ter no máximo 500 caracteres." };
+  if (!isValidUrl(actionUrl) || !isValidUrl(secondaryActionUrl)) {
+    return { error: "Os destinos devem começar com / ou https://." };
+  }
+
+  const payload = {
+    block_key: blockKey,
+    block_type: blockType,
+    variant,
+    eyebrow: readText(formData, "eyebrow") || null,
+    title: title || null,
+    description: description || null,
+    action_label: readText(formData, "actionLabel") || null,
+    action_url: actionUrl || null,
+    secondary_action_label: readText(formData, "secondaryActionLabel") || null,
+    secondary_action_url: secondaryActionUrl || null,
+    icon,
+    accent,
+    sort_order: sortOrder,
+    is_published: readBoolean(formData, "isPublished"),
+    created_by: userId,
+  };
+
+  const query = blockId
+    ? supabase.from("home_visual_blocks").update(payload).eq("id", blockId)
+    : supabase.from("home_visual_blocks").insert(payload);
+  const { error } = await query;
+
+  if (error) {
+    const duplicate = error.message.toLowerCase().includes("duplicate") || error.message.toLowerCase().includes("unique");
+    return { error: duplicate ? "Já existe um bloco com esse identificador." : `Não foi possível salvar o bloco: ${error.message}` };
+  }
+
+  revalidatePath("/");
+  revalidatePath("/admin/home");
+  return { success: blockId ? "Bloco atualizado para todos os usuários." : "Bloco criado e publicado na home." };
+}
+
+export async function toggleHomeVisualBlockAction(formData: FormData) {
+  const { supabase } = await requireAdmin();
+  const id = readText(formData, "blockId");
+  const publish = readText(formData, "publish") === "true";
+  if (!id) throw new Error("Bloco inválido.");
+  const { error } = await supabase.from("home_visual_blocks").update({ is_published: publish }).eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/");
+  revalidatePath("/admin/home");
+}
+
+export async function deleteHomeVisualBlockAction(formData: FormData) {
+  const { supabase } = await requireAdmin();
+  const id = readText(formData, "blockId");
+  if (!id) throw new Error("Bloco inválido.");
+  const { error } = await supabase.from("home_visual_blocks").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/");
+  revalidatePath("/admin/home");
 }
 
 export async function saveQuickAccessItemAction(

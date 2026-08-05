@@ -17976,3 +17976,81 @@ button {
   .public-reservation-profile-completion .button { grid-column: 1 / -1; width: 100%; }
   .driver-inline-toggle--prominent { align-items: flex-start; }
 }
+
+/* JNE App 2.2.1 — edição visual administrativa da home */
+.admin-editable-block,
+.admin-editable-card {
+  position: relative;
+  min-width: 0;
+}
+
+.admin-editable-card > .home-utility-card,
+.admin-editable-card > .quick-card,
+.admin-editable-card > article,
+.quick-card-slot > .quick-card {
+  height: 100%;
+}
+
+.quick-card-slot {
+  min-width: 0;
+}
+
+.admin-home-edit-controls {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 40;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px;
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--border));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, .2);
+  backdrop-filter: blur(14px);
+}
+
+.admin-home-edit-controls form {
+  display: contents;
+}
+
+.admin-home-edit-button {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  display: inline-grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--accent) 13%, var(--surface));
+  color: var(--text);
+  cursor: pointer;
+  transition: transform .18s ease, background .18s ease, color .18s ease;
+}
+
+.admin-home-edit-button:hover,
+.admin-home-edit-button:focus-visible {
+  transform: translateY(-1px);
+  background: var(--accent);
+  color: #07111f;
+  outline: none;
+}
+
+.admin-home-edit-button--danger:hover,
+.admin-home-edit-button--danger:focus-visible {
+  background: #ef4444;
+  color: #fff;
+}
+
+@media (max-width: 640px) {
+  .admin-home-edit-controls {
+    top: 8px;
+    right: 8px;
+  }
+
+  .admin-home-edit-button {
+    width: 30px;
+    height: 30px;
+  }
+}
