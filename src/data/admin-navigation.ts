@@ -13,6 +13,7 @@ import {
   Megaphone,
   MessageCircle,
   RefreshCw,
+  Rocket,
   ScrollText,
   UsersRound,
 } from "lucide-react";
@@ -93,6 +94,14 @@ export const adminNavigationGroups: AdminNavigationGroup[] = [
   {
     label: "Comunicação",
     items: [
+      {
+        href: "/admin/atualizacoes",
+        label: "Central de atualizações",
+        shortLabel: "Atualizações",
+        description: "Versões, notificações, Web Push e publicações oficiais na Comunidade VIP.",
+        icon: Rocket,
+        keywords: ["release", "versão", "novidades", "push", "comunicado"],
+      },
       {
         href: "/admin/comunidade",
         label: "Comunidade VIP",

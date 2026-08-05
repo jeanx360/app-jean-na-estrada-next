@@ -2,6 +2,7 @@ import { timingSafeEqual } from "node:crypto";
 import type { NextRequest } from "next/server";
 import { runDriverNotificationAutomations } from "@/lib/driver-automation";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { processReleaseCenterAutomations } from "@/lib/release-center";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -26,7 +27,13 @@ async function execute(request: NextRequest) {
   }
 
   try {
-    const result = await runDriverNotificationAutomations(createAdminClient(), "cron");
+    const driver = await runDriverNotificationAutomations(createAdminClient(), "cron");
+    const releases = await processReleaseCenterAutomations();
+    const result = {
+      ok: driver.ok && releases.ok,
+      driver,
+      releases,
+    };
     return Response.json(result, {
       status: result.ok ? 200 : 500,
       headers: { "Cache-Control": "no-store, max-age=0" },

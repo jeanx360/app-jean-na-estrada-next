@@ -64,7 +64,7 @@ export default async function AdminAutomationsPage() {
           <ShieldCheck size={24} />
           <div>
             <strong>Execução protegida e idempotente</strong>
-            <p>O endpoint exige segredo do servidor e a chave de origem impede notificações duplicadas. Nenhuma mensagem externa ou cobrança é disparada.</p>
+            <p>O endpoint exige segredo do servidor, evita notificações duplicadas e também processa atualizações oficiais agendadas e o prazo de fixação na Comunidade VIP.</p>
           </div>
         </div>
 
@@ -79,7 +79,7 @@ export default async function AdminAutomationsPage() {
           <button className="button button--primary" type="submit"><PlayCircle size={18} /> Executar automações agora</button>
         </form>
 
-        <p className="admin-form-note">A execução manual usa a mesma rotina protegida do cron e serve para validação ou atualização imediata dos alertas.</p>
+        <p className="admin-form-note">A execução manual usa a mesma rotina protegida do cron e também publica atualizações agendadas que já estejam vencidas.</p>
       </section>
 
       <section className="admin-section">
