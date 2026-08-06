@@ -28,7 +28,7 @@ async function fetchPublished(type: PublicContentType) {
     const { data, error } = await supabase
       .from("public_contents")
       .select(
-        "id, content_type, title, slug, summary, category, image_url, image_path, external_url, metadata, publication_status, is_published, is_featured, sort_order, published_at, archived_at, created_at, updated_at",
+        "id, content_type, title, slug, summary, category, catalog_category_id, image_url, image_path, external_url, metadata, publication_status, is_published, is_featured, sort_order, published_at, archived_at, created_at, updated_at",
       )
       .eq("content_type", type)
       .eq("is_published", true)
@@ -40,7 +40,7 @@ async function fetchPublished(type: PublicContentType) {
       return [] as PublicContentRow[];
     }
 
-    return (data ?? []) as PublicContentRow[];
+    return (data ?? []) as unknown as PublicContentRow[];
   } catch (error) {
     console.warn(`Falha inesperada ao carregar ${type}:`, error);
     return [] as PublicContentRow[];
@@ -100,6 +100,7 @@ export async function getApplications(): Promise<ApplicationItem[]> {
     return {
       id: row.id,
       name: row.title,
+      category: row.category ?? "Outros",
       description: row.summary ?? "Aplicativo cadastrado no JNE App.",
       compatibility: text(metadata.compatibility, row.category ?? "Compatibilidade não informada"),
       status: text(metadata.status, "Disponível"),
@@ -113,6 +114,7 @@ export async function getApplications(): Promise<ApplicationItem[]> {
       checksumSha256: text(metadata.checksumSha256) || undefined,
       accessLevel,
       buttonLabel: text(metadata.buttonLabel) || (deliveryType === "upload" ? "Baixar arquivo" : "Abrir página externa"),
+      tags: stringList(metadata.tags),
     };
   });
 }
@@ -136,6 +138,7 @@ export async function getProducts(): Promise<ProductItem[]> {
   if (!rows.length) return fallbackProducts;
 
   return rows.map((row) => ({
+    id: row.id,
     name: row.title,
     description: row.summary ?? "Produto recomendado pelo Jean na Estrada.",
     category: row.category ?? "Geral",
@@ -143,6 +146,8 @@ export async function getProducts(): Promise<ProductItem[]> {
       ? (text(row.metadata.retailer) as ProductItem["retailer"])
       : "Mercado Livre",
     href: row.external_url ?? "#",
+    image: row.image_url ?? undefined,
     highlight: text(row.metadata.highlight) || undefined,
+    tags: stringList(row.metadata.tags),
   }));
 }

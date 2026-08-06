@@ -1,4 +1,4 @@
-const CACHE_VERSION = "jne-app-v2.2.2";
+const CACHE_VERSION = "jne-app-v2.2.3";
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const DATA_CACHE = `${CACHE_VERSION}-data`;
 
@@ -36,6 +36,7 @@ const PRIVATE_PREFIXES = [
   "/comecar",
   "/guia",
   "/tutoriais",
+  "/catalogo",
   "/aplicativos",
   "/produtos",
   "/calculadora",

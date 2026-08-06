@@ -10,6 +10,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/videos",
     "/noticias",
     "/tutoriais",
+    "/catalogo",
     "/aplicativos",
     "/produtos",
     "/guia",

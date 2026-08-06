@@ -25,6 +25,7 @@ import { AdminPublicAssetUploader } from "@/components/AdminPublicAssetUploader"
 import { AdminPublicContentForm } from "@/components/AdminPublicContentForm";
 import { ConfirmSubmitButton } from "@/components/ConfirmSubmitButton";
 import { requireAdmin } from "@/lib/admin";
+import type { CatalogCategoryRow } from "@/types/catalog";
 import type {
   PublicContentPublicationStatus,
   PublicContentRow,
@@ -67,16 +68,26 @@ export default async function AdminPublicationsPage({ searchParams }: { searchPa
   const statusFilter = singleParam(params.status);
 
   const { supabase } = await requireAdmin();
-  const { data, error } = await supabase
-    .from("public_contents")
-    .select(
-      "id, content_type, title, slug, summary, category, image_url, image_path, external_url, metadata, publication_status, is_published, is_featured, sort_order, published_at, archived_at, created_at, updated_at",
-    )
-    .order("content_type", { ascending: true })
-    .order("sort_order", { ascending: true })
-    .order("created_at", { ascending: false });
+  const [contentsResult, categoriesResult] = await Promise.all([
+    supabase
+      .from("public_contents")
+      .select(
+        "id, content_type, title, slug, summary, category, catalog_category_id, image_url, image_path, external_url, metadata, publication_status, is_published, is_featured, sort_order, published_at, archived_at, created_at, updated_at",
+      )
+      .order("content_type", { ascending: true })
+      .order("sort_order", { ascending: true })
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("catalog_categories")
+      .select("id, catalog_type, name, slug, description, sort_order, is_active, created_at, updated_at")
+      .order("catalog_type", { ascending: true })
+      .order("sort_order", { ascending: true })
+      .order("name", { ascending: true }),
+  ]);
 
-  const allItems = (data ?? []) as PublicContentRow[];
+  const allItems = (contentsResult.data ?? []) as unknown as PublicContentRow[];
+  const catalogCategories = (categoriesResult.data ?? []) as unknown as CatalogCategoryRow[];
+  const error = contentsResult.error;
   const items = allItems.filter((item) => {
     const matchesType = !typeFilter || typeFilter === "all" || item.content_type === typeFilter;
     const matchesStatus = !statusFilter || statusFilter === "all" || publicationStatus(item) === statusFilter;
@@ -117,7 +128,7 @@ export default async function AdminPublicationsPage({ searchParams }: { searchPa
         <div className="admin-section__heading">
           <div><span>NOVO CONTEÚDO</span><h2><FileText size={22} /> Criar publicação pública</h2></div>
         </div>
-        <AdminPublicContentForm />
+        <AdminPublicContentForm catalogCategories={catalogCategories} />
       </section>
 
       <section className="admin-section">
@@ -162,6 +173,10 @@ export default async function AdminPublicationsPage({ searchParams }: { searchPa
           </div>
         </form>
 
+        {categoriesResult.error?.message.includes("catalog_categories") ? (
+          <p className="auth-message auth-message--error">A migration 2.2.3 ainda não foi aplicada. As categorias do catálogo não estão disponíveis.</p>
+        ) : null}
+
         {error ? (
           <p className="auth-message auth-message--error">
             {error.message.includes("publication_status")
@@ -183,6 +198,7 @@ export default async function AdminPublicationsPage({ searchParams }: { searchPa
                       {statusLabels[status]}
                     </span>
                     <span>{typeLabels[item.content_type]}</span>
+                    <span>{item.category || "Sem categoria"}</span>
                     <span>Ordem {item.sort_order}</span>
                     {item.is_featured ? <span>Destaque</span> : null}
                   </div>

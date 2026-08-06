@@ -26,6 +26,7 @@ export type TutorialItem = {
 export type ApplicationItem = {
   id?: string;
   name: string;
+  category: string;
   description: string;
   compatibility: string;
   status: string;
@@ -39,6 +40,7 @@ export type ApplicationItem = {
   checksumSha256?: string;
   accessLevel?: "public" | "vip";
   buttonLabel?: string;
+  tags?: string[];
 };
 
 export type PartnerItem = {
@@ -51,12 +53,15 @@ export type PartnerItem = {
 };
 
 export type ProductItem = {
+  id?: string;
   name: string;
   description: string;
   category: string;
   retailer: "Shopee" | "Mercado Livre" | "Amazon";
   href: string;
+  image?: string;
   highlight?: string;
+  tags?: string[];
 };
 
 export type GuideSection = {
@@ -134,6 +139,7 @@ export const tutorials: TutorialItem[] = [
 export const applications: ApplicationItem[] = [
   {
     name: "Netflix",
+    category: "Players de vídeo",
     description:
       "Arquivo disponibilizado como apoio para instalação em centrais multimídia compatíveis.",
     compatibility: "Pasta de apoio do Geely EX2",
@@ -146,6 +152,7 @@ export const applications: ApplicationItem[] = [
   },
   {
     name: "GPack",
+    category: "Utilitários",
     description:
       "Pacote disponibilizado junto aos materiais do tutorial de desbloqueio da multimídia.",
     compatibility: "Pasta de apoio do Geely EX2",

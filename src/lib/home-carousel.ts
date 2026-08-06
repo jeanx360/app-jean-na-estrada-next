@@ -34,8 +34,8 @@ const defaultSlides: HomeCarouselSlide[] = [
 
 function contentPath(content: NonNullable<HomeCarouselRow["public_contents"]>) {
   if (content.content_type === "partner") return content.external_url ?? "/parceiros";
-  if (content.content_type === "application") return "/aplicativos";
-  if (content.content_type === "product") return "/produtos";
+  if (content.content_type === "application") return "/catalogo?tipo=aplicativos";
+  if (content.content_type === "product") return "/catalogo?tipo=produtos";
   return "/tutoriais";
 }
 

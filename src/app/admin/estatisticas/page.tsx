@@ -62,6 +62,7 @@ function pathLabel(path: string) {
   if (path === "/videos") return "Vídeos";
   if (path === "/noticias") return "Notícias";
   if (path === "/tutoriais") return "Tutoriais";
+  if (path === "/catalogo") return "Apps e produtos";
   if (path === "/aplicativos") return "Aplicativos";
   if (path === "/produtos") return "Produtos recomendados";
   if (path === "/comunidade") return "Comunidade";

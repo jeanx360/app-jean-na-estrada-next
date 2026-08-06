@@ -3,6 +3,7 @@
 import { FilePlus2, Save } from "lucide-react";
 import { useActionState, useEffect, useMemo, useState } from "react";
 import { savePublicContentAction } from "@/app/admin/publicacoes/actions";
+import type { CatalogCategoryRow } from "@/types/catalog";
 import type {
   PublicContentActionState,
   PublicContentPublicationStatus,
@@ -12,7 +13,7 @@ import type {
 
 const initialState: PublicContentActionState = {};
 
-type Props = { initialData?: PublicContentRow };
+type Props = { initialData?: PublicContentRow; catalogCategories?: CatalogCategoryRow[] };
 type ResourceInput = { label?: string; description?: string; href?: string; kind?: "video" | "pdf" | "drive" };
 
 function metaString(metadata: Record<string, unknown>, key: string) {
@@ -31,9 +32,10 @@ function initialPublicationStatus(initialData?: PublicContentRow): PublicContent
   return initialData.is_published ? "published" : "draft";
 }
 
-export function AdminPublicContentForm({ initialData }: Props) {
+export function AdminPublicContentForm({ initialData, catalogCategories = [] }: Props) {
   const [state, formAction, pending] = useActionState(savePublicContentAction, initialState);
   const [type, setType] = useState<PublicContentType>(initialData?.content_type ?? "tutorial");
+  const [catalogCategoryId, setCatalogCategoryId] = useState(initialData?.catalog_category_id ?? "");
   const metadata = useMemo(() => initialData?.metadata ?? {}, [initialData]);
   const [imageUrl, setImageUrl] = useState(initialData?.image_url ?? "");
   const [imagePath, setImagePath] = useState(initialData?.image_path ?? "");
@@ -46,6 +48,10 @@ export function AdminPublicContentForm({ initialData }: Props) {
     size: metaNumber(metadata, "fileSize"),
     checksum: metaString(metadata, "checksumSha256"),
   });
+  const availableCatalogCategories = useMemo(
+    () => catalogCategories.filter((category) => category.catalog_type === type),
+    [catalogCategories, type],
+  );
   const resources = useMemo(() => {
     const value = metadata.resources;
     return Array.isArray(value) ? (value as ResourceInput[]) : [];
@@ -80,7 +86,7 @@ export function AdminPublicContentForm({ initialData }: Props) {
       <div className="admin-form__grid admin-form__grid--wide">
         <label>
           <span>Tipo</span>
-          <select name="contentType" value={type} onChange={(event) => setType(event.target.value as PublicContentType)}>
+          <select name="contentType" value={type} onChange={(event) => { const nextType = event.target.value as PublicContentType; setType(nextType); if (nextType === "application" || nextType === "product") { const firstCategory = catalogCategories.find((category) => category.catalog_type === nextType && category.is_active); setCatalogCategoryId(firstCategory?.id ?? ""); } else { setCatalogCategoryId(""); } }}>
             <option value="tutorial">Tutorial</option>
             <option value="application">Aplicativo</option>
             <option value="partner">Parceiro</option>
@@ -103,7 +109,18 @@ export function AdminPublicContentForm({ initialData }: Props) {
       <label><span>Descrição</span><textarea name="summary" rows={3} defaultValue={initialData?.summary ?? ""} placeholder="Resumo exibido no card." /></label>
 
       <div className="admin-form__grid admin-form__grid--wide">
-        <label><span>Categoria</span><input name="category" defaultValue={initialData?.category ?? "Geral"} /></label>
+        {type === "application" || type === "product" ? (
+          <label>
+            <span>Categoria do catálogo</span>
+            <select name="catalogCategoryId" required value={catalogCategoryId} onChange={(event) => setCatalogCategoryId(event.target.value)}>
+              <option value="" disabled>Selecione uma categoria</option>
+              {availableCatalogCategories.map((category) => <option value={category.id} key={category.id}>{category.name}{category.is_active ? "" : " (oculta)"}</option>)}
+            </select>
+            {!availableCatalogCategories.length ? <small>Aplique a migration 2.2.3 e cadastre as categorias.</small> : null}
+          </label>
+        ) : (
+          <label><span>Categoria</span><input name="category" defaultValue={initialData?.category ?? "Geral"} /></label>
+        )}
         <label><span>Ordem</span><input name="sortOrder" type="number" min="0" max="100000" defaultValue={initialData?.sort_order ?? 100} /></label>
         {type === "partner" || type === "product" ? (
           <label><span>Link principal</span><input name="externalUrl" type="url" required defaultValue={initialData?.external_url ?? ""} placeholder="https://..." /></label>
@@ -160,6 +177,7 @@ export function AdminPublicContentForm({ initialData }: Props) {
             <label><span>Origem</span><input name="origin" defaultValue={metaString(metadata, "origin") || "Jean na Estrada"} placeholder="Desenvolvedor, GitHub ou fonte" /></label>
             <label><span>Texto do botão</span><input name="buttonLabel" defaultValue={metaString(metadata, "buttonLabel")} placeholder={deliveryType === "upload" ? "Baixar arquivo" : "Abrir página oficial"} /></label>
             <label><span>Checksum SHA-256</span><input name="checksumSha256" value={appFile.checksum || metaString(metadata, "checksumSha256")} onChange={(event) => setAppFile((current) => ({ ...current, checksum: event.target.value }))} placeholder="Preenchido automaticamente no upload" /></label>
+            <label className="admin-form__span-2"><span>Tags (uma por linha)</span><textarea name="tags" rows={3} defaultValue={Array.isArray(metadata.tags) ? metadata.tags.join("\n") : ""} placeholder="Android\nCentral multimídia\nOffline" /></label>
           </div>
         </div>
       ) : null}
@@ -175,9 +193,13 @@ export function AdminPublicContentForm({ initialData }: Props) {
       ) : null}
 
       {type === "product" ? (
-        <div className="admin-form__grid admin-form__grid--wide">
-          <label><span>Loja</span><select name="retailer" defaultValue={metaString(metadata, "retailer") || "Mercado Livre"}><option>Shopee</option><option>Mercado Livre</option><option>Amazon</option></select></label>
-          <label><span>Destaque curto</span><input name="highlight" defaultValue={metaString(metadata, "highlight")} placeholder="Selecionado para o Dolphin" /></label>
+        <div className="admin-dynamic-fields">
+          <label><span>Imagem opcional do produto</span><input name="imageUrl" value={imageUrl} onChange={(event) => setImageUrl(event.target.value)} placeholder="Envie na área de imagens ou cole https://..." /></label>
+          <div className="admin-form__grid admin-form__grid--wide">
+            <label><span>Loja</span><select name="retailer" defaultValue={metaString(metadata, "retailer") || "Mercado Livre"}><option>Shopee</option><option>Mercado Livre</option><option>Amazon</option></select></label>
+            <label><span>Destaque curto</span><input name="highlight" defaultValue={metaString(metadata, "highlight")} placeholder="Selecionado para o Dolphin" /></label>
+            <label className="admin-form__span-2"><span>Tags (uma por linha)</span><textarea name="tags" rows={3} defaultValue={Array.isArray(metadata.tags) ? metadata.tags.join("\n") : ""} placeholder="Carregamento\nBYD Dolphin\nViagem" /></label>
+          </div>
         </div>
       ) : null}
 

@@ -7,6 +7,7 @@ import {
   CreditCard,
   Crown,
   FileText,
+  FolderCog,
   Images,
   KeyRound,
   LayoutDashboard,
@@ -138,6 +139,14 @@ export const adminNavigationGroups: AdminNavigationGroup[] = [
         description: "Tutoriais, aplicativos, parceiros, produtos e publicações.",
         icon: FileText,
         keywords: ["editorial", "tutoriais", "aplicativos", "parceiros", "produtos"],
+      },
+      {
+        href: "/admin/catalogo",
+        label: "Catálogo JNE",
+        shortLabel: "Catálogo",
+        description: "Categorias e organização de aplicativos e produtos recomendados.",
+        icon: FolderCog,
+        keywords: ["categorias", "apps", "produtos", "loja", "organização"],
       },
       {
         href: "/admin/manuais",

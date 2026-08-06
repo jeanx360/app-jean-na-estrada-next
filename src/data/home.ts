@@ -36,14 +36,14 @@ export const quickAccessItems: QuickAccessItem[] = [
   {
     title: "Aplicativos para carros",
     description: "Arquivos de apoio, compatibilidade e alertas de instalação.",
-    href: "/aplicativos",
+    href: "/catalogo?tipo=aplicativos",
     icon: Smartphone,
     accent: "orange",
   },
   {
     title: "Produtos recomendados",
     description: "Itens automotivos e tecnológicos selecionados para a comunidade.",
-    href: "/produtos",
+    href: "/catalogo?tipo=produtos",
     icon: ShoppingBag,
     accent: "violet",
   },

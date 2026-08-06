@@ -13,7 +13,7 @@ import type {
 } from "@/types/public-content";
 
 const PUBLIC_CONTENT_SELECT =
-  "id, content_type, title, slug, summary, category, image_url, image_path, external_url, metadata, publication_status, is_published, is_featured, sort_order, published_at, archived_at, created_at, updated_at";
+  "id, content_type, title, slug, summary, category, catalog_category_id, image_url, image_path, external_url, metadata, publication_status, is_published, is_featured, sort_order, published_at, archived_at, created_at, updated_at";
 
 function readText(formData: FormData, key: string) {
   const value = formData.get(key);
@@ -110,6 +110,7 @@ function buildMetadata(type: PublicContentType, formData: FormData) {
       fileSize: deliveryType === "upload" && Number.isFinite(fileSize) && fileSize > 0 ? fileSize : null,
       checksumSha256: readText(formData, "checksumSha256") || null,
       buttonLabel: readText(formData, "buttonLabel") || (deliveryType === "upload" ? "Baixar arquivo" : "Abrir página oficial"),
+      tags: readLines(readText(formData, "tags")),
     };
   }
 
@@ -124,6 +125,7 @@ function buildMetadata(type: PublicContentType, formData: FormData) {
     retailer: readText(formData, "retailer") || "Mercado Livre",
     highlight: readText(formData, "highlight") || null,
     affiliate: true,
+    tags: readLines(readText(formData, "tags")),
   };
 }
 
@@ -131,6 +133,8 @@ function revalidatePublicPages(type?: PublicContentType) {
   revalidatePath("/");
   revalidatePath("/admin");
   revalidatePath("/admin/publicacoes");
+  revalidatePath("/admin/catalogo");
+  revalidatePath("/catalogo");
   revalidatePath("/admin/logs");
 
   const paths: Record<PublicContentType, string> = {
@@ -186,6 +190,7 @@ export async function savePublicContentAction(
   const title = readText(formData, "title");
   const summary = readText(formData, "summary");
   const category = readText(formData, "category");
+  const requestedCatalogCategoryId = readText(formData, "catalogCategoryId");
   const externalUrl = readText(formData, "externalUrl");
   const imageUrl = readText(formData, "imageUrl");
   const imagePath = readText(formData, "imagePath");
@@ -216,6 +221,22 @@ export async function savePublicContentAction(
   const slug = slugify(requestedSlug || title);
   if (!slug) return { error: "Não foi possível gerar um identificador para a publicação." };
 
+  let resolvedCategory = category || null;
+  let catalogCategoryId: string | null = null;
+  if (type === "application" || type === "product") {
+    if (!requestedCatalogCategoryId) return { error: "Escolha uma categoria para o item do catálogo." };
+    const { data: catalogCategory, error: catalogCategoryError } = await supabase
+      .from("catalog_categories")
+      .select("id, catalog_type, name")
+      .eq("id", requestedCatalogCategoryId)
+      .maybeSingle();
+    if (catalogCategoryError) return { error: `Não foi possível validar a categoria: ${catalogCategoryError.message}` };
+    const catalogCategoryRow = catalogCategory as unknown as { id: string; catalog_type: string; name: string } | null;
+    if (!catalogCategoryRow || catalogCategoryRow.catalog_type !== type) return { error: "A categoria escolhida não pertence a este tipo de item." };
+    catalogCategoryId = catalogCategoryRow.id;
+    resolvedCategory = catalogCategoryRow.name;
+  }
+
   let metadata: Record<string, unknown>;
   try {
     metadata = buildMetadata(type, formData);
@@ -232,7 +253,7 @@ export async function savePublicContentAction(
       .maybeSingle();
     if (error) return { error: `Não foi possível carregar a publicação: ${error.message}` };
     if (!data) return { error: "Publicação não encontrada." };
-    previous = data as PublicContentRow;
+    previous = data as unknown as PublicContentRow;
   }
 
   const payload = {
@@ -240,7 +261,8 @@ export async function savePublicContentAction(
     title,
     slug,
     summary: summary || null,
-    category: category || null,
+    category: resolvedCategory,
+    catalog_category_id: catalogCategoryId,
     image_url: imageUrl || null,
     image_path: imagePath || null,
     external_url: type === "tutorial" || (type === "application" && applicationDelivery === "upload") ? null : externalUrl,
@@ -261,7 +283,7 @@ export async function savePublicContentAction(
     return { error: `Não foi possível salvar: ${error.message}` };
   }
 
-  const savedItem = saved as PublicContentRow;
+  const savedItem = saved as unknown as PublicContentRow;
   await audit(userId, contentId ? "UPDATE" : "INSERT", savedItem.id, previous, savedItem);
 
   let notificationMessage = "";
@@ -274,9 +296,9 @@ export async function savePublicContentAction(
     };
     const pathByType: Record<PublicContentType, string> = {
       tutorial: "/tutoriais",
-      application: "/aplicativos",
+      application: "/catalogo?tipo=aplicativos",
       partner: "/parceiros",
-      product: "/produtos",
+      product: "/catalogo?tipo=produtos",
     };
     const titleByType: Record<PublicContentType, string> = {
       tutorial: `Novo tutorial: ${title}`,
@@ -369,7 +391,7 @@ export async function setPublicContentStatusAction(formData: FormData) {
 
   const update = {
     publication_status: publicationStatus,
-    ...statusDates(publicationStatus, previous as PublicContentRow),
+    ...statusDates(publicationStatus, previous as unknown as PublicContentRow),
   };
 
   const { data: saved, error } = await supabase
@@ -384,12 +406,12 @@ export async function setPublicContentStatusAction(formData: FormData) {
     ? "PUBLISH"
     : publicationStatus === "archived"
       ? "ARCHIVE"
-      : (previous as PublicContentRow).publication_status === "archived"
+      : (previous as unknown as PublicContentRow).publication_status === "archived"
         ? "RESTORE"
         : "UNPUBLISH";
 
   await audit(userId, action, contentId, previous, saved);
-  revalidatePublicPages((previous as PublicContentRow).content_type);
+  revalidatePublicPages((previous as unknown as PublicContentRow).content_type);
 }
 
 export async function duplicatePublicContentAction(formData: FormData) {
@@ -407,7 +429,7 @@ export async function duplicatePublicContentAction(formData: FormData) {
   if (readError) throw new Error(readError.message);
   if (!original) throw new Error("Publicação não encontrada.");
 
-  const source = original as PublicContentRow;
+  const source = original as unknown as PublicContentRow;
   const suffix = Date.now().toString(36);
   const duplicatePayload = {
     content_type: source.content_type,
@@ -415,6 +437,7 @@ export async function duplicatePublicContentAction(formData: FormData) {
     slug: `${source.slug.slice(0, 78)}-copia-${suffix}`,
     summary: source.summary,
     category: source.category,
+    catalog_category_id: source.catalog_category_id,
     image_url: source.image_url,
     image_path: source.image_path,
     external_url: source.external_url,
@@ -522,5 +545,5 @@ export async function deletePublicContentAction(formData: FormData) {
   }
 
   await audit(userId, "DELETE", contentId, item, null);
-  revalidatePublicPages((item as PublicContentRow).content_type);
+  revalidatePublicPages((item as unknown as PublicContentRow).content_type);
 }

@@ -59,15 +59,14 @@ const staticItems: SearchItem[] = [
   ...applications.map((item) => ({
     title: item.name,
     description: `${item.description} ${item.compatibility}`,
-    href: `/aplicativos?busca=${encodeURIComponent(item.name)}`,
+    href: `/catalogo?tipo=aplicativos&busca=${encodeURIComponent(item.name)}`,
     category: "Aplicativo",
   })),
   ...products.map((item) => ({
     title: item.name,
     description: `${item.description} ${item.category}`,
-    href: item.href,
+    href: `/catalogo?tipo=produtos&busca=${encodeURIComponent(item.name)}`,
     category: "Produto",
-    external: true,
   })),
   ...partners.map((item) => ({
     title: item.name,

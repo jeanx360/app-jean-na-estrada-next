@@ -8,6 +8,7 @@ export type PublicContentRow = {
   slug: string;
   summary: string | null;
   category: string | null;
+  catalog_category_id: string | null;
   image_url: string | null;
   image_path: string | null;
   external_url: string | null;

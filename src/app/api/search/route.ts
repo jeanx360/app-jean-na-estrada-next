@@ -51,11 +51,11 @@ function text(value: unknown) {
 
 function contentHref(item: PublicContentRow) {
   if (item.content_type === "application") {
-    return `/aplicativos?busca=${encodeURIComponent(item.title)}`;
+    return `/catalogo?tipo=aplicativos&busca=${encodeURIComponent(item.title)}`;
   }
   if (item.content_type === "tutorial") return "/tutoriais";
   if (item.content_type === "partner") return "/parceiros";
-  return "/produtos";
+  return `/catalogo?tipo=produtos&busca=${encodeURIComponent(item.title)}`;
 }
 
 function contentCategory(type: PublicContentRow["content_type"]) {
