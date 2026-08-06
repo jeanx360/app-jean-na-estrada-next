@@ -1,4 +1,4 @@
-const CACHE_VERSION = "jne-app-v2.2.3";
+const CACHE_VERSION = "jne-app-v2.2.4";
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const DATA_CACHE = `${CACHE_VERSION}-data`;
 

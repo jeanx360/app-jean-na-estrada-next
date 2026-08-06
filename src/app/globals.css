@@ -18642,3 +18642,60 @@ button {
     flex-direction: column;
   }
 }
+
+/* JNE App 2.2.4 — seletor compacto de categorias e exibição pública A-Z */
+.catalog-toolbar {
+  grid-template-columns: minmax(0, 1fr) minmax(230px, 320px);
+  align-items: end;
+}
+
+.catalog-category-select-form {
+  display: grid;
+  gap: 8px;
+}
+
+.catalog-category-select-form label {
+  display: grid;
+  gap: 7px;
+}
+
+.catalog-category-select-form label > span {
+  color: var(--text-muted);
+  font-size: 0.76rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.catalog-category-select-form select {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 42px 0 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  outline: 0;
+  background: var(--input-bg);
+  color: var(--text);
+  font: inherit;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.catalog-category-select-form select:hover,
+.catalog-category-select-form select:focus {
+  border-color: var(--accent);
+}
+
+.catalog-category-select-form noscript {
+  display: block;
+}
+
+@media (max-width: 760px) {
+  .catalog-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .catalog-category-select-form {
+    width: 100%;
+  }
+}

@@ -16,6 +16,7 @@ import {
   Smartphone,
   Tag,
 } from "lucide-react";
+import { CatalogCategorySelect } from "@/components/CatalogCategorySelect";
 import { PageHeader } from "@/components/PageHeader";
 import { getCatalogCategories } from "@/lib/catalog";
 import { getApplications, getProducts } from "@/lib/public-content";
@@ -46,6 +47,16 @@ function normalize(value: string) {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, " ")
     .trim();
+}
+
+const titleCollator = new Intl.Collator("pt-BR", {
+  sensitivity: "base",
+  numeric: true,
+  ignorePunctuation: true,
+});
+
+function compareTitles(left: string, right: string) {
+  return titleCollator.compare(left.trim(), right.trim());
 }
 
 function formatFileSize(value?: number) {
@@ -81,10 +92,14 @@ export default async function CatalogPage({ searchParams }: { searchParams: Sear
     getCatalogCategories(type),
   ]);
 
-  const selectedCategory = categories.find((category) => category.slug === categorySlug) ?? null;
+  const sortedCategories = [...categories].sort((left, right) => compareTitles(left.name, right.name));
+  const sortedApplications = [...applications].sort((left, right) => compareTitles(left.name, right.name));
+  const sortedProducts = [...products].sort((left, right) => compareTitles(left.name, right.name));
+
+  const selectedCategory = sortedCategories.find((category) => category.slug === categorySlug) ?? null;
   const selectedCategoryName = selectedCategory ? normalize(selectedCategory.name) : "";
 
-  const visibleApplications = applications.filter((application) => {
+  const visibleApplications = sortedApplications.filter((application) => {
     const categoryMatches = !selectedCategoryName || normalize(application.category) === selectedCategoryName;
     const searchMatches = !normalizedSearch || normalize([
       application.name,
@@ -98,7 +113,7 @@ export default async function CatalogPage({ searchParams }: { searchParams: Sear
     return categoryMatches && searchMatches;
   });
 
-  const visibleProducts = products.filter((product) => {
+  const visibleProducts = sortedProducts.filter((product) => {
     const categoryMatches = !selectedCategoryName || normalize(product.category) === selectedCategoryName;
     const searchMatches = !normalizedSearch || normalize([
       product.name,
@@ -142,25 +157,20 @@ export default async function CatalogPage({ searchParams }: { searchParams: Sear
           {search ? <Link className="button button--secondary" href={catalogHref(type, categorySlug)}>Limpar</Link> : null}
         </form>
 
-        <div className="catalog-category-chips" aria-label="Categorias">
-          <Link className={!selectedCategory ? "is-active" : ""} href={catalogHref(type, "", search)}>
-            Todos <strong>{type === "application" ? applications.length : products.length}</strong>
-          </Link>
-          {categories.map((category) => {
-            const count = type === "application"
-              ? applications.filter((item) => normalize(item.category) === normalize(category.name)).length
-              : products.filter((item) => normalize(item.category) === normalize(category.name)).length;
-            return (
-              <Link
-                className={selectedCategory?.id === category.id ? "is-active" : ""}
-                href={catalogHref(type, category.slug, search)}
-                key={category.id}
-              >
-                {category.name} <strong>{count}</strong>
-              </Link>
-            );
-          })}
-        </div>
+        <CatalogCategorySelect
+          typeValue={type === "application" ? "aplicativos" : "produtos"}
+          selectedCategory={selectedCategory?.slug ?? ""}
+          search={search}
+          totalCount={type === "application" ? sortedApplications.length : sortedProducts.length}
+          categories={sortedCategories.map((category) => ({
+            id: category.id,
+            slug: category.slug,
+            name: category.name,
+            count: type === "application"
+              ? sortedApplications.filter((item) => normalize(item.category) === normalize(category.name)).length
+              : sortedProducts.filter((item) => normalize(item.category) === normalize(category.name)).length,
+          }))}
+        />
       </section>
 
       <section className="catalog-results-summary" aria-live="polite">
